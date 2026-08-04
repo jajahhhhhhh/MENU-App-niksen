@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# SQLite database — runtime data, never commit (may contain customer info)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

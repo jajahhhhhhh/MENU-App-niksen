@@ -1,0 +1,25 @@
+# systemd service — keeps the app running and restarts it on crash/reboot.
+# Install:  sudo cp deploy/niksen.service /etc/systemd/system/niksen.service
+#           sudo systemctl daemon-reload && sudo systemctl enable --now niksen
+# Logs:     journalctl -u niksen -f
+
+[Unit]
+Description=niksen secret bar (POS + online ordering)
+After=network.target
+
+[Service]
+Type=simple
+User=niksen
+WorkingDirectory=/opt/niksen-secret-bar
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+# Secrets (SESSION_SECRET, optional GOOGLE_*) live in this file — see .env.example.
+EnvironmentFile=/opt/niksen-secret-bar/.env
+# Run the TypeScript server directly with the locally-installed tsx.
+ExecStart=/opt/niksen-secret-bar/node_modules/.bin/tsx server.ts
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+# niksen secret bar — reverse proxy with automatic HTTPS (Let's Encrypt).
+# Install on the server at /etc/caddy/Caddyfile, then:  sudo systemctl reload caddy
+# Caddy fetches and renews the TLS certificate for you — no certbot needed.
+
+ch-howtoniksen.com {
+	reverse_proxy 127.0.0.1:3000
+}
+
+# Optional — serve www and redirect it to the bare domain.
+# Add a DNS record for www.ch-howtoniksen.com first, then uncomment:
+# www.ch-howtoniksen.com {
+# 	redir https://ch-howtoniksen.com{uri} permanent
+# }

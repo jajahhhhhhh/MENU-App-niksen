@@ -1,6 +1,8 @@
 export interface MenuItem {
   id: number;
   name: string;
+  name_th?: string | null;
+  name_ru?: string | null;
   category: string;
   price: number;
   available: boolean;
@@ -50,6 +52,10 @@ export interface Order {
   member_name?: string;
   points_earned?: number;
   points_redeemed?: number;
+  order_type?: 'dine_in' | 'pickup' | 'delivery';
+  customer_name?: string;
+  customer_phone?: string;
+  delivery_address?: string;
   created_at: string;
   paid_at?: string;
   total?: number;

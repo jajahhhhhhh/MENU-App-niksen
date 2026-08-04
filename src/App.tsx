@@ -40,7 +40,10 @@ import {
   LogOut,
   Timer,
   Package,
-  AlertCircle
+  AlertCircle,
+  Store,
+  Bike,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -49,6 +52,11 @@ import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'menu' | 'orders' | 'members' | 'staff' | 'reports' | 'manage'>('menu');
+  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [storeForm, setStoreForm] = useState({ shop_name: '', promptpay_id: '', staff_pin: '' });
+  const [storeSaved, setStoreSaved] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -94,18 +102,62 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Management state
-  const [newItem, setNewItem] = useState({ name: '', category: 'Beers', price: '', image_url: '' });
+  const [newItem, setNewItem] = useState({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const categories = ['All', ...Array.from(new Set(menuItems.map(i => i.category)))];
 
   useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(d => setAuthed(!!d.authed))
+      .catch(() => setAuthed(false));
+  }, []);
+
+  useEffect(() => {
+    if (!authed) return;
     fetchMenu();
     fetchOrders();
     fetchMembers();
     fetchStaff();
     fetchSettings();
-  }, []);
+  }, [authed]);
+
+  useEffect(() => {
+    setStoreForm(f => ({ ...f, shop_name: settings.shop_name || '', promptpay_id: settings.promptpay_id || '' }));
+  }, [settings]);
+
+  const handleLogin = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pinInput }),
+    });
+    if (res.ok) { setAuthed(true); setPinError(false); }
+    else { setPinError(true); setPinInput(''); }
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setAuthed(false);
+  };
+
+  const saveStoreSettings = async () => {
+    const body: Record<string, string> = { shop_name: storeForm.shop_name, promptpay_id: storeForm.promptpay_id };
+    if (storeForm.staff_pin) body.staff_pin = storeForm.staff_pin;
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      setStoreSaved(true);
+      setStoreForm(f => ({ ...f, staff_pin: '' }));
+      fetchSettings();
+      setTimeout(() => setStoreSaved(false), 2500);
+    }
+  };
 
   const fetchStaff = async () => {
     try {
@@ -330,7 +382,7 @@ const App: React.FC = () => {
     });
     
     if (res.ok) {
-      setNewItem({ name: '', category: 'Beers', price: '', image_url: '' });
+      setNewItem({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
       setEditingItem(null);
       fetchMenu();
     }
@@ -351,6 +403,8 @@ const App: React.FC = () => {
     setEditingItem(item);
     setNewItem({
       name: item.name,
+      name_th: item.name_th || '',
+      name_ru: item.name_ru || '',
       category: item.category,
       price: item.price.toString(),
       image_url: item.image_url || ''
@@ -359,7 +413,7 @@ const App: React.FC = () => {
 
   const cancelEdit = () => {
     setEditingItem(null);
-    setNewItem({ name: '', category: 'Beers', price: '', image_url: '' });
+    setNewItem({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
   };
 
   const toggleAvailability = async (item: MenuItem) => {
@@ -503,6 +557,45 @@ const App: React.FC = () => {
     return discSubtotal * 1.10; // 10% TAX, no service
   };
 
+  if (authed === null) {
+    return <div className="min-h-screen bg-stone-900" />;
+  }
+
+  if (!authed) {
+    return (
+      <div className="min-h-screen bg-stone-900 flex items-center justify-center p-4">
+        <form onSubmit={handleLogin} className="bg-stone-800 border border-stone-700 rounded-3xl p-8 w-full max-w-sm text-center space-y-6 shadow-2xl">
+          <div className="flex justify-center"><NiksenLogo variant="white" size="sm" /></div>
+          <div>
+            <div className="w-14 h-14 bg-stone-700 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Lock className="w-6 h-6 text-emerald-400" />
+            </div>
+            <h1 className="text-xl font-bold text-stone-100">Staff Login</h1>
+            <p className="text-sm text-stone-400 mt-1">Enter your PIN to open the POS</p>
+          </div>
+          <input
+            type="password"
+            inputMode="numeric"
+            autoFocus
+            maxLength={8}
+            value={pinInput}
+            onChange={e => { setPinInput(e.target.value.replace(/[^0-9]/g, '')); setPinError(false); }}
+            className="w-full text-center text-3xl tracking-[0.5em] font-mono bg-stone-900 border border-stone-600 rounded-2xl py-4 text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="••••"
+          />
+          {pinError && <p className="text-sm text-red-400">Incorrect PIN — try again.</p>}
+          <button
+            type="submit"
+            disabled={pinInput.length < 4}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-700 disabled:text-stone-500 text-stone-900 py-3.5 rounded-2xl font-bold transition-colors"
+          >
+            Unlock POS
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-stone-100 text-stone-900 font-sans flex flex-col">
       {/* Header */}
@@ -563,6 +656,14 @@ const App: React.FC = () => {
           </button>
           
           <div className="w-[1px] h-6 bg-stone-700 my-auto mx-1" />
+
+          <button
+            onClick={handleLogout}
+            title="Lock POS"
+            className="px-3 py-2 rounded-lg transition-all flex items-center text-stone-400 hover:bg-stone-700 hover:text-stone-100"
+          >
+            <Lock className="w-4 h-4" />
+          </button>
 
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -736,8 +837,13 @@ const App: React.FC = () => {
                 {orders.map(order => (
                   <div key={order.id} className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex justify-between items-center">
                     <div className="flex gap-6 items-center">
-                      <div className="bg-stone-100 w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl">
-                        {order.table_number}
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl ${
+                        order.order_type === 'pickup' ? 'bg-blue-100 text-blue-600' :
+                        order.order_type === 'delivery' ? 'bg-purple-100 text-purple-600' : 'bg-stone-100'
+                      }`}>
+                        {order.order_type === 'pickup' ? <Store className="w-6 h-6" /> :
+                         order.order_type === 'delivery' ? <Bike className="w-6 h-6" /> :
+                         order.table_number}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
@@ -767,6 +873,12 @@ const App: React.FC = () => {
                           </select>
                         </div>
                         <p className="text-sm text-stone-500">{new Date(order.created_at).toLocaleString()}</p>
+                        {order.order_type && order.order_type !== 'dine_in' && (
+                          <p className="text-xs font-bold mt-1 uppercase tracking-wide text-blue-600">
+                            Online {order.order_type} · {order.customer_name} · {order.customer_phone}
+                            {order.delivery_address ? ` · ${order.delivery_address}` : ''}
+                          </p>
+                        )}
                         {order.notes && (
                           <p className="text-xs text-amber-600 font-medium mt-1 italic">Note: {order.notes}</p>
                         )}
@@ -1323,6 +1435,62 @@ const App: React.FC = () => {
                 </div>
               )}
 
+              {manageSubTab === 'store_settings' && (
+                <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 space-y-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                      <QrCode className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Online Ordering & Security</h3>
+                      <p className="text-sm text-stone-500">Customers order at <span className="font-mono bg-stone-100 px-1.5 py-0.5 rounded">/order</span> — share that link or print it as a QR code.</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-stone-400 uppercase tracking-wider">Shop name</label>
+                      <input
+                        type="text"
+                        className="mt-1 w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        value={storeForm.shop_name}
+                        onChange={e => setStoreForm({ ...storeForm, shop_name: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-stone-400 uppercase tracking-wider">PromptPay ID (phone or tax ID)</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 0812345678"
+                        className="mt-1 w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        value={storeForm.promptpay_id}
+                        onChange={e => setStoreForm({ ...storeForm, promptpay_id: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-stone-400 uppercase tracking-wider">Change staff PIN</label>
+                      <input
+                        type="password"
+                        placeholder="Leave blank to keep"
+                        maxLength={8}
+                        className="mt-1 w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        value={storeForm.staff_pin}
+                        onChange={e => setStoreForm({ ...storeForm, staff_pin: e.target.value.replace(/[^0-9]/g, '') })}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={saveStoreSettings}
+                      className="bg-stone-900 hover:bg-stone-700 text-white px-6 py-2.5 rounded-xl font-bold transition-colors"
+                    >
+                      Save Settings
+                    </button>
+                    {storeSaved && <span className="text-sm font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Saved</span>}
+                    {!settings.promptpay_id && <span className="text-xs text-amber-600">Set a PromptPay ID to show payment QR codes on online orders.</span>}
+                  </div>
+                </div>
+              )}
+
               {manageSubTab === 'inventory' && (
                 <div className="space-y-6">
                   {/* Inventory Overview Summary */}
@@ -1542,6 +1710,28 @@ const App: React.FC = () => {
                         value={newItem.name}
                         onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                       />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-400 uppercase mb-1">ชื่อภาษาไทย (TH)</label>
+                        <input
+                          type="text"
+                          placeholder="Optional"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          value={newItem.name_th}
+                          onChange={(e) => setNewItem({ ...newItem, name_th: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Название (RU)</label>
+                        <input
+                          type="text"
+                          placeholder="Optional"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          value={newItem.name_ru}
+                          onChange={(e) => setNewItem({ ...newItem, name_ru: e.target.value })}
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Category</label>

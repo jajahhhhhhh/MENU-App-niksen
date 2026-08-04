@@ -88,103 +88,203 @@ try { db.exec("ALTER TABLE menu_items ADD COLUMN barcode TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN stock_quantity INTEGER DEFAULT 50"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN low_stock_threshold INTEGER DEFAULT 10"); } catch (e) {}
 
-// Populate initial barcodes and sample low stock if missing
+// Online-ordering columns for existing databases
+try { db.exec("ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'dine_in'"); } catch (e) {}
+try { db.exec("ALTER TABLE orders ADD COLUMN customer_name TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE orders ADD COLUMN customer_phone TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE orders ADD COLUMN delivery_address TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN name_th TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN name_ru TEXT"); } catch (e) {}
+
+// Populate initial barcodes if missing
 db.exec(`
   UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id) WHERE barcode IS NULL OR barcode = '';
-  UPDATE menu_items SET stock_quantity = 5 WHERE id IN (1, 4, 8) AND (stock_quantity IS NULL OR stock_quantity = 50);
-  UPDATE menu_items SET stock_quantity = 0 WHERE id IN (6) AND (stock_quantity IS NULL OR stock_quantity = 50);
   UPDATE menu_items SET stock_quantity = 45 WHERE stock_quantity IS NULL;
   UPDATE menu_items SET low_stock_threshold = 10 WHERE low_stock_threshold IS NULL;
 `);
 
-// Auto-convert existing IDR high prices to THB if needed
-try { db.exec("UPDATE menu_items SET price = ROUND(price / 250) WHERE price > 1000"); } catch (e) {}
+// Default settings (change PIN and PromptPay ID in Manage → Store Settings)
+db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("staff_pin", "1234");
+db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("shop_name", "Niksen");
+db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("promptpay_id", "");
 
-// Seed initial settings for Google Business Profile
-const gbpId = "7913-3673-9603-8976-65";
-const storeCode = "13998080146830637367";
-
-db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("google_business_profile_id", gbpId);
-db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("google_store_code", storeCode);
-
-// Seed initial menu items in THB if empty
-const count = db.prepare("SELECT COUNT(*) as count FROM menu_items").get() as { count: number };
-if (count.count === 0) {
-  const insert = db.prepare("INSERT INTO menu_items (name, category, price) VALUES (?, ?, ?)");
-  const seedItems = [
-    ["Bintang Beer", "Beers", 120],
-    ["Heineken", "Beers", 140],
-    ["San Miguel", "Beers", 130],
-    ["Classic Mojito", "Cocktails", 220],
-    ["Margarita", "Cocktails", 240],
-    ["Negroni", "Cocktails", 260],
-    ["Jack Daniels", "Spirits", 280],
-    ["Craft Cola", "Craft Soda", 80],
-    ["Ginger Beer", "Craft Soda", 90],
-    ["Lemonade", "Craft Soda", 70],
-    ["Hatten Aga White", "Local Wine", 650],
-    ["Two Islands Shiraz", "Local Wine", 850],
-    ["Sababay Ludisia", "Local Wine", 750],
-    ["Chardonnay", "Wine Other", 1200],
-    ["Cabernet Sauvignon", "Wine Other", 1400],
-    ["Nasi Goreng", "Food", 140],
-    ["Chicken Wings", "Food", 120],
-    ["French Fries", "Food", 90],
-    ["Beef Burger", "Food", 180]
-  ];
-  for (const item of seedItems) {
-    insert.run(...item);
+// ---- PromptPay QR payload (EMVCo) ----
+function crc16(data: string): string {
+  let crc = 0xffff;
+  for (let i = 0; i < data.length; i++) {
+    crc ^= data.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    }
   }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-// Seed initial members if empty
-const memberCount = db.prepare("SELECT COUNT(*) as count FROM members").get() as { count: number };
-if (memberCount.count === 0) {
-  const insertMember = db.prepare("INSERT INTO members (name, phone, email, points, tier, total_spent) VALUES (?, ?, ?, ?, ?, ?)");
-  insertMember.run("Somporn Chai", "0812345678", "somporn@example.com", 250, "Gold", 2800);
-  insertMember.run("Alex Rivera", "0898765432", "alex@example.com", 620, "Platinum", 6400);
-  insertMember.run("Nan Phukaew", "0855551234", "nan@example.com", 80, "Silver", 950);
-}
-
-// Seed initial staff members and shifts if empty
-const staffCount = db.prepare("SELECT COUNT(*) as count FROM staff_members").get() as { count: number };
-if (staffCount.count === 0) {
-  const insertStaff = db.prepare("INSERT INTO staff_members (name, role, status, current_shift_start) VALUES (?, ?, ?, ?)");
-  insertStaff.run("Ananda Prasert", "Head Bartender", "clocked_in", new Date(Date.now() - 4.5 * 3600 * 1000).toISOString());
-  insertStaff.run("Kanya Somchai", "Senior Mixologist", "clocked_out", null);
-  insertStaff.run("Tawatchai Siri", "Bar Supervisor", "clocked_in", new Date(Date.now() - 2 * 3600 * 1000).toISOString());
-  insertStaff.run("Natasha Vane", "Floor Server", "clocked_out", null);
-
-  const insertShift = db.prepare("INSERT INTO staff_shifts (staff_id, staff_name, role, clock_in, clock_out, hours_worked) VALUES (?, ?, ?, ?, ?, ?)");
-  const todayMorning = new Date();
-  todayMorning.setHours(9, 0, 0, 0);
-  const todayAfternoon = new Date();
-  todayAfternoon.setHours(16, 30, 0, 0);
-
-  insertShift.run(2, "Kanya Somchai", "Senior Mixologist", todayMorning.toISOString(), todayAfternoon.toISOString(), 7.5);
-  
-  // Active shift logs
-  const nowStr = new Date().toISOString();
-  insertShift.run(1, "Ananda Prasert", "Head Bartender", new Date(Date.now() - 4.5 * 3600 * 1000).toISOString(), null, 0);
-  insertShift.run(3, "Tawatchai Siri", "Bar Supervisor", new Date(Date.now() - 2 * 3600 * 1000).toISOString(), null, 0);
+function promptPayPayload(target: string, amount: number): string | null {
+  const digits = (target || "").replace(/[^0-9]/g, "");
+  if (!digits) return null;
+  const f = (id: string, value: string) => id + String(value.length).padStart(2, "0") + value;
+  const account = digits.length >= 13
+    ? f("02", digits) // national ID / tax ID
+    : f("01", "0066" + digits.replace(/^0/, "")); // mobile number
+  const merchant = f("29", f("00", "A000000677010111") + account);
+  let payload =
+    f("00", "01") + f("01", "12") + merchant + f("53", "764") +
+    f("54", amount.toFixed(2)) + f("58", "TH") + "6304";
+  return payload + crc16(payload);
 }
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
+  // Behind a reverse proxy (Caddy/nginx) in production → bind localhost only;
+  // in dev bind all interfaces so you can test from a phone on the same WiFi.
+  const HOST = process.env.HOST || (process.env.NODE_ENV === "production" ? "127.0.0.1" : "0.0.0.0");
 
+  const SESSION_SECRET = process.env.SESSION_SECRET || "niksen-pos-secret";
+  if (process.env.NODE_ENV === "production" && SESSION_SECRET === "niksen-pos-secret") {
+    throw new Error(
+      "Refusing to start in production without a strong SESSION_SECRET. " +
+      "Set the SESSION_SECRET env var — generate one with: openssl rand -hex 32",
+    );
+  }
+
+  app.set("trust proxy", 1);
   app.use(express.json());
   app.use(cookieParser());
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'niksen-pos-secret',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
-      sameSite: 'none',
+      // secure cookies only when served over HTTPS (production behind a proxy)
+      secure: process.env.NODE_ENV === "production" && process.env.INSECURE_COOKIES !== "1",
+      sameSite: 'lax',
       httpOnly: true,
     }
   }));
+
+  // ---- Staff authentication (PIN) ----
+  app.post("/api/auth/login", (req, res) => {
+    const { pin } = req.body || {};
+    const row = db.prepare("SELECT value FROM settings WHERE key = 'staff_pin'").get() as any;
+    if (row && typeof pin === "string" && pin === row.value) {
+      ((req as any).session).authed = true;
+      return res.json({ success: true });
+    }
+    res.status(401).json({ error: "Incorrect PIN" });
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    ((req as any).session).destroy(() => res.json({ success: true }));
+  });
+
+  app.get("/api/auth/me", (req, res) => {
+    res.json({ authed: !!((req as any).session)?.authed });
+  });
+
+  // Everything under /api requires staff login, except auth + public customer endpoints
+  app.use("/api", (req, res, next) => {
+    if (((req as any).session)?.authed) return next();
+    if (req.path.startsWith("/auth/") || req.path.startsWith("/public/")) return next();
+    return res.status(401).json({ error: "Unauthorized" });
+  });
+
+  // ---- Public customer-facing endpoints ----
+  app.get("/api/public/info", (req, res) => {
+    const get = (k: string) => (db.prepare("SELECT value FROM settings WHERE key = ?").get(k) as any)?.value || "";
+    res.json({ shop_name: get("shop_name") || "Niksen", promptpay_enabled: !!get("promptpay_id") });
+  });
+
+  app.get("/api/public/menu", (req, res) => {
+    const items = db.prepare(
+      "SELECT id, name, name_th, name_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
+    ).all() as any[];
+    res.json(items.map(i => ({ ...i, in_stock: i.stock_quantity === null || i.stock_quantity > 0 })));
+  });
+
+  app.post("/api/public/orders", (req, res) => {
+    const { items, order_type, customer_name, customer_phone, delivery_address, notes } = req.body || {};
+    if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "Cart is empty" });
+    if (order_type !== "pickup" && order_type !== "delivery") return res.status(400).json({ error: "Invalid order type" });
+    if (!customer_name || !customer_phone) return res.status(400).json({ error: "Name and phone are required" });
+    if (order_type === "delivery" && !delivery_address) return res.status(400).json({ error: "Delivery address is required" });
+    const phone = String(customer_phone).replace(/[^0-9]/g, "");
+    if (phone.length < 9 || phone.length > 15) return res.status(400).json({ error: "Invalid phone number" });
+
+    // Prices always come from the database — never from the client
+    const getItem = db.prepare("SELECT * FROM menu_items WHERE id = ? AND available = 1");
+    let subtotal = 0;
+    const validated: { id: number; quantity: number; price: number }[] = [];
+    for (const it of items) {
+      const qty = Math.floor(Number(it.quantity));
+      if (!Number.isFinite(qty) || qty < 1 || qty > 50) return res.status(400).json({ error: "Invalid quantity" });
+      const menuItem = getItem.get(it.menu_item_id) as any;
+      if (!menuItem) return res.status(400).json({ error: "An item in your cart is no longer available" });
+      if (menuItem.stock_quantity !== null && menuItem.stock_quantity < qty) {
+        return res.status(400).json({ error: `Not enough stock for ${menuItem.name}` });
+      }
+      validated.push({ id: menuItem.id, quantity: qty, price: menuItem.price });
+      subtotal += menuItem.price * qty;
+    }
+    const total = subtotal * 1.10; // 10% tax, same rule as in-store
+    const pointsEarned = Math.floor(total / 50);
+
+    const transaction = db.transaction(() => {
+      // Find or create the member by phone — online orders always earn points
+      let member = db.prepare("SELECT * FROM members WHERE phone = ?").get(phone) as any;
+      if (!member) {
+        const r = db.prepare(
+          "INSERT INTO members (name, phone, email, points, tier, total_spent) VALUES (?, ?, '', 50, 'Silver', 0)"
+        ).run(String(customer_name).slice(0, 100), phone);
+        member = db.prepare("SELECT * FROM members WHERE id = ?").get(r.lastInsertRowid);
+      }
+
+      const orderResult = db.prepare(`
+        INSERT INTO orders (table_number, status, notes, discount_value, member_id, points_earned, points_redeemed,
+                            order_type, customer_name, customer_phone, delivery_address)
+        VALUES (0, 'open', ?, 0, ?, ?, 0, ?, ?, ?, ?)
+      `).run(
+        notes ? String(notes).slice(0, 500) : null,
+        member.id, pointsEarned, order_type,
+        String(customer_name).slice(0, 100), phone,
+        order_type === "delivery" ? String(delivery_address).slice(0, 300) : null
+      );
+      const orderId = orderResult.lastInsertRowid;
+
+      const insertItem = db.prepare("INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_time) VALUES (?, ?, ?, ?)");
+      const deductStock = db.prepare("UPDATE menu_items SET stock_quantity = MAX(0, stock_quantity - ?) WHERE id = ?");
+      for (const v of validated) {
+        insertItem.run(orderId, v.id, v.quantity, v.price);
+        deductStock.run(v.quantity, v.id);
+      }
+
+      const newSpent = member.total_spent + total;
+      let newTier = "Silver";
+      if (newSpent >= 5000) newTier = "Platinum";
+      else if (newSpent >= 2000) newTier = "Gold";
+      db.prepare("UPDATE members SET total_spent = ?, points = points + ?, tier = ? WHERE id = ?")
+        .run(newSpent, pointsEarned, newTier, member.id);
+
+      return { orderId, memberPoints: member.points + pointsEarned };
+    });
+
+    const { orderId, memberPoints } = transaction();
+    const ppId = (db.prepare("SELECT value FROM settings WHERE key = 'promptpay_id'").get() as any)?.value || "";
+    res.json({
+      id: orderId,
+      total,
+      points_earned: pointsEarned,
+      member_points: memberPoints,
+      promptpay: ppId ? promptPayPayload(ppId, total) : null,
+    });
+  });
+
+  app.get("/api/public/orders/:id/status", (req, res) => {
+    const order = db.prepare("SELECT id, status, order_type, created_at FROM orders WHERE id = ?").get(req.params.id) as any;
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    res.json(order);
+  });
 
   // API Routes
   app.get("/api/settings", (req, res) => {
@@ -194,6 +294,20 @@ async function startServer() {
       return acc;
     }, {});
     res.json(settingsMap);
+  });
+
+  app.post("/api/settings", (req, res) => {
+    const allowed = ["shop_name", "promptpay_id", "staff_pin", "shop_phone", "shop_address"];
+    const upsert = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        if (key === "staff_pin" && !/^\d{4,8}$/.test(String(req.body[key]))) {
+          return res.status(400).json({ error: "PIN must be 4-8 digits" });
+        }
+        upsert.run(key, String(req.body[key]));
+      }
+    }
+    res.json({ success: true });
   });
 
   // Google OAuth Endpoints
@@ -246,7 +360,7 @@ async function startServer() {
                   window.opener.postMessage({ type: 'OAUTH_AUTH_SUCCESS' }, '*');
                   window.close();
                 } else {
-                  window.location.href = '/';
+                  window.location.href = '/pos';
                 }
               </script>
             </div>
@@ -264,22 +378,30 @@ async function startServer() {
   });
 
   app.post("/api/menu", (req, res) => {
-    const { name, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
+    const { name, name_th, name_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
     const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
     const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 10;
-    const result = db.prepare("INSERT INTO menu_items (name, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?)").run(name, category, price, image_url, barcodeVal, stockVal, lowVal);
+    const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
     res.json({ id: result.lastInsertRowid });
   });
 
   app.patch("/api/menu/:id", (req, res) => {
-    const { name, category, price, available, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
+    const { name, name_th, name_ru, category, price, available, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const updates: string[] = [];
     const params: any[] = [];
 
     if (name !== undefined) {
       updates.push("name = ?");
       params.push(name);
+    }
+    if (name_th !== undefined) {
+      updates.push("name_th = ?");
+      params.push(name_th || null);
+    }
+    if (name_ru !== undefined) {
+      updates.push("name_ru = ?");
+      params.push(name_ru || null);
     }
     if (category !== undefined) {
       updates.push("category = ?");
@@ -595,14 +717,16 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.join(__dirname, "dist")));
+    // Serve the built client from ./dist (relative to the app's working dir).
+    const distDir = path.join(process.cwd(), "dist");
+    app.use(express.static(distDir));
     app.get("*", (req, res) => {
-      res.sendFile(path.join(__dirname, "dist", "index.html"));
+      res.sendFile(path.join(distDir, "index.html"));
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT} (NODE_ENV=${process.env.NODE_ENV || "development"})`);
   });
 }
 
