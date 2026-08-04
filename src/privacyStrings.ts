@@ -5,11 +5,11 @@ import { Lang } from './i18n';
 // into the "Who we are" and "Contact us" sections of the policy.
 export const COMPANY = {
   brand: 'niksen secret bar',
-  legalName: '[Registered business name]',
-  registration: '[Company / tax registration no.]',
+  legalName: 'NICHEN Co., Ltd.',
+  registration: '0845568023436',
   email: 'privacy@niksensamui.com',
-  phone: '[+66 __ ___ ____]',
-  address: 'Bophut, Koh Samui, Surat Thani, Thailand',
+  phone: '+66 62 962 4644',
+  address: 'Bophut, Koh Samui, Surat Thani 84320, Thailand',
   effectiveDate: '18 August 2026',
 };
 

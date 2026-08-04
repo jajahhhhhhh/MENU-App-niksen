@@ -2,21 +2,23 @@ import React, { useState, useEffect } from 'react';
 import {
   Coffee, Leaf, Moon, MapPin, Clock, Star, ShoppingBag, ArrowRight,
   ArrowUpRight, Instagram, Facebook, MessageCircle, Menu as MenuIcon,
-  X, Navigation, Sparkles, Check,
+  X, Navigation, Sparkles, Check, Phone,
 } from 'lucide-react';
 import { NiksenLogo } from './components/NiksenLogo';
 import { Lang, LANGS, detectLang } from './i18n';
 import { LANDING } from './landingStrings';
+import { COMPANY } from './privacyStrings';
 
 // --- Editable links -----------------------------------------------------
 // Replace the "#" placeholders with real handles when they go live.
 const ORDER_URL = '/order';
-const POS_URL = '/pos';
-// niksen's real location on Google Maps (Bophut, Koh Samui)
-const MAP_LAT = 9.5300392;
-const MAP_LNG = 100.0612897;
-const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${MAP_LAT},${MAP_LNG}`;
-const MAP_EMBED = `https://www.google.com/maps?q=${MAP_LAT},${MAP_LNG}&z=16&output=embed`;
+// LOCATION — the previous coords (9.5300392,100.0612897) resolved to CHAWENG,
+// not Bophut, so directions misrouted. Reverted to a Bophut-area reference until
+// the exact spot is known. To pin precisely, set MAP_PLACE to "LAT,LNG" from a
+// Google Maps Plus Code (e.g. '9.5610,100.0620') — it flows to both links below.
+const MAP_PLACE = 'Bophut, Koh Samui';
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP_PLACE)}`;
+const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(MAP_PLACE)}&z=14&output=embed`;
 // Instagram: @niksen.ch. Add Facebook / LINE links when live
 // (real http(s) URLs render as active icons; '#' stays inactive / "Coming soon").
 const SOCIALS = {
@@ -50,6 +52,14 @@ const LandingPage: React.FC = () => {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Deep-link scroll: if the page loads with a #hash (e.g. a shared /#visit), jump to it.
+  useEffect(() => {
+    if (window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) requestAnimationFrame(() => el.scrollIntoView());
+    }
   }, []);
 
   useEffect(() => {
@@ -539,7 +549,6 @@ const LandingPage: React.FC = () => {
               <ul className="mt-4 space-y-2.5 text-sm">
                 <li><a href="/privacy" className="hover:text-white transition-colors">{t.privacy}</a></li>
                 <li><a href="/offer" className="hover:text-white transition-colors">{t.offer}</a></li>
-                <li><a href={POS_URL} className="hover:text-white transition-colors">{t.staff}</a></li>
               </ul>
             </div>
 
@@ -551,18 +560,35 @@ const LandingPage: React.FC = () => {
                   { icon: Facebook, href: SOCIALS.facebook, label: 'Facebook' },
                   { icon: MessageCircle, href: SOCIALS.line, label: 'LINE' },
                 ].map(({ icon: Icon, href, label }) => (
-                  <a
-                    key={label}
-                    href={isLive(href) ? href : '#'}
-                    {...(isLive(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    aria-label={label}
-                    className="w-10 h-10 rounded-xl bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-stone-300 transition-colors"
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
+                  isLive(href) ? (
+                    <a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="w-10 h-10 rounded-xl bg-stone-800 hover:bg-stone-700 flex items-center justify-center text-stone-300 transition-colors"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span
+                      key={label}
+                      aria-label={`${label} — coming soon`}
+                      className="w-10 h-10 rounded-xl bg-stone-800/40 flex items-center justify-center text-stone-600"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </span>
+                  )
                 ))}
               </div>
-              <p className="mt-5 text-sm text-stone-400 inline-flex items-center gap-2">
+              <a
+                href={`tel:${COMPANY.phone.replace(/\s+/g, '')}`}
+                className="mt-5 text-sm text-stone-300 hover:text-white inline-flex items-center gap-2 transition-colors"
+              >
+                <Phone className="w-4 h-4 text-emerald-500" /> {COMPANY.phone}
+              </a>
+              <p className="mt-2 text-sm text-stone-400 inline-flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-emerald-500" /> {t.heroLocation}
               </p>
             </div>

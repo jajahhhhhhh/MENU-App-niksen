@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /pos
+
+Sitemap: https://niksensamui.com/sitemap.xml

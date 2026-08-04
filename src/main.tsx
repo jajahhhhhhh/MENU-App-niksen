@@ -5,6 +5,7 @@ import OrderPage from './OrderPage.tsx';
 import LandingPage from './LandingPage.tsx';
 import PrivacyPage from './PrivacyPage.tsx';
 import OfferPage from './OfferPage.tsx';
+import NotFoundPage from './NotFoundPage.tsx';
 import './index.css';
 
 // Route by path:
@@ -13,6 +14,7 @@ import './index.css';
 //   /privacy  → privacy policy
 //   /offer    → public offer (terms of sale)
 //   /         → public brand landing page
+//   (other)   → 404 not found
 const path = window.location.pathname;
 const page = path.startsWith('/order')
   ? <OrderPage />
@@ -22,7 +24,9 @@ const page = path.startsWith('/order')
       ? <PrivacyPage />
       : path.startsWith('/offer')
         ? <OfferPage />
-        : <LandingPage />;
+        : path === '/' || path === ''
+          ? <LandingPage />
+          : <NotFoundPage />;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>{page}</StrictMode>,

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
-import { Lang, LANGS, STRINGS, detectLang, localizedName } from './i18n';
+import { Lang, LANGS, STRINGS, detectLang, localizedName, localizedCategory } from './i18n';
 
 interface PublicMenuItem {
   id: number;
@@ -198,7 +198,7 @@ const OrderPage: React.FC = () => {
                 activeCategory === c ? 'bg-emerald-500 text-stone-900' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'
               }`}
             >
-              {c === 'All' ? t.all : c}
+              {c === 'All' ? t.all : localizedCategory(c, lang)}
             </button>
           ))}
         </div>
