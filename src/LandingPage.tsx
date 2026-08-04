@@ -12,7 +12,11 @@ import { LANDING } from './landingStrings';
 // Replace the "#" placeholders with real handles when they go live.
 const ORDER_URL = '/order';
 const POS_URL = '/pos';
-const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Bophut%2C%20Koh%20Samui';
+// niksen's real location on Google Maps (Bophut, Koh Samui)
+const MAP_LAT = 9.5300392;
+const MAP_LNG = 100.0612897;
+const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${MAP_LAT},${MAP_LNG}`;
+const MAP_EMBED = `https://www.google.com/maps?q=${MAP_LAT},${MAP_LNG}&z=16&output=embed`;
 // Instagram: @niksen.ch. Add Facebook / LINE links when live
 // (real http(s) URLs render as active icons; '#' stays inactive / "Coming soon").
 const SOCIALS = {
@@ -432,41 +436,26 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* stylized map card */}
-          <a
-            href={MAPS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative block rounded-[2rem] overflow-hidden border border-stone-200 shadow-xl shadow-stone-200/50 aspect-[4/3] bg-emerald-50"
-          >
-            <div
-              className="absolute inset-0 opacity-70"
-              style={{
-                backgroundImage:
-                  'linear-gradient(120deg, #ecfdf5 0%, #d1fae5 40%, #fef3c7 100%)',
-              }}
-              aria-hidden
+          {/* live map */}
+          <div className="relative rounded-[2rem] overflow-hidden border border-stone-200 shadow-xl shadow-stone-200/50 aspect-[4/3] bg-stone-100">
+            <iframe
+              title="niksen secret bar — location on Google Maps"
+              src={MAP_EMBED}
+              className="absolute inset-0 w-full h-full"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
             />
-            {/* faux map lines */}
-            <svg className="absolute inset-0 w-full h-full text-emerald-600/25" fill="none" aria-hidden>
-              <path d="M-20 60 Q200 10 420 120 T820 100" stroke="currentColor" strokeWidth="8" />
-              <path d="M60 -20 Q120 200 40 420" stroke="currentColor" strokeWidth="6" />
-              <path d="M-20 240 Q260 220 520 320 T900 300" stroke="currentColor" strokeWidth="5" />
-              <path d="M300 -20 Q360 180 300 460" stroke="currentColor" strokeWidth="6" />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-              <span className="relative flex items-center justify-center">
-                <span className="absolute w-14 h-14 rounded-full bg-emerald-500/25 animate-ping" />
-                <span className="relative w-12 h-12 rounded-full bg-stone-900 text-white flex items-center justify-center shadow-lg">
-                  <MapPin className="w-6 h-6" />
-                </span>
-              </span>
-              <p className="mt-4 font-bold text-stone-800">{t.heroLocation}</p>
-              <p className="mt-1 text-sm font-semibold text-emerald-700 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                {t.mapHint} <ArrowUpRight className="w-4 h-4" />
-              </p>
-            </div>
-          </a>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-white/95 backdrop-blur px-3.5 py-2 rounded-full text-sm font-bold text-stone-800 shadow-lg hover:bg-white transition-colors"
+            >
+              <Navigation className="w-4 h-4 text-emerald-600" /> {t.visitDirections}
+            </a>
+          </div>
         </div>
       </section>
 
