@@ -13,10 +13,10 @@ import { LANDING } from './landingStrings';
 const ORDER_URL = '/order';
 const POS_URL = '/pos';
 const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Bophut%2C%20Koh%20Samui';
-// Instagram wired from the handle @niksen_ch. Add Facebook / LINE links when live
+// Instagram: @niksen.ch. Add Facebook / LINE links when live
 // (real http(s) URLs render as active icons; '#' stays inactive / "Coming soon").
 const SOCIALS = {
-  instagram: 'https://instagram.com/niksen_ch',
+  instagram: 'https://www.instagram.com/niksen.ch/',
   facebook: '#',
   line: '#',
 };

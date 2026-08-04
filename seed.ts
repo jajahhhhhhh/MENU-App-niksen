@@ -13,6 +13,24 @@ import Database from 'better-sqlite3';
 const db = new Database('pos.db');
 db.pragma('busy_timeout = 5000');
 
+// Ensure the menu table exists so the seed can run even before the server's
+// first start (the server also creates it with IF NOT EXISTS — no conflict).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS menu_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    price REAL NOT NULL,
+    available INTEGER DEFAULT 1,
+    image_url TEXT,
+    barcode TEXT,
+    stock_quantity INTEGER DEFAULT 50,
+    low_stock_threshold INTEGER DEFAULT 10,
+    name_th TEXT,
+    name_ru TEXT
+  );
+`);
+
 interface SeedItem {
   name: string;
   th: string;
