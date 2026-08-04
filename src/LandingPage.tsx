@@ -25,7 +25,7 @@ const SOCIALS = {
   line: '#',
 };
 const DELIVERY: { name: string; href: string }[] = [
-  { name: 'Grab', href: '#' },
+  { name: 'Grab', href: 'https://r.grab.com/o/n6fAfaQf' },
   { name: 'LINE MAN', href: '#' },
   { name: 'foodpanda', href: '#' },
 ];
