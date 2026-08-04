@@ -7,7 +7,7 @@ export const COMPANY = {
   brand: 'niksen secret bar',
   legalName: '[Registered business name]',
   registration: '[Company / tax registration no.]',
-  email: 'privacy@ch-howtoniksen.com',
+  email: 'privacy@niksensamui.com',
   phone: '[+66 __ ___ ____]',
   address: 'Bophut, Koh Samui, Surat Thani, Thailand',
   effectiveDate: '18 August 2026',

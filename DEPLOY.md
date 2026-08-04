@@ -1,10 +1,10 @@
-# Deploying niksen secret bar to ch-howtoniksen.com
+# Deploying niksen secret bar to niksensamui.com
 
 This puts the whole app online — landing page, `/order` (the QR-ordering page for
 customers), and `/pos` (staff) — on your own cheap VPS, with automatic HTTPS.
 
-**Goal:** customers scan a QR → order at `https://ch-howtoniksen.com/order` →
-the order appears for staff at `https://ch-howtoniksen.com/pos`.
+**Goal:** customers scan a QR → order at `https://niksensamui.com/order` →
+the order appears for staff at `https://niksensamui.com/pos`.
 
 **Time:** ~20–30 minutes. **Cost:** ~$4–6/month for the server.
 
@@ -31,19 +31,29 @@ Sign up at **[Hetzner Cloud](https://console.hetzner.cloud)** (~€4/mo) or
 
 Note the server's **public IP address** (e.g. `203.0.113.10`).
 
-## Step 2 — Point your domain at the server
+## Step 2 — Point your domain at the server (Cloudflare)
 
-At whatever registrar you bought `ch-howtoniksen.com` from, add a DNS record:
+Your domain is on **Cloudflare**. In the Cloudflare dashboard → select
+**niksensamui.com** → **DNS** → **Add record**:
 
-| Type | Name / Host | Value        | TTL  |
-|------|-------------|--------------|------|
-| A    | `@`         | your server IP | 3600 |
+| Type | Name | IPv4 address   | Proxy status        |
+|------|------|----------------|---------------------|
+| A    | `@`  | your server IP | **DNS only** (grey) |
 
-(Optional: add another `A` record with Name `www` → same IP if you want the
-`www.` version too.)
+> **Important:** click the orange cloud so it turns **grey (DNS only)**. That lets
+> Caddy fetch its own HTTPS certificate directly and keeps things simple. You *can*
+> switch it back to Proxied later for Cloudflare's CDN/DDoS protection — but if you
+> do, also set Cloudflare **SSL/TLS → Overview → Full (strict)**, or you'll get a
+> redirect loop.
 
-DNS can take a few minutes to a couple of hours to propagate. You can continue
-while it does.
+Optional: add a second `A` record, Name `www` → same IP (also DNS only).
+
+Cloudflare DNS updates are usually near-instant.
+
+> **Note — "Deploy a site with Workers" won't work for this app.** Cloudflare's
+> one-click Workers deploy is for static/serverless sites. This app is a Node
+> server with a SQLite database, so it needs the VPS below. Cloudflare here is
+> just your registrar + DNS.
 
 ## Step 3 — Connect to the server
 
@@ -121,7 +131,7 @@ cp /opt/niksen-secret-bar/deploy/Caddyfile /etc/caddy/Caddyfile
 systemctl reload caddy
 ```
 
-Caddy will automatically obtain an HTTPS certificate for `ch-howtoniksen.com`
+Caddy will automatically obtain an HTTPS certificate for `niksensamui.com`
 (this only works once DNS from Step 2 points at this server).
 
 ## Step 10 — Firewall
@@ -139,11 +149,11 @@ Port 3000 stays private (the app only listens on localhost; only Caddy reaches i
 
 ## ✅ Verify
 
-Open **https://ch-howtoniksen.com** — you should see the landing page, with a
+Open **https://niksensamui.com** — you should see the landing page, with a
 green padlock. Then check:
 
-- **https://ch-howtoniksen.com/order** — the customer ordering page (this is what the QR points to)
-- **https://ch-howtoniksen.com/pos** — staff login (default PIN `1234` — **change it**, see below)
+- **https://niksensamui.com/order** — the customer ordering page (this is what the QR points to)
+- **https://niksensamui.com/pos** — staff login (default PIN `1234` — **change it**, see below)
 
 ### First-run housekeeping (in `/pos` → Manage → Store Settings)
 
@@ -151,9 +161,13 @@ green padlock. Then check:
 2. (Optional) add your **PromptPay** number so the customer's confirmation shows a pay QR.
 3. Set the shop name / phone if you like.
 
+**Make your privacy email work:** the Privacy Policy lists `privacy@niksensamui.com`.
+In Cloudflare → **Email Routing**, forward that address to your real inbox (free,
+~2 min) so data-privacy requests actually reach you.
+
 ### The "scan to order" QR code
 
-Point the QR at **`https://ch-howtoniksen.com/order`**. Any QR generator works,
+Point the QR at **`https://niksensamui.com/order`**. Any QR generator works,
 or tell me once the site is live and I'll generate a print-ready QR for you.
 
 ---
