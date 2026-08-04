@@ -3,6 +3,7 @@ import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
 import { Lang, LANGS, STRINGS, detectLang, localizedName, localizedCategory } from './i18n';
+import { orderingOpen } from './config';
 
 interface PublicMenuItem {
   id: number;
@@ -45,6 +46,7 @@ const OrderPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [lang, setLang] = useState<Lang>(detectLang());
   const t = STRINGS[lang];
+  const canOrder = orderingOpen();
 
   const changeLang = (l: Lang) => {
     setLang(l);
@@ -88,6 +90,7 @@ const OrderPage: React.FC = () => {
   };
 
   const submitOrder = async () => {
+    if (!canOrder) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -203,6 +206,13 @@ const OrderPage: React.FC = () => {
           ))}
         </div>
       </header>
+
+      {/* Opening-soon banner — ordering is disabled until launch */}
+      {!canOrder && (
+        <div className="bg-emerald-500 text-stone-900 text-center text-sm font-bold px-4 py-3">
+          {t.openingBanner}
+        </div>
+      )}
 
       {/* Menu */}
       <main className="max-w-3xl mx-auto p-4 space-y-3">
@@ -348,10 +358,10 @@ const OrderPage: React.FC = () => {
 
               <button
                 onClick={submitOrder}
-                disabled={submitting || !form.name || !form.phone || (orderType === 'delivery' && !form.address)}
+                disabled={!canOrder || submitting || !form.name || !form.phone || (orderType === 'delivery' && !form.address)}
                 className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-200 disabled:text-stone-400 text-stone-900 py-4 rounded-2xl font-bold transition-colors"
               >
-                {submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
+                {!canOrder ? t.openingCta : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
               </button>
               <p className="text-[11px] text-stone-400 text-center">
                 {t.pointsNote}

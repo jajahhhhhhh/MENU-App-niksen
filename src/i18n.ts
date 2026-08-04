@@ -40,6 +40,8 @@ interface Strings {
   orderMore: string;
   errNetwork: string;
   errGeneric: string;
+  openingBanner: string;
+  openingCta: string;
 }
 
 export const STRINGS: Record<Lang, Strings> = {
@@ -77,6 +79,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'Order more',
     errNetwork: 'Network error. Please check your connection and try again.',
     errGeneric: 'Something went wrong. Please try again.',
+    openingBanner: 'Opening 18 August 2026 — online ordering opens then. Have a look around!',
+    openingCta: 'Ordering opens 18 Aug',
   },
   th: {
     tagline: 'สั่งออนไลน์ · บ่อผุด เกาะสมุย',
@@ -112,6 +116,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'สั่งเพิ่ม',
     errNetwork: 'การเชื่อมต่อมีปัญหา กรุณาลองใหม่อีกครั้ง',
     errGeneric: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+    openingBanner: 'เปิด 18 สิงหาคม 2026 — เปิดรับออเดอร์ออนไลน์วันนั้น ลองดูเมนูก่อนได้เลย!',
+    openingCta: 'เปิดรับออเดอร์ 18 ส.ค.',
   },
   ru: {
     tagline: 'Онлайн-заказ · Бопхут, Самуи',
@@ -152,6 +158,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'Заказать ещё',
     errNetwork: 'Ошибка сети. Проверьте подключение и попробуйте снова.',
     errGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
+    openingBanner: 'Открытие 18 августа 2026 — тогда откроются онлайн-заказы. Пока осмотритесь!',
+    openingCta: 'Заказы с 18 авг.',
   },
 };
 

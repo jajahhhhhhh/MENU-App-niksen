@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
+import { orderingOpen } from "./src/config.ts";
 
 const db = new Database("pos.db");
 
@@ -204,6 +205,7 @@ async function startServer() {
   });
 
   app.post("/api/public/orders", (req, res) => {
+    if (!orderingOpen()) return res.status(403).json({ error: "Online ordering opens 18 August 2026." });
     const { items, order_type, customer_name, customer_phone, delivery_address, notes } = req.body || {};
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "Cart is empty" });
     if (order_type !== "pickup" && order_type !== "delivery") return res.status(400).json({ error: "Invalid order type" });
