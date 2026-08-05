@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Coffee, Leaf, Moon, MapPin, Clock, Star, ShoppingBag, ArrowRight,
-  ArrowUpRight, Instagram, Facebook, MessageCircle, Menu as MenuIcon,
+  ArrowUpRight, Instagram, Facebook, Menu as MenuIcon,
   X, Navigation, Sparkles, Check, Phone,
 } from 'lucide-react';
 import { NiksenLogo } from './components/NiksenLogo';
@@ -19,12 +19,12 @@ const MAP_COORDS = '9.530061,100.061278';
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${MAP_COORDS}`;
 const MAP_EMBED = `https://www.google.com/maps?q=${MAP_COORDS}&z=17&output=embed`;
 // Real http(s) URLs render as active icons; '#' stays inactive / "coming soon".
-// LINE: paste the Official Account add-friend link (https://lin.ee/…) when created.
 const SOCIALS = {
   instagram: 'https://www.instagram.com/niksen.ch/',
   facebook: 'https://www.facebook.com/profile.php?id=61585081873147',
   pinterest: 'https://www.pinterest.com/howtoniksen/',
-  line: '#',
+  // LINE Official Account @037zxllt — add-friend deep link (opens the app on mobile).
+  line: 'https://line.me/R/ti/p/@037zxllt',
 };
 const DELIVERY: { name: string; href: string }[] = [
   { name: 'Grab', href: 'https://r.grab.com/o/n6fAfaQf' },
@@ -40,6 +40,13 @@ const PILLAR_ICON = { coffee: Coffee, leaf: Leaf, moon: Moon } as const;
 const PinterestIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
+  </svg>
+);
+
+// lucide has no LINE glyph either — official speech-bubble mark, same treatment.
+const LineIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
   </svg>
 );
 
@@ -506,7 +513,7 @@ const LandingPage: React.FC = () => {
               { icon: Instagram, href: SOCIALS.instagram, label: 'Instagram' },
               { icon: Facebook, href: SOCIALS.facebook, label: 'Facebook' },
               { icon: PinterestIcon, href: SOCIALS.pinterest, label: 'Pinterest' },
-              { icon: MessageCircle, href: SOCIALS.line, label: 'LINE' },
+              { icon: LineIcon, href: SOCIALS.line, label: 'LINE' },
             ].map(({ icon: Icon, href, label }) => (
               isLive(href) ? (
                 <a
@@ -567,7 +574,7 @@ const LandingPage: React.FC = () => {
                   { icon: Instagram, href: SOCIALS.instagram, label: 'Instagram' },
                   { icon: Facebook, href: SOCIALS.facebook, label: 'Facebook' },
                   { icon: PinterestIcon, href: SOCIALS.pinterest, label: 'Pinterest' },
-                  { icon: MessageCircle, href: SOCIALS.line, label: 'LINE' },
+                  { icon: LineIcon, href: SOCIALS.line, label: 'LINE' },
                 ].map(({ icon: Icon, href, label }) => (
                   isLive(href) ? (
                     <a
