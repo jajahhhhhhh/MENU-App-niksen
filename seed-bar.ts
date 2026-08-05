@@ -85,6 +85,11 @@ const DISHES: Dish[] = [
     desc: 'Savory oats with green pesto, topped with creamy stracciatella and fresh basil. 379 kcal · 21 g protein.',
     desc_th: 'ข้าวโอ๊ตรสเค็มกับเพสโต้เขียว ท็อปด้วยสตราชาเทลลาครีมมีและใบโหระพาสด 379 กิโลแคลอรี โปรตีน 21 กรัม',
     desc_ru: 'Несладкая овсянка с зелёным песто, страчателлой и свежим базиликом. 379 ккал · 21 г белка.' },
+  { name: 'Golden Pumpkin Oats', th: 'โอ๊ตฟักทองสีทอง', ru: 'Золотая тыквенная овсянка',
+    category: 'Breakfast', price: 175,
+    desc: 'Warm golden oats with sweet roasted pumpkin, topped with pumpkin seeds.',
+    desc_th: 'ข้าวโอ๊ตอุ่น ๆ สีทองกับฟักทองอบหวาน โรยเมล็ดฟักทอง',
+    desc_ru: 'Тёплая золотистая овсянка со сладкой запечённой тыквой и тыквенными семечками.' },
 
   // ── Soups ───────────────────────────────────────────────
   { name: 'Pumpkin Soup', th: 'ซุปฟักทอง', ru: 'Тыквенный суп',
@@ -119,6 +124,16 @@ const DISHES: Dish[] = [
     desc: 'Fresh salmon, creamy avocado, cucumber and cheese, wrapped in a soft tortilla. 245 kcal.',
     desc_th: 'แซลมอนสด อะโวคาโดครีมมี แตงกวา และชีส ห่อในแป้งตอร์ตียานุ่ม ๆ 245 กิโลแคลอรี',
     desc_ru: 'Свежий лосось, нежное авокадо, огурец и сыр в мягкой тортилье. 245 ккал.' },
+  { name: 'Bodybuilder Triangle', th: 'แซนด์วิชสามเหลี่ยมบอดี้บิลเดอร์', ru: 'Бодибилдер-треугольник',
+    category: 'Triangle Sandwiches', price: 160,
+    desc: 'A protein-packed triangle: chicken breast, egg, avocado and cream cheese wrapped in a soft tortilla.',
+    desc_th: 'สามเหลี่ยมโปรตีนสูง อกไก่ ไข่ อะโวคาโด และครีมชีส ห่อในแป้งตอร์ตียานุ่ม ๆ',
+    desc_ru: 'Треугольник, богатый белком: куриная грудка, яйцо, авокадо и сливочный сыр в мягкой тортилье.' },
+  { name: 'Vegetarian Triangle', th: 'แซนด์วิชสามเหลี่ยมมังสวิรัติ', ru: 'Вегетарианский треугольник',
+    category: 'Triangle Sandwiches', price: 160,
+    desc: 'Avocado, cheese, sautéed mushrooms and spinach wrapped in a soft tortilla.',
+    desc_th: 'อะโวคาโด ชีส เห็ดผัด และผักโขม ห่อในแป้งตอร์ตียานุ่ม ๆ',
+    desc_ru: 'Авокадо, сыр, обжаренные грибы и шпинат в мягкой тортилье.' },
 
   // ── Burritos (price = smallest size, "from") ────────────
   { name: 'Bodybuilder Burrito', th: 'บอดี้บิลเดอร์เบอร์ริโต', ru: 'Бодибилдер-буррито',
