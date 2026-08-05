@@ -7,6 +7,7 @@
     "dev": "tsx server.ts",
     "seed": "tsx seed.ts",
     "seed:tea": "tsx seed-tea.ts",
+    "seed:bar": "tsx seed-bar.ts",
     "build": "vite build",
     "start": "node server.ts",
     "clean": "rm -rf dist",
