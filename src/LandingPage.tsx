@@ -217,35 +217,25 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* hero card */}
+          {/* hero card — scan-to-order (QR → /order), replaces the old info card */}
           <div className="relative">
             <div className="absolute -inset-3 bg-gradient-to-tr from-emerald-300/30 to-amber-200/30 blur-2xl rounded-[2.5rem]" aria-hidden />
-            <div className="relative rounded-[2rem] bg-gradient-to-br from-emerald-700 via-emerald-800 to-stone-900 text-white p-8 sm:p-10 shadow-2xl shadow-emerald-900/25 overflow-hidden">
-              <div className="absolute -bottom-10 -right-8 opacity-10" aria-hidden>
-                <Coffee className="w-48 h-48" strokeWidth={1} />
+            <a
+              href={ORDER_URL}
+              className="relative block rounded-[2rem] bg-stone-100 border border-stone-200 p-8 sm:p-10 shadow-2xl shadow-stone-900/10 text-center transition-transform hover:-translate-y-0.5"
+            >
+              <div className="flex justify-center">
+                <NiksenLogo variant="blue" size="md" />
               </div>
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <NiksenLogo variant="white" size="md" showSubtitle={false} />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300">est. 2026</span>
-                </div>
-                <p className="mt-8 text-emerald-300/90 text-xs font-bold uppercase tracking-[0.18em]">{t.heroCardLabel}</p>
-                <div className="mt-4 space-y-3 text-sm">
-                  <div className="flex items-center gap-3 border-t border-white/10 pt-3">
-                    <Clock className="w-4 h-4 text-emerald-300 shrink-0" />
-                    <span className="text-stone-200">{t.heroCardHours}</span>
-                  </div>
-                  <div className="flex items-center gap-3 border-t border-white/10 pt-3">
-                    <MapPin className="w-4 h-4 text-emerald-300 shrink-0" />
-                    <span className="text-stone-200">{t.heroLocation}</span>
-                  </div>
-                  <div className="flex items-center gap-3 border-t border-white/10 pt-3">
-                    <Coffee className="w-4 h-4 text-emerald-300 shrink-0" />
-                    <span className="text-stone-200">{t.heroCardNote}</span>
-                  </div>
-                </div>
+              <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-700">{t.heroLocation}</p>
+              <p className="mt-2 font-display text-4xl sm:text-5xl tracking-tight text-stone-900">Scan to order</p>
+              <p className="mt-2 text-sm text-stone-500">สแกนเพื่อสั่ง · Отсканируйте, чтобы заказать</p>
+              <div className="mx-auto mt-6 w-52 sm:w-60 rounded-3xl bg-white p-4 shadow-lg shadow-stone-900/5">
+                <img src="/qr-order.svg" alt="QR code — order at niksensamui.com/order" className="w-full h-auto" />
               </div>
-            </div>
+              <p className="mt-5 font-mono font-bold text-emerald-700">niksensamui.com/order</p>
+              <p className="mt-2 text-xs font-semibold text-stone-400">{t.heroCardHours}</p>
+            </a>
           </div>
         </div>
       </section>
