@@ -5,6 +5,50 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Fraunces", Georgia, ui-serif, serif;
+
+  /* --- niksen palette --------------------------------------------------------
+     Warm Ivory #F2E9DC · Natural Wood #D8C9AE · Terracotta #C17A5A
+     Muted Mustard #D1B074 · Soft Sage #A7B9B6 · Slate Blue #40536B
+     Remap Tailwind scales so the whole app re-themes at once:
+       stone   = warm neutral (ivory → slate blue)
+       emerald = terracotta (primary accent)
+       amber   = muted mustard (secondary accent)                            */
+
+  --color-stone-50:  #FAF7F0;
+  --color-stone-100: #F2E9DC;
+  --color-stone-200: #E8DCC8;
+  --color-stone-300: #D8C9AE;
+  --color-stone-400: #B9AD95;
+  --color-stone-500: #8C887C;
+  --color-stone-600: #6C7583;
+  --color-stone-700: #515F71;
+  --color-stone-800: #40536B;
+  --color-stone-900: #37485C;
+  --color-stone-950: #2A3644;
+
+  --color-emerald-50:  #FAEEE8;
+  --color-emerald-100: #F3DDD1;
+  --color-emerald-200: #E7C0AC;
+  --color-emerald-300: #D9A184;
+  --color-emerald-400: #CD8968;
+  --color-emerald-500: #C17A5A;
+  --color-emerald-600: #A6643F;
+  --color-emerald-700: #874E30;
+  --color-emerald-800: #6B3F28;
+  --color-emerald-900: #573523;
+  --color-emerald-950: #301B12;
+
+  --color-amber-50:  #FAF3E0;
+  --color-amber-100: #F4E7C3;
+  --color-amber-200: #E9D399;
+  --color-amber-300: #DEC17E;
+  --color-amber-400: #D1B074;
+  --color-amber-500: #C0A054;
+  --color-amber-600: #A5853F;
+  --color-amber-700: #836833;
+  --color-amber-800: #6A542C;
+  --color-amber-900: #574627;
+  --color-amber-950: #322813;
 }
 
 @layer base {

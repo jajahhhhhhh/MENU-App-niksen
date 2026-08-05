@@ -13,9 +13,9 @@ export const NiksenLogo: React.FC<NiksenLogoProps> = ({
   showSubtitle = true,
   className = ''
 }) => {
-  // Color selection matching original branding
-  const mainColor = variant === 'white' ? '#FFFFFF' : variant === 'dark' ? '#1E293B' : '#0B2BD6';
-  const subtitleColor = variant === 'white' ? '#E2E8F0' : variant === 'dark' ? '#475569' : '#0B2BD6';
+  // Color selection — brand mark uses Slate Blue from the niksen palette
+  const mainColor = variant === 'white' ? '#FFFFFF' : variant === 'dark' ? '#1E293B' : '#40536B';
+  const subtitleColor = variant === 'white' ? '#E2E8F0' : variant === 'dark' ? '#475569' : '#C17A5A';
 
   // Size scalings
   const heightMap = {
