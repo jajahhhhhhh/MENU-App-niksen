@@ -102,7 +102,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Management state
-  const [newItem, setNewItem] = useState({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
+  const [newItem, setNewItem] = useState({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const categories = ['All', ...Array.from(new Set(menuItems.map(i => i.category)))];
@@ -382,7 +382,7 @@ const App: React.FC = () => {
     });
     
     if (res.ok) {
-      setNewItem({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
+      setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
       setEditingItem(null);
       fetchMenu();
     }
@@ -413,7 +413,7 @@ const App: React.FC = () => {
 
   const cancelEdit = () => {
     setEditingItem(null);
-    setNewItem({ name: '', name_th: '', name_ru: '', category: 'Beers', price: '', image_url: '' });
+    setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
   };
 
   const toggleAvailability = async (item: MenuItem) => {
@@ -1735,19 +1735,21 @@ const App: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Category</label>
-                      <select 
+                      <input
+                        type="text"
+                        required
+                        list="menu-categories"
+                        placeholder="e.g. Coffee, Signature Tea, Bowls…"
                         className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         value={newItem.category}
                         onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-                      >
-                        <option>Beers</option>
-                        <option>Craft Soda</option>
-                        <option>Local Wine</option>
-                        <option>Wine Other</option>
-                        <option>Cocktails</option>
-                        <option>Spirits</option>
-                        <option>Food</option>
-                      </select>
+                      />
+                      <datalist id="menu-categories">
+                        {Array.from(new Set(menuItems.map(i => i.category))).sort().map(c => (
+                          <option key={c} value={c} />
+                        ))}
+                      </datalist>
+                      <p className="mt-1 text-[11px] text-stone-400">Pick an existing category or type a new one.</p>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Price (THB ฿)</label>
