@@ -186,7 +186,7 @@ const OrderPage: React.FC = () => {
                 key={l.code}
                 onClick={() => changeLang(l.code)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                  lang === l.code ? 'bg-emerald-500 text-stone-900' : 'text-stone-300 hover:bg-stone-700'
+                  lang === l.code ? 'bg-emerald-500 text-white' : 'text-stone-300 hover:bg-stone-700'
                 }`}
               >
                 {l.label}
@@ -201,7 +201,7 @@ const OrderPage: React.FC = () => {
               key={c}
               onClick={() => setActiveCategory(c)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                activeCategory === c ? 'bg-emerald-500 text-stone-900' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'
+                activeCategory === c ? 'bg-emerald-500 text-white' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'
               }`}
             >
               {c === 'All' ? t.all : localizedCategory(c, lang)}
@@ -212,7 +212,7 @@ const OrderPage: React.FC = () => {
 
       {/* Opening-soon banner — ordering is disabled until launch */}
       {!canOrder && (
-        <div className="bg-emerald-500 text-stone-900 text-center text-sm font-bold px-4 py-3">
+        <div className="bg-emerald-500 text-white text-center text-sm font-bold px-4 py-3">
           {t.openingBanner}
         </div>
       )}
@@ -272,7 +272,7 @@ const OrderPage: React.FC = () => {
         <div className="fixed bottom-0 inset-x-0 z-30 p-4">
           <button
             onClick={() => setShowCheckout(true)}
-            className="max-w-3xl mx-auto w-full bg-emerald-500 hover:bg-emerald-600 text-stone-900 rounded-2xl py-4 px-6 font-bold shadow-2xl flex items-center justify-between transition-colors"
+            className="max-w-3xl mx-auto w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl py-4 px-6 font-bold shadow-2xl flex items-center justify-between transition-colors"
           >
             <span className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5" />
@@ -365,7 +365,7 @@ const OrderPage: React.FC = () => {
               <button
                 onClick={submitOrder}
                 disabled={!canOrder || submitting || !form.name || !form.phone || (orderType === 'delivery' && !form.address)}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-200 disabled:text-stone-400 text-stone-900 py-4 rounded-2xl font-bold transition-colors"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-stone-200 disabled:text-stone-400 text-white py-4 rounded-2xl font-bold transition-colors"
               >
                 {!canOrder ? t.openingCta : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
               </button>

@@ -111,7 +111,7 @@ const LandingPage: React.FC = () => {
             </div>
             <a
               href={ORDER_URL}
-              className="hidden sm:inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-stone-900 font-bold text-sm px-4 py-2 rounded-full transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-4 py-2 rounded-full transition-colors"
             >
               <ShoppingBag className="w-4 h-4" /> {t.order}
             </a>
@@ -154,7 +154,7 @@ const LandingPage: React.FC = () => {
               </div>
               <a
                 href={ORDER_URL}
-                className="inline-flex items-center gap-1.5 bg-emerald-500 text-stone-900 font-bold text-sm px-4 py-2 rounded-full"
+                className="inline-flex items-center gap-1.5 bg-emerald-500 text-white font-bold text-sm px-4 py-2 rounded-full"
               >
                 <ShoppingBag className="w-4 h-4" /> {t.order}
               </a>
@@ -332,7 +332,7 @@ const LandingPage: React.FC = () => {
             </p>
             <a
               href={ORDER_URL}
-              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-stone-900 font-bold px-5 py-2.5 rounded-full transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-full transition-colors whitespace-nowrap"
             >
               {t.menuCta} <ArrowRight className="w-4 h-4" />
             </a>
@@ -352,7 +352,7 @@ const LandingPage: React.FC = () => {
                 <p className="mt-5 text-lg text-stone-300 leading-relaxed max-w-md">{t.rewardsBody}</p>
                 <a
                   href={ORDER_URL}
-                  className="mt-8 inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-stone-900 font-bold px-6 py-3.5 rounded-full transition-colors"
+                  className="mt-8 inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-6 py-3.5 rounded-full transition-colors"
                 >
                   <Star className="w-5 h-5" /> {t.rewardsCta}
                 </a>
@@ -411,7 +411,7 @@ const LandingPage: React.FC = () => {
               </a>
               <a
                 href={ORDER_URL}
-                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-stone-900 font-bold px-5 py-3 rounded-full transition-colors"
+                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-3 rounded-full transition-colors"
               >
                 <ShoppingBag className="w-4 h-4" /> {t.order}
               </a>
@@ -472,7 +472,7 @@ const LandingPage: React.FC = () => {
       {/* ---------------- CTA band ---------------- */}
       <section className="pb-20 sm:pb-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="rounded-[2.5rem] bg-emerald-500 text-stone-900 px-8 py-14 sm:px-16 sm:py-20 text-center relative overflow-hidden">
+          <div className="rounded-[2.5rem] bg-emerald-500 text-white px-8 py-14 sm:px-16 sm:py-20 text-center relative overflow-hidden">
             <div className="absolute -bottom-16 -left-10 w-72 h-72 rounded-full bg-emerald-400/50 blur-2xl" aria-hidden />
             <div className="relative">
               <h2 className="font-display text-4xl sm:text-6xl tracking-tight">{t.ctaTitle}</h2>
