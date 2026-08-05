@@ -8,6 +8,8 @@
  * Prices confirmed by the owner, 6 Aug 2026.
  */
 import Database from 'better-sqlite3';
+import fs from 'fs';
+import path from 'path';
 
 const db = new Database('pos.db');
 db.pragma('busy_timeout = 5000');
@@ -76,7 +78,39 @@ const run = db.transaction(() => {
 });
 run();
 
-const rows = db.prepare('SELECT name, price FROM menu_items WHERE category = ? ORDER BY price').all(CATEGORY) as { name: string; price: number }[];
-console.log(`✓ Coffee: ${added} added, ${updated} refreshed — ${rows.length} total`);
-console.log('  ' + rows.map(r => `${r.name} ฿${r.price}`).join(' · '));
+// Attach photos the same way the teas are wired: a static file at
+// public/menu/<slug>.jpg becomes /menu/<slug>.jpg on the item. The slug comes
+// from the drink name, so a coffee added later in the POS picks up its photo
+// with no code change. A missing file is skipped rather than written — the tile
+// keeps its grey placeholder instead of showing a broken image, which is what
+// makes this safe to run before the photos exist.
+// Strip accents first so "Caffè Latte" slugs to caffe-latte, not caff-latte.
+const slugify = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '')
+  .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const MENU_DIR = path.join('public', 'menu');
+const setImage = db.prepare('UPDATE menu_items SET image_url = ? WHERE id = ?');
+
+const coffeeRows = db.prepare('SELECT id, name, price, image_url FROM menu_items WHERE category = ? ORDER BY price')
+  .all(CATEGORY) as { id: number; name: string; price: number; image_url: string | null }[];
+
+const wired: string[] = [];
+const awaiting: string[] = [];
+for (const row of coffeeRows) {
+  const file = `${slugify(row.name)}.jpg`;
+  if (fs.existsSync(path.join(MENU_DIR, file))) {
+    const url = `/menu/${file}`;
+    if (row.image_url !== url) setImage.run(url, row.id);
+    wired.push(row.name);
+  } else if (!row.image_url) {
+    awaiting.push(`${row.name} → ${MENU_DIR}/${file}`);
+  }
+}
+
+console.log(`✓ Coffee: ${added} added, ${updated} refreshed — ${coffeeRows.length} total`);
+console.log('  ' + coffeeRows.map(r => `${r.name} ฿${r.price}`).join(' · '));
+if (wired.length) console.log(`✓ Photos wired: ${wired.join(', ')}`);
+if (awaiting.length) {
+  console.log(`· Awaiting photos (drop the file in, re-run this script):`);
+  for (const a of awaiting) console.log(`    ${a}`);
+}
 db.close();
