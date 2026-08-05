@@ -51,6 +51,16 @@ import { MenuItem, Order, DailyReport, Member, StaffMember, StaffShift } from '.
 import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
+  // Staff-only page: keep it out of search results (robots.txt disallows /pos too).
+  useEffect(() => {
+    document.title = 'Staff POS · niksen';
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex, nofollow';
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
   const [activeTab, setActiveTab] = useState<'menu' | 'orders' | 'members' | 'staff' | 'reports' | 'manage'>('menu');
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [pinInput, setPinInput] = useState('');

@@ -57,6 +57,10 @@ const OrderPage: React.FC = () => {
   };
 
   useEffect(() => {
+    document.title = 'Order online · niksen secret bar — café in Bophut, Koh Samui';
+  }, []);
+
+  useEffect(() => {
     Promise.all([
       fetch('/api/public/info').then(r => r.json()).catch(() => ({})),
       fetch('/api/public/menu').then(r => r.json()).catch(() => []),
