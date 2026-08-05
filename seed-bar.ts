@@ -165,7 +165,7 @@ const insert = db.prepare(`
   VALUES (@name, @th, @ru, @desc, @desc_th, @desc_ru, @category, @price, @image, 1, 50, 10)
 `);
 const update = db.prepare(`
-  UPDATE menu_items SET name_th=@th, name_ru=@ru, description=@desc, description_th=@desc_th, description_ru=@desc_ru, image_url=COALESCE(@image, image_url), available=1 WHERE id=@id
+  UPDATE menu_items SET name_th=@th, name_ru=@ru, description=@desc, description_th=@desc_th, description_ru=@desc_ru, image_url=COALESCE(@image, image_url) WHERE id=@id
 `);
 
 let added = 0;
