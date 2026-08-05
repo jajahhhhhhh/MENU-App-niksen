@@ -21,7 +21,7 @@ for (const col of [
 }
 
 const CATEGORY = 'Signature Tea';
-const PLACEHOLDER_PRICE = 120; // TODO: real prices — update in the POS or here.
+const PRICE = 120; // Confirmed price — all signature teas are ฿120.
 
 interface Tea {
   name: string;
@@ -62,7 +62,7 @@ const run = db.transaction(() => {
       update.run({ id: row.id, desc: t.desc, desc_th: t.desc_th, desc_ru: t.desc_ru, image: t.image });
       updated++;
     } else {
-      insert.run({ name: t.name, desc: t.desc, desc_th: t.desc_th, desc_ru: t.desc_ru, category: CATEGORY, price: PLACEHOLDER_PRICE, image: t.image });
+      insert.run({ name: t.name, desc: t.desc, desc_th: t.desc_th, desc_ru: t.desc_ru, category: CATEGORY, price: PRICE, image: t.image });
       added++;
     }
   }
@@ -70,5 +70,5 @@ const run = db.transaction(() => {
 run();
 
 const total = (db.prepare('SELECT COUNT(*) AS n FROM menu_items WHERE category = ?').get(CATEGORY) as { n: number }).n;
-console.log(`✓ Signature Tea: ${added} added, ${updated} refreshed (${total} total). Price placeholder ฿${PLACEHOLDER_PRICE} — set real prices in /pos.`);
+console.log(`✓ Signature Tea: ${added} added, ${updated} refreshed (${total} total, ฿${PRICE} each).`);
 db.close();
