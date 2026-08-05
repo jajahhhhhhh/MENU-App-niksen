@@ -178,11 +178,20 @@ export function localizedName(item: { name: string; name_th?: string | null; nam
   return item.name;
 }
 
+export function localizedDescription(
+  item: { description?: string | null; description_th?: string | null; description_ru?: string | null },
+  lang: Lang,
+): string {
+  if (lang === 'th' && item.description_th) return item.description_th;
+  if (lang === 'ru' && item.description_ru) return item.description_ru;
+  return item.description || '';
+}
+
 // Menu category labels per language (falls back to the raw category name).
 export const CATEGORY_LABELS: Record<Lang, Record<string, string>> = {
   en: {},
-  th: { Coffee: 'กาแฟ', Bowls: 'โบวล์', Breakfast: 'อาหารเช้า', Smoothies: 'สมูทตี้', Juices: 'น้ำผลไม้' },
-  ru: { Coffee: 'Кофе', Bowls: 'Боулы', Breakfast: 'Завтрак', Smoothies: 'Смузи', Juices: 'Соки' },
+  th: { Coffee: 'กาแฟ', Bowls: 'โบวล์', Breakfast: 'อาหารเช้า', Smoothies: 'สมูทตี้', Juices: 'น้ำผลไม้', 'Signature Tea': 'ชาซิกเนเจอร์' },
+  ru: { Coffee: 'Кофе', Bowls: 'Боулы', Breakfast: 'Завтрак', Smoothies: 'Смузи', Juices: 'Соки', 'Signature Tea': 'Фирменный чай' },
 };
 
 export function localizedCategory(category: string, lang: Lang): string {

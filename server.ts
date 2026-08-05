@@ -96,6 +96,9 @@ try { db.exec("ALTER TABLE orders ADD COLUMN customer_phone TEXT"); } catch (e) 
 try { db.exec("ALTER TABLE orders ADD COLUMN delivery_address TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN name_th TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN name_ru TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN description TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN description_th TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN description_ru TEXT"); } catch (e) {}
 
 // Populate initial barcodes if missing
 db.exec(`
@@ -199,7 +202,7 @@ async function startServer() {
 
   app.get("/api/public/menu", (req, res) => {
     const items = db.prepare(
-      "SELECT id, name, name_th, name_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
+      "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
     ).all() as any[];
     res.json(items.map(i => ({ ...i, in_stock: i.stock_quantity === null || i.stock_quantity > 0 })));
   });
@@ -380,16 +383,16 @@ async function startServer() {
   });
 
   app.post("/api/menu", (req, res) => {
-    const { name, name_th, name_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
+    const { name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
     const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
     const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 10;
-    const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
+    const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, description || null, description_th || null, description_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
     res.json({ id: result.lastInsertRowid });
   });
 
   app.patch("/api/menu/:id", (req, res) => {
-    const { name, name_th, name_ru, category, price, available, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
+    const { name, name_th, name_ru, description, description_th, description_ru, category, price, available, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const updates: string[] = [];
     const params: any[] = [];
 
@@ -404,6 +407,18 @@ async function startServer() {
     if (name_ru !== undefined) {
       updates.push("name_ru = ?");
       params.push(name_ru || null);
+    }
+    if (description !== undefined) {
+      updates.push("description = ?");
+      params.push(description || null);
+    }
+    if (description_th !== undefined) {
+      updates.push("description_th = ?");
+      params.push(description_th || null);
+    }
+    if (description_ru !== undefined) {
+      updates.push("description_ru = ?");
+      params.push(description_ru || null);
     }
     if (category !== undefined) {
       updates.push("category = ?");

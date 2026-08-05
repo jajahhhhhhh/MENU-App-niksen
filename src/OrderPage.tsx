@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
-import { Lang, LANGS, STRINGS, detectLang, localizedName, localizedCategory } from './i18n';
+import { Lang, LANGS, STRINGS, detectLang, localizedName, localizedCategory, localizedDescription } from './i18n';
 import { orderingOpen } from './config';
 
 interface PublicMenuItem {
@@ -10,6 +10,9 @@ interface PublicMenuItem {
   name: string;
   name_th?: string | null;
   name_ru?: string | null;
+  description?: string | null;
+  description_th?: string | null;
+  description_ru?: string | null;
   category: string;
   price: number;
   image_url?: string;
@@ -233,7 +236,10 @@ const OrderPage: React.FC = () => {
               )}
               <div className="flex-1 min-w-0">
                 <p className="font-bold truncate">{localizedName(item, lang)}</p>
-                <p className="text-xs text-stone-400">{item.category}</p>
+                {localizedDescription(item, lang) && (
+                  <p className="text-xs text-stone-500 leading-snug line-clamp-2 mt-0.5">{localizedDescription(item, lang)}</p>
+                )}
+                <p className="text-[11px] text-stone-400 mt-0.5">{localizedCategory(item.category, lang)}</p>
                 <p className="font-mono font-bold text-emerald-600 mt-0.5">{formatTHB(item.price)}</p>
               </div>
               {!item.in_stock ? (

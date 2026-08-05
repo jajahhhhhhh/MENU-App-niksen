@@ -3,6 +3,9 @@ export interface MenuItem {
   name: string;
   name_th?: string | null;
   name_ru?: string | null;
+  description?: string | null;
+  description_th?: string | null;
+  description_ru?: string | null;
   category: string;
   price: number;
   available: boolean;
