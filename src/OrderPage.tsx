@@ -235,7 +235,7 @@ const OrderPage: React.FC = () => {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-bold truncate">{localizedName(item, lang)}</p>
+                <p className="font-bold leading-tight">{localizedName(item, lang)}</p>
                 {localizedDescription(item, lang) && (
                   <p className="text-xs text-stone-500 leading-snug line-clamp-2 mt-0.5">{localizedDescription(item, lang)}</p>
                 )}
@@ -269,7 +269,7 @@ const OrderPage: React.FC = () => {
 
       {/* Cart bar */}
       {cartCount > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-30 p-4">
+        <div className="fixed bottom-0 inset-x-0 z-30 px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <button
             onClick={() => setShowCheckout(true)}
             className="max-w-3xl mx-auto w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl py-4 px-6 font-bold shadow-2xl flex items-center justify-between transition-colors"
@@ -293,7 +293,7 @@ const OrderPage: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-5 space-y-5">
+            <div className="px-5 pt-5 space-y-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
               {/* Cart lines */}
               <div className="space-y-2">
                 {cart.map(l => (
