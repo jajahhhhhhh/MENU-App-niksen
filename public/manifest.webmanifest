@@ -1,0 +1,13 @@
+{
+  "name": "niksen secret bar",
+  "short_name": "niksen",
+  "description": "Order from niksen secret bar — slow mornings, honest food and very good coffee in Bophut, Koh Samui.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2E9DC",
+  "theme_color": "#40536B",
+  "icons": [
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}
