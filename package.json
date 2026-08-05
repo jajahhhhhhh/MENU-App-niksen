@@ -12,7 +12,8 @@
     "start": "node server.ts",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "seed:coffee": "tsx seed-coffee.ts"
+    "seed:coffee": "tsx seed-coffee.ts",
+    "wire:photos": "tsx wire-photos.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
