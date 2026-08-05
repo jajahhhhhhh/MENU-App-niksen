@@ -416,6 +416,23 @@ const App: React.FC = () => {
     setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
   };
 
+  // Delete = permanent removal. If the item appears in past orders the server
+  // keeps it (receipt history) and hides it from the menu instead.
+  const handleDeleteItem = async (item: MenuItem) => {
+    if (!confirm(`Delete "${item.name}" from the menu?\nThis cannot be undone.`)) return;
+    const res = await fetch(`/api/menu/${item.id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      alert('Could not delete the item. Please try again.');
+      return;
+    }
+    const result = await res.json();
+    if (result.hidden) {
+      alert(`"${item.name}" appears in past orders, so it can't be fully deleted — it has been marked Sold Out and hidden from customer ordering instead.`);
+    }
+    if (editingItem?.id === item.id) cancelEdit();
+    fetchMenu();
+  };
+
   const toggleAvailability = async (item: MenuItem) => {
     const res = await fetch(`/api/menu/${item.id}`, {
       method: 'PATCH',
@@ -1787,21 +1804,33 @@ const App: React.FC = () => {
                     </div>
                     <div className="flex gap-2">
                       {editingItem && (
-                        <button 
+                        <button
                           type="button"
                           onClick={cancelEdit}
+                          title="Discard changes and close the editor"
                           className="flex-1 bg-stone-100 text-stone-600 py-3 rounded-xl font-bold hover:bg-stone-200 transition-all"
                         >
                           Cancel
                         </button>
                       )}
-                      <button 
+                      <button
                         type="submit"
+                        title={editingItem ? 'Save changes to this item' : 'Add this item to the menu'}
                         className={`flex-[2] text-white py-3 rounded-xl font-bold transition-all shadow-lg ${editingItem ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-100' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-100'}`}
                       >
                         {editingItem ? 'Update Item' : 'Save Item'}
                       </button>
                     </div>
+                    {editingItem && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteItem(editingItem)}
+                        title="Permanently remove this item from the menu (items with past orders are hidden instead)"
+                        className="w-full mt-1 flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold hover:bg-red-100 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" /> Delete Item
+                      </button>
+                    )}
                   </form>
                 </div>
 
@@ -1839,18 +1868,26 @@ const App: React.FC = () => {
                           <td className="p-4 font-mono font-bold text-emerald-600">{formatCurrency(item.price)}</td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
-                              <button 
+                              <button
                                 onClick={() => toggleAvailability(item)}
+                                title={item.available ? 'Click to mark Sold Out (hides it from customer ordering)' : 'Click to mark Available (shows it to customers again)'}
                                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${item.available ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
                               >
                                 {item.available ? 'Available' : 'Sold Out'}
                               </button>
-                              <button 
+                              <button
                                 onClick={() => startEdit(item)}
                                 className="p-2 text-stone-400 hover:text-amber-500 transition-colors"
-                                title="Edit Item"
+                                title="Edit this item (name, price, category, photo)"
                               >
                                 <Settings className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem(item)}
+                                className="p-2 text-stone-400 hover:text-red-500 transition-colors"
+                                title="Delete this item from the menu"
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>

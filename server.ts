@@ -453,8 +453,23 @@ async function startServer() {
       params.push(req.params.id);
       db.prepare(`UPDATE menu_items SET ${updates.join(", ")} WHERE id = ?`).run(...params);
     }
-    
+
     res.json({ success: true });
+  });
+
+  app.delete("/api/menu/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const item = db.prepare("SELECT id, name FROM menu_items WHERE id = ?").get(id) as any;
+    if (!item) return res.status(404).json({ error: "not_found" });
+    // Items referenced by past orders can't be hard-deleted (order_items FK +
+    // receipt history) — hide them from the menu instead and say so.
+    const used = db.prepare("SELECT COUNT(*) AS n FROM order_items WHERE menu_item_id = ?").get(id) as any;
+    if (used.n > 0) {
+      db.prepare("UPDATE menu_items SET available = 0 WHERE id = ?").run(id);
+      return res.json({ success: true, hidden: true, order_lines: used.n });
+    }
+    db.prepare("DELETE FROM menu_items WHERE id = ?").run(id);
+    res.json({ success: true, deleted: true });
   });
 
   // Members API
