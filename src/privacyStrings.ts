@@ -9,7 +9,7 @@ export const COMPANY = {
   registration: '0845568023436',
   email: 'privacy@niksensamui.com',
   phone: '+66 62 962 4644',
-  address: 'Bophut, Koh Samui, Surat Thani 84320, Thailand',
+  address: '15 Moo 2, Bo Phut, Ko Samui, Surat Thani 84320, Thailand',
   effectiveDate: '18 August 2026',
 };
 

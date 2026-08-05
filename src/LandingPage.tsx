@@ -15,7 +15,7 @@ const ORDER_URL = '/order';
 // LOCATION — exact pin from the owner's Google Maps (lat,lng). Flows to both
 // links below: the embed drops a marker here; the button opens Maps at this point.
 // Preview zoom 17 keeps nearby roads visible so guests can orient in Bophut.
-const MAP_COORDS = '9.5300405,100.060646';
+const MAP_COORDS = '9.530061,100.061278';
 const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${MAP_COORDS}`;
 const MAP_EMBED = `https://www.google.com/maps?q=${MAP_COORDS}&z=17&output=embed`;
 // Instagram: @niksen.ch. Add Facebook / LINE links when live
