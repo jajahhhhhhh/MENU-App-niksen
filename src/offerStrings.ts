@@ -73,7 +73,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'prices',
         heading: '5. Prices and tax',
         paragraphs: [
-          'Prices are shown in Thai Baht (฿). The tax shown at checkout (currently 10%) is added to your order total. The price that applies is the one shown when you confirm your order. We may change menu prices at any time, but not for an order that has already been confirmed.',
+          'Prices are shown in Thai Baht (฿). The tax shown at checkout (currently 7%) is added to your order total. The price that applies is the one shown when you confirm your order. We may change menu prices at any time, but not for an order that has already been confirmed.',
         ],
       },
       {
@@ -214,7 +214,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'prices',
         heading: '5. ราคาและภาษี',
         paragraphs: [
-          'ราคาแสดงเป็นเงินบาทไทย (฿) ภาษีที่แสดง ณ ขั้นตอนชำระเงิน (ปัจจุบัน 10%) จะถูกบวกเข้ากับยอดรวมของคุณ ราคาที่มีผลคือราคาที่แสดงเมื่อคุณยืนยันคำสั่งซื้อ เราอาจเปลี่ยนแปลงราคาเมนูเมื่อใดก็ได้ แต่จะไม่กระทบคำสั่งซื้อที่ยืนยันแล้ว',
+          'ราคาแสดงเป็นเงินบาทไทย (฿) ภาษีที่แสดง ณ ขั้นตอนชำระเงิน (ปัจจุบัน 7%) จะถูกบวกเข้ากับยอดรวมของคุณ ราคาที่มีผลคือราคาที่แสดงเมื่อคุณยืนยันคำสั่งซื้อ เราอาจเปลี่ยนแปลงราคาเมนูเมื่อใดก็ได้ แต่จะไม่กระทบคำสั่งซื้อที่ยืนยันแล้ว',
         ],
       },
       {
@@ -355,7 +355,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'prices',
         heading: '5. Цены и налог',
         paragraphs: [
-          'Цены указаны в тайских батах (฿). Налог, показанный при оформлении (сейчас 10%), добавляется к сумме заказа. Применяется цена, показанная в момент подтверждения заказа. Мы можем изменять цены меню в любое время, но не для уже подтверждённого заказа.',
+          'Цены указаны в тайских батах (฿). Налог, показанный при оформлении (сейчас 7%), добавляется к сумме заказа. Применяется цена, показанная в момент подтверждения заказа. Мы можем изменять цены меню в любое время, но не для уже подтверждённого заказа.',
         ],
       },
       {

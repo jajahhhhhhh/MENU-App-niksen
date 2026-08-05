@@ -543,7 +543,7 @@ const App: React.FC = () => {
   
   const pointsDiscountAmount = currentOrder.pointsRedeemed || 0;
   const discountedSubtotal = Math.max(0, subtotal - discountAmount - pointsDiscountAmount);
-  const tax = discountedSubtotal * 0.10; // TAX 10%
+  const tax = discountedSubtotal * 0.07; // TAX 7%
   const total = discountedSubtotal + tax;
   const pointsEarnedPreview = Math.floor(total / 50);
 
@@ -554,7 +554,7 @@ const App: React.FC = () => {
       : (order.discount_value || 0);
     const ptsDiscount = order.points_redeemed || 0;
     const discSubtotal = Math.max(0, itemsTotal - discAmount - ptsDiscount);
-    return discSubtotal * 1.10; // 10% TAX, no service
+    return discSubtotal * 1.07; // 7% TAX, no service
   };
 
   if (authed === null) {
@@ -608,7 +608,7 @@ const App: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">POS SYSTEM</span>
             </div>
-            <p className="text-[10px] text-stone-400 font-mono mt-0.5">BANGKOK, THAILAND • THB ฿ • TAX 10%</p>
+            <p className="text-[10px] text-stone-400 font-mono mt-0.5">KOH SAMUI, THAILAND • THB ฿ • TAX 7%</p>
           </div>
         </div>
         <nav className="flex gap-1 bg-stone-800 p-1 rounded-xl">
@@ -886,7 +886,7 @@ const App: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="text-right">
-                        <p className="text-xs text-stone-400 uppercase font-bold tracking-wider">Total (10% Tax Inc.)</p>
+                        <p className="text-xs text-stone-400 uppercase font-bold tracking-wider">Total (7% Tax Inc.)</p>
                         <p className="font-mono font-bold text-lg text-emerald-600">{formatCurrency(order.total || 0)}</p>
                       </div>
                       {order.status !== 'paid' && order.status !== 'cancelled' && (
@@ -1076,7 +1076,7 @@ const App: React.FC = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-emerald-500 text-white p-6 rounded-3xl shadow-lg shadow-emerald-200">
-                  <p className="text-emerald-100 uppercase text-xs font-bold tracking-widest mb-1">Total Revenue (Inc. 10% Tax)</p>
+                  <p className="text-emerald-100 uppercase text-xs font-bold tracking-widest mb-1">Total Revenue (Inc. 7% Tax)</p>
                   <p className="text-4xl font-mono font-bold">{formatCurrency(report.summary.total_revenue || 0)}</p>
                 </div>
                 <div className="bg-stone-900 text-white p-6 rounded-3xl shadow-lg shadow-stone-200">
@@ -2070,7 +2070,7 @@ const App: React.FC = () => {
               </div>
             )}
             <div className="flex justify-between text-sm text-stone-500">
-              <span>Tax (10%)</span>
+              <span>Tax (7%)</span>
               <span className="font-mono">{formatCurrency(tax)}</span>
             </div>
 
@@ -2204,7 +2204,7 @@ const App: React.FC = () => {
                     </div>
                   )}
                   <div className="flex justify-between text-sm text-stone-500">
-                    <span>Tax (10%)</span>
+                    <span>Tax (7%)</span>
                     <span className="font-mono">{formatCurrency(tax)}</span>
                   </div>
                   <div className="flex justify-between text-xl font-bold pt-2 border-t border-stone-200">
@@ -2319,13 +2319,13 @@ const App: React.FC = () => {
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span>Tax (10%)</span>
+                    <span>Tax (7%)</span>
                     <span>{formatCurrency(
                       Math.max(0, (showReceipt.items?.reduce((s, i) => s + (i.quantity * i.price_at_time), 0) || 0) - (
                         showReceipt.discount_type === 'percentage'
                           ? ((showReceipt.items?.reduce((s, i) => s + (i.quantity * i.price_at_time), 0) || 0) * showReceipt.discount_value / 100)
                           : (showReceipt.discount_value || 0)
-                      ) - (showReceipt.points_redeemed || 0)) * 0.1
+                      ) - (showReceipt.points_redeemed || 0)) * 0.07
                     )}</span>
                   </div>
                   <div className="flex justify-between text-lg font-bold pt-2 border-t border-stone-200">

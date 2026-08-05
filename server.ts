@@ -232,7 +232,7 @@ async function startServer() {
       validated.push({ id: menuItem.id, quantity: qty, price: menuItem.price });
       subtotal += menuItem.price * qty;
     }
-    const total = subtotal * 1.10; // 10% tax, same rule as in-store
+    const total = subtotal * 1.07; // 7% tax, same rule as in-store
     const pointsEarned = Math.floor(total / 50);
 
     const transaction = db.transaction(() => {
@@ -520,7 +520,7 @@ async function startServer() {
         : (o.discount_value || 0);
       const ptsDiscount = o.points_redeemed || 0;
       const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      return { ...o, total: discSubtotal * 1.10 };
+      return { ...o, total: discSubtotal * 1.07 };
     });
     
     res.json(ordersWithTotal);
@@ -549,7 +549,7 @@ async function startServer() {
       : (order.discount_value || 0);
     const ptsDiscount = order.points_redeemed || 0;
     const discSubtotal = Math.max(0, order.subtotal - discAmount - ptsDiscount);
-    const total = discSubtotal * 1.10;
+    const total = discSubtotal * 1.07;
     
     res.json({ ...order, total, items });
   });
@@ -566,7 +566,7 @@ async function startServer() {
       : (discount_value || 0);
     const ptsDiscount = points_redeemed || 0;
     const discSubtotal = Math.max(0, itemsSubtotal - discAmount - ptsDiscount);
-    const orderTotal = discSubtotal * 1.10;
+    const orderTotal = discSubtotal * 1.07;
 
     const pointsEarned = Math.floor(orderTotal / 50); // Earn 1 point per 50 THB spent
 
@@ -640,7 +640,7 @@ async function startServer() {
         : (o.discount_value || 0);
       const ptsDiscount = o.points_redeemed || 0;
       const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      totalRevenue += discSubtotal * 1.10;
+      totalRevenue += discSubtotal * 1.07;
     }
 
     const summary = {

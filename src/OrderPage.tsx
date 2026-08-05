@@ -76,7 +76,7 @@ const OrderPage: React.FC = () => {
 
   const cartCount = cart.reduce((s, l) => s + l.quantity, 0);
   const subtotal = cart.reduce((s, l) => s + l.item.price * l.quantity, 0);
-  const total = subtotal * 1.10;
+  const total = subtotal * 1.07;
 
   const addToCart = (item: PublicMenuItem) => {
     setCart(prev => {
@@ -309,7 +309,7 @@ const OrderPage: React.FC = () => {
                 ))}
                 <div className="border-t border-stone-100 pt-2 space-y-1 text-sm">
                   <div className="flex justify-between text-stone-500"><span>{t.subtotal}</span><span className="font-mono">{formatTHB(subtotal)}</span></div>
-                  <div className="flex justify-between text-stone-500"><span>{t.tax}</span><span className="font-mono">{formatTHB(subtotal * 0.10)}</span></div>
+                  <div className="flex justify-between text-stone-500"><span>{t.tax}</span><span className="font-mono">{formatTHB(subtotal * 0.07)}</span></div>
                   <div className="flex justify-between font-bold text-base"><span>{t.total}</span><span className="font-mono text-emerald-600">{formatTHB(total)}</span></div>
                 </div>
               </div>

@@ -12,13 +12,12 @@ import { COMPANY } from './privacyStrings';
 // --- Editable links -----------------------------------------------------
 // Replace the "#" placeholders with real handles when they go live.
 const ORDER_URL = '/order';
-// LOCATION — the previous coords (9.5300392,100.0612897) resolved to CHAWENG,
-// not Bophut, so directions misrouted. Reverted to a Bophut-area reference until
-// the exact spot is known. To pin precisely, set MAP_PLACE to "LAT,LNG" from a
-// Google Maps Plus Code (e.g. '9.5610,100.0620') — it flows to both links below.
-const MAP_PLACE = 'Bophut, Koh Samui';
-const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP_PLACE)}`;
-const MAP_EMBED = `https://www.google.com/maps?q=${encodeURIComponent(MAP_PLACE)}&z=14&output=embed`;
+// LOCATION — exact pin from the owner's Google Maps (lat,lng). Flows to both
+// links below: the embed drops a marker here; the button opens Maps at this point.
+// Preview zoom 17 keeps nearby roads visible so guests can orient in Bophut.
+const MAP_COORDS = '9.5300405,100.060646';
+const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${MAP_COORDS}`;
+const MAP_EMBED = `https://www.google.com/maps?q=${MAP_COORDS}&z=17&output=embed`;
 // Instagram: @niksen.ch. Add Facebook / LINE links when live
 // (real http(s) URLs render as active icons; '#' stays inactive / "Coming soon").
 const SOCIALS = {
