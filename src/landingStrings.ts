@@ -100,16 +100,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: 'Opening 18 August 2026 · Bophut',
     heroTitleA: 'The fine art of',
     heroTitleEm: 'doing nothing',
-    heroSub: 'A secret little bar in Bophut for slow mornings, honest food and very good coffee. Come early. Take the quiet seat. Do gloriously nothing.',
+    heroSub: 'A secret little café and bar in Bophut, Koh Samui. Specialty coffee and slow breakfasts from 7:00, and the bar opens again in the evening. Come early. Take the quiet seat. Do gloriously nothing.',
     heroLocation: 'Bophut · Koh Samui',
     heroHours: 'Daily 07:00–14:00 · 17:00–23:00',
     heroCta: 'Order online',
     heroCta2: 'Find us',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'Every day · 07:00–14:00 · 17:00–23:00',
-    heroCardNote: 'Coffee · bowls · slow breakfasts',
+    heroCardNote: 'Coffee · bowls · breakfasts · evening bar',
 
-    strip: ['Specialty coffee', 'Healthy bowls', 'Slow breakfasts', 'Open from 7:00', 'Bophut · Koh Samui', 'Pickup & delivery', 'Earn points'],
+    strip: ['Specialty coffee', 'Healthy bowls', 'Slow breakfasts', 'Open from 7:00', 'Evening bar from 17:00', 'Bophut · Koh Samui', 'Pickup & delivery', 'Earn points'],
 
     storyKicker: 'What is niksen?',
     storyTitle: 'Doing nothing, on purpose.',
@@ -123,7 +123,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillars: [
       { icon: 'coffee', title: 'Slow mornings', body: 'We open at 7:00, hours before the island really wakes up. Specialty coffee, quiet corners, and absolutely no rush.' },
       { icon: 'leaf', title: 'Honest food', body: 'Healthy bowls, breakfasts, sandwiches and smoothies. Real ingredients, made fresh, priced fair.' },
-      { icon: 'moon', title: 'Doing nothing, deliciously', body: 'Niksen is our house philosophy — less hurry, more presence. Order, settle in, and stay a while.' },
+      { icon: 'moon', title: 'Evenings at the bar', body: 'From 17:00 the secret bar opens again — cocktails and beer, low light, and nowhere else to be. Every day until 23:00.' },
     ],
 
     menuKicker: 'A taste of it',
@@ -187,16 +187,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: 'เปิด 18 สิงหาคม 2026 · บ่อผุด',
     heroTitleA: 'ศิลปะของการ',
     heroTitleEm: 'ไม่ทำอะไรเลย',
-    heroSub: 'บาร์ลับเล็ก ๆ ในบ่อผุด สำหรับเช้าที่ช้าลง อาหารจริงใจ และกาแฟดี ๆ มาเช้าหน่อย เลือกมุมเงียบ ๆ แล้วปล่อยใจไม่ต้องทำอะไรเลย',
+    heroSub: 'คาเฟ่และบาร์ลับเล็ก ๆ ในบ่อผุด เกาะสมุย กาแฟพิเศษและอาหารเช้าสบาย ๆ ตั้งแต่ 7:00 และเปิดบาร์อีกครั้งในช่วงเย็น มาเช้าหน่อย เลือกมุมเงียบ ๆ แล้วปล่อยใจไม่ต้องทำอะไรเลย',
     heroLocation: 'บ่อผุด · เกาะสมุย',
     heroHours: 'ทุกวัน 07:00–14:00 · 17:00–23:00',
     heroCta: 'สั่งออนไลน์',
     heroCta2: 'ดูที่ตั้ง',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'ทุกวัน · 07:00–14:00 · 17:00–23:00',
-    heroCardNote: 'กาแฟ · โบวล์ · อาหารเช้าสบาย ๆ',
+    heroCardNote: 'กาแฟ · โบวล์ · อาหารเช้า · บาร์ตอนเย็น',
 
-    strip: ['กาแฟพิเศษ', 'โบวล์เพื่อสุขภาพ', 'อาหารเช้าสบาย ๆ', 'เปิดตั้งแต่ 7:00', 'บ่อผุด · เกาะสมุย', 'รับเอง & จัดส่ง', 'สะสมแต้ม'],
+    strip: ['กาแฟพิเศษ', 'โบวล์เพื่อสุขภาพ', 'อาหารเช้าสบาย ๆ', 'เปิดตั้งแต่ 7:00', 'บาร์ตอนเย็นตั้งแต่ 17:00', 'บ่อผุด · เกาะสมุย', 'รับเอง & จัดส่ง', 'สะสมแต้ม'],
 
     storyKicker: 'niksen คืออะไร?',
     storyTitle: 'ตั้งใจ…ที่จะไม่ทำอะไรเลย',
@@ -210,7 +210,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillars: [
       { icon: 'coffee', title: 'เช้าที่ช้าลง', body: 'เราเปิด 7:00 ก่อนเกาะจะตื่นจริง ๆ หลายชั่วโมง กาแฟพิเศษ มุมเงียบ ๆ และไม่ต้องรีบเลย' },
       { icon: 'leaf', title: 'อาหารจริงใจ', body: 'โบวล์เพื่อสุขภาพ อาหารเช้า แซนด์วิช และสมูทตี้ วัตถุดิบจริง ทำสด ราคาสมเหตุสมผล' },
-      { icon: 'moon', title: 'ไม่ทำอะไร…อย่างมีรสชาติ', body: 'Niksen คือปรัชญาของร้าน — รีบให้น้อย อยู่กับปัจจุบันให้มาก สั่ง นั่งลง แล้วอยู่ต่อสักพัก' },
+      { icon: 'moon', title: 'ค่ำคืนที่บาร์', body: 'ตั้งแต่ 17:00 บาร์ลับเปิดอีกครั้ง — ค็อกเทลและเบียร์ แสงไฟสลัว ๆ และไม่ต้องรีบไปไหน ทุกวันถึง 23:00' },
     ],
 
     menuKicker: 'ลองชิมดู',
@@ -274,16 +274,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: 'Открытие 18 августа 2026 · Бопхут',
     heroTitleA: 'Тонкое искусство',
     heroTitleEm: 'ничего не делать',
-    heroSub: 'Маленький секретный бар в Бопхуте — для неспешных утр, честной еды и очень хорошего кофе. Приходите пораньше, займите тихое место и с наслаждением не делайте ничего.',
+    heroSub: 'Маленькое секретное кафе и бар в Бопхуте на Самуи. Спешелти-кофе и неспешные завтраки с 7:00, а вечером бар открывается снова. Приходите пораньше, займите тихое место и с наслаждением не делайте ничего.',
     heroLocation: 'Бопхут · Самуи',
     heroHours: 'Каждый день 07:00–14:00 · 17:00–23:00',
     heroCta: 'Заказать',
     heroCta2: 'Как нас найти',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'Каждый день · 07:00–14:00 · 17:00–23:00',
-    heroCardNote: 'Кофе · боулы · неспешные завтраки',
+    heroCardNote: 'Кофе · боулы · завтраки · вечерний бар',
 
-    strip: ['Спешелти-кофе', 'Полезные боулы', 'Неспешные завтраки', 'Открыто с 7:00', 'Бопхут · Самуи', 'Самовывоз и доставка', 'Копите баллы'],
+    strip: ['Спешелти-кофе', 'Полезные боулы', 'Неспешные завтраки', 'Открыто с 7:00', 'Вечерний бар с 17:00', 'Бопхут · Самуи', 'Самовывоз и доставка', 'Копите баллы'],
 
     storyKicker: 'Что такое niksen?',
     storyTitle: 'Ничего не делать — намеренно.',
@@ -297,7 +297,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillars: [
       { icon: 'coffee', title: 'Неспешные утра', body: 'Мы открываемся в 7:00 — задолго до того, как остров по-настоящему проснётся. Спешелти-кофе, тихие уголки и полное отсутствие спешки.' },
       { icon: 'leaf', title: 'Честная еда', body: 'Полезные боулы, завтраки, сэндвичи и смузи. Настоящие ингредиенты, готовим свежим, справедливые цены.' },
-      { icon: 'moon', title: 'Ничего не делать, вкусно', body: 'Niksen — наша философия: меньше суеты, больше присутствия. Закажите, устройтесь поудобнее и останьтесь подольше.' },
+      { icon: 'moon', title: 'Вечера в баре', body: 'С 17:00 секретный бар открывается снова — коктейли и пиво, приглушённый свет и никакой спешки. Каждый день до 23:00.' },
     ],
 
     menuKicker: 'Попробуйте',
