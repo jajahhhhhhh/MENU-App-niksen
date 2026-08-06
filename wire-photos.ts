@@ -34,6 +34,13 @@ const PHOTOS: Record<string, string> = {
   'Shakshuka': 'shakshuka.webp',
   'Syrniki': 'syrniki.webp',
   'Red Sunset': 'red-sunset.webp',
+
+  // Owner-confirmed pairings where the filename doesn't match the menu name.
+  // Both were checked against the actual image: the green one is cucumber and
+  // mint, the mango one is visibly mango. Note yellow-sunrise-smoothie.webp is
+  // NOT the Mango Sunrise despite the name — that photo is pineapple + banana.
+  'Green Machine': 'power-of-green-smoothie.webp',
+  'Mango Sunrise': 'mango-shake-no-sugar.webp',
 };
 
 const findItem = db.prepare('SELECT id, name, image_url FROM menu_items WHERE name = ?');
