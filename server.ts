@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { orderingOpen } from "./src/config.ts";
+import { SqliteSessionStore } from "./sessionStore.ts";
 
 const db = new Database("pos.db");
 
@@ -157,10 +158,15 @@ async function startServer() {
   app.use(express.json());
   app.use(cookieParser());
   app.use(session({
+    // Sessions live in SQLite, not in process memory: staff stay logged in
+    // across deploys and restarts, and nothing accumulates in the heap.
+    store: new SqliteSessionStore(db),
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
+      maxAge: 12 * 60 * 60 * 1000, // a shift's length — re-login next day
       // secure cookies only when served over HTTPS (production behind a proxy)
       secure: process.env.NODE_ENV === "production" && process.env.INSECURE_COOKIES !== "1",
       sameSite: 'lax',
