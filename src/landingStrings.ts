@@ -59,6 +59,12 @@ export interface LandingStrings {
   rewardsBody: string;
   rewardsPoints: string[];
   rewardsCta: string;
+  // private events (whole-venue buyout)
+  privateKicker: string;
+  privateTitle: string;
+  privateBody: string;
+  privatePoints: string[];
+  privateCta: string;
   // visit
   visitKicker: string;
   visitTitle: string;
@@ -148,6 +154,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     ],
     rewardsCta: 'Start earning',
 
+    privateKicker: 'Private events',
+    privateTitle: 'Take the whole place.',
+    privateBody: 'Hire the whole café and bar exclusively — birthdays, private dinners, team gatherings, launch parties. We close the doors to everyone else and the venue is yours, here in Bophut, Koh Samui.',
+    privatePoints: [
+      'Exclusive use of the entire venue',
+      'Food and drinks planned around your group',
+      'Daytime or evening, any day of the week',
+    ],
+    privateCta: 'Ask about a buyout',
+
     visitKicker: 'Visit',
     visitTitle: 'Find the secret bar.',
     visitAddressLabel: 'Where',
@@ -235,6 +251,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     ],
     rewardsCta: 'เริ่มสะสมแต้ม',
 
+    privateKicker: 'เหมาร้าน · จัดงานส่วนตัว',
+    privateTitle: 'เหมาร้านทั้งร้าน เป็นของคุณคนเดียว',
+    privateBody: 'รับจัดงานไพรเวทที่บ่อผุด เกาะสมุย — งานวันเกิด งานเลี้ยงบริษัท ปาร์ตี้ส่วนตัว หรือมื้อค่ำเฉพาะกลุ่ม เราปิดร้านให้ทั้งร้าน ไม่รับลูกค้าทั่วไปในวันนั้น',
+    privatePoints: [
+      'เหมาร้านทั้งร้าน ไม่มีลูกค้าอื่น',
+      'จัดอาหารและเครื่องดื่มตามรูปแบบงานของคุณ',
+      'ได้ทั้งกลางวันและกลางคืน ทุกวัน',
+    ],
+    privateCta: 'สอบถามเหมาร้าน',
+
     visitKicker: 'มาหาเรา',
     visitTitle: 'ตามหาบาร์ลับของเรา',
     visitAddressLabel: 'ที่ไหน',
@@ -321,6 +347,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
       'Скидка прямо у стойки',
     ],
     rewardsCta: 'Начать копить',
+
+    privateKicker: 'Частные мероприятия',
+    privateTitle: 'Всё заведение — только для вас',
+    privateBody: 'Аренда всего кафе и бара целиком — дни рождения, корпоративы, частные ужины и вечеринки. Мы закрываем двери для остальных, и место полностью ваше. Бопхут, Самуи.',
+    privatePoints: [
+      'Аренда всего заведения целиком',
+      'Меню и напитки под ваше мероприятие',
+      'Днём или вечером, в любой день недели',
+    ],
+    privateCta: 'Узнать об аренде',
 
     visitKicker: 'Визит',
     visitTitle: 'Найдите секретный бар.',

@@ -376,6 +376,33 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* ---------------- Private events (whole-venue buyout) ---------------- */}
+      <section id="private" className="scroll-mt-20 py-20 sm:py-28">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">{t.privateKicker}</p>
+            <h2 className="mt-3 font-display text-4xl sm:text-5xl tracking-tight text-stone-900">{t.privateTitle}</h2>
+            <p className="mt-5 text-lg text-stone-600 leading-relaxed max-w-md">{t.privateBody}</p>
+            <a
+              href={`tel:${COMPANY.phone.replace(/\s+/g, '')}`}
+              className="mt-8 inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-bold px-6 py-3.5 rounded-full transition-colors"
+            >
+              <Phone className="w-5 h-5" /> {t.privateCta}
+            </a>
+          </div>
+          <ul className="space-y-4">
+            {t.privatePoints.map((p, i) => (
+              <li key={i} className="flex items-center gap-4 rounded-2xl bg-white border border-stone-200 px-5 py-4 shadow-sm">
+                <span className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <Check className="w-5 h-5" />
+                </span>
+                <span className="font-semibold text-stone-700">{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* ---------------- Visit ---------------- */}
       <section id="visit" className="scroll-mt-20 py-20 sm:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
