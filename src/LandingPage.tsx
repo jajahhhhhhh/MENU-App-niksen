@@ -390,16 +390,20 @@ const LandingPage: React.FC = () => {
               <Phone className="w-5 h-5" /> {t.privateCta}
             </a>
           </div>
-          <ul className="space-y-4">
-            {t.privatePoints.map((p, i) => (
-              <li key={i} className="flex items-center gap-4 rounded-2xl bg-white border border-stone-200 px-5 py-4 shadow-sm">
-                <span className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                  <Check className="w-5 h-5" />
-                </span>
-                <span className="font-semibold text-stone-700">{p}</span>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <ul className="space-y-4">
+              {t.privateOffers.map((o, i) => (
+                <li key={i} className="flex items-center justify-between gap-4 rounded-2xl bg-white border border-stone-200 px-6 py-5 shadow-sm">
+                  <div className="min-w-0">
+                    <p className="font-bold text-stone-800">{o.name}</p>
+                    <p className="mt-1 text-sm text-stone-500">{o.note}</p>
+                  </div>
+                  <p className="font-display text-3xl text-emerald-700 shrink-0">{o.price}</p>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-sm text-stone-500">{t.privateNote}</p>
+          </div>
         </div>
       </section>
 

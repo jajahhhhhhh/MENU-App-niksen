@@ -63,8 +63,9 @@ export interface LandingStrings {
   privateKicker: string;
   privateTitle: string;
   privateBody: string;
-  privatePoints: string[];
+  privateOffers: { name: string; price: string; note: string }[];
   privateCta: string;
+  privateNote: string;
   // visit
   visitKicker: string;
   visitTitle: string;
@@ -157,12 +158,12 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privateKicker: 'Private events',
     privateTitle: 'Take the whole place.',
     privateBody: 'Hire the whole café and bar exclusively — birthdays, private dinners, team gatherings, launch parties. We close the doors to everyone else and the venue is yours, here in Bophut, Koh Samui.',
-    privatePoints: [
-      'Exclusive use of the entire venue',
-      'Food and drinks planned around your group',
-      'Daytime or evening, any day of the week',
+    privateOffers: [
+      { name: 'Small private group', price: '฿3,500', note: '4.5 hours · the whole venue' },
+      { name: 'Workshop space', price: '฿500', note: 'per hour · hire the room by the hour' },
     ],
-    privateCta: 'Ask about a buyout',
+    privateCta: 'Ask about a booking',
+    privateNote: 'Daytime or evening, any day of the week. Call to check the date.',
 
     visitKicker: 'Visit',
     visitTitle: 'Find the secret bar.',
@@ -254,12 +255,12 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privateKicker: 'เหมาร้าน · จัดงานส่วนตัว',
     privateTitle: 'เหมาร้านทั้งร้าน เป็นของคุณคนเดียว',
     privateBody: 'รับจัดงานไพรเวทที่บ่อผุด เกาะสมุย — งานวันเกิด งานเลี้ยงบริษัท ปาร์ตี้ส่วนตัว หรือมื้อค่ำเฉพาะกลุ่ม เราปิดร้านให้ทั้งร้าน ไม่รับลูกค้าทั่วไปในวันนั้น',
-    privatePoints: [
-      'เหมาร้านทั้งร้าน ไม่มีลูกค้าอื่น',
-      'จัดอาหารและเครื่องดื่มตามรูปแบบงานของคุณ',
-      'ได้ทั้งกลางวันและกลางคืน ทุกวัน',
+    privateOffers: [
+      { name: 'เหมาร้าน กลุ่มส่วนตัว', price: '฿3,500', note: '4.5 ชั่วโมง · เหมาทั้งร้าน' },
+      { name: 'เช่าสถานที่จัดเวิร์กช็อป', price: '฿500', note: 'ต่อชั่วโมง · เช่าเป็นรายชั่วโมง' },
     ],
-    privateCta: 'สอบถามเหมาร้าน',
+    privateCta: 'สอบถามและจอง',
+    privateNote: 'ได้ทั้งกลางวันและกลางคืน ทุกวัน โทรเช็ควันว่างได้เลย',
 
     visitKicker: 'มาหาเรา',
     visitTitle: 'ตามหาบาร์ลับของเรา',
@@ -351,12 +352,12 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privateKicker: 'Частные мероприятия',
     privateTitle: 'Всё заведение — только для вас',
     privateBody: 'Аренда всего кафе и бара целиком — дни рождения, корпоративы, частные ужины и вечеринки. Мы закрываем двери для остальных, и место полностью ваше. Бопхут, Самуи.',
-    privatePoints: [
-      'Аренда всего заведения целиком',
-      'Меню и напитки под ваше мероприятие',
-      'Днём или вечером, в любой день недели',
+    privateOffers: [
+      { name: 'Небольшая частная группа', price: '฿3 500', note: '4,5 часа · всё заведение' },
+      { name: 'Площадка для воркшопа', price: '฿500', note: 'в час · почасовая аренда' },
     ],
-    privateCta: 'Узнать об аренде',
+    privateCta: 'Узнать и забронировать',
+    privateNote: 'Днём или вечером, в любой день недели. Позвоните, чтобы уточнить дату.',
 
     visitKicker: 'Визит',
     visitTitle: 'Найдите секретный бар.',

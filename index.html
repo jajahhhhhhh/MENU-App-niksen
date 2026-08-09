@@ -37,17 +37,35 @@
       "menu": "https://niksensamui.com/#menu",
       "acceptsReservations": true,
       "keywords": "café Bophut, bar Bophut, restaurant Bophut, private events Koh Samui, venue hire Koh Samui, whole venue buyout, specialty coffee Koh Samui, breakfast Bophut, คาเฟ่บ่อผุด, บาร์บ่อผุด, ร้านอาหารบ่อผุด, เหมาร้าน เกาะสมุย, รับจัดงานไพรเวท, จัดงานส่วนตัว เกาะสมุย, กาแฟสด บ่อผุด",
-      "makesOffer": {
-        "@type": "Offer",
-        "name": "Private venue hire",
-        "description": "Exclusive hire of the whole café and bar for private events — birthdays, private dinners, team gatherings and launch parties.",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Whole-venue buyout for private events",
-          "serviceType": "Venue hire",
-          "areaServed": { "@type": "Place", "name": "Bo Phut, Ko Samui" }
+      "makesOffer": [
+        {
+          "@type": "Offer",
+          "name": "Private group buyout",
+          "description": "Exclusive hire of the whole café and bar for 4.5 hours — birthdays, private dinners, team gatherings and launch parties.",
+          "price": "3500",
+          "priceCurrency": "THB",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Whole-venue buyout for private events",
+            "serviceType": "Venue hire",
+            "areaServed": { "@type": "Place", "name": "Bo Phut, Ko Samui" }
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Workshop space hire",
+          "description": "Hire the room by the hour for workshops, classes and small meetings.",
+          "price": "500",
+          "priceCurrency": "THB",
+          "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "HUR" },
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Workshop and meeting space hire",
+            "serviceType": "Venue hire",
+            "areaServed": { "@type": "Place", "name": "Bo Phut, Ko Samui" }
+          }
         }
-      },
+      ],
       "openingHoursSpecification": [
         { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "07:00", "closes": "14:00" },
         { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], "opens": "17:00", "closes": "23:00" }
