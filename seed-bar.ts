@@ -46,46 +46,47 @@ interface Dish {
   desc: string;
   desc_th: string;
   desc_ru: string;
+  image?: string; // path under public/, e.g. /menu/x.webp — omitted dishes keep whatever the POS has
 }
 
 const DISHES: Dish[] = [
   // ── Breakfast ───────────────────────────────────────────
-  { name: 'English Breakfast', th: 'อิงลิชเบรกฟาสต์', ru: 'Английский завтрак',
+  { name: 'English Breakfast', image: '/menu/english-breakfast.webp', th: 'อิงลิชเบรกฟาสต์', ru: 'Английский завтрак',
     category: 'Breakfast', price: 210,
     desc: 'Big classic breakfast to start your day right — filling and satisfying. Eggs, sausage, bacon, baked beans, roast potatoes, tomatoes and toast. 689 kcal · 33 g protein.',
     desc_th: 'อาหารเช้าคลาสสิกจานใหญ่ เริ่มวันใหม่อย่างอิ่มอร่อย ไข่ดาว ไส้กรอก เบคอน ถั่วอบ มันฝรั่งอบ มะเขือเทศ และขนมปังปิ้ง 689 กิโลแคลอรี โปรตีน 33 กรัม',
     desc_ru: 'Большой классический завтрак — сытный и питательный. Яичница, колбаски, бекон, запечённая фасоль, картофель, томаты и тост. 689 ккал · 33 г белка.' },
-  { name: 'Salmon Breakfast', th: 'แซลมอนเบรกฟาสต์', ru: 'Завтрак с лососем',
+  { name: 'Salmon Breakfast', image: '/menu/salmon-breakfast.webp', th: 'แซลมอนเบรกฟาสต์', ru: 'Завтрак с лососем',
     category: 'Breakfast', price: 260,
     desc: 'Fresh and balanced breakfast with light, savory flavors. Scrambled eggs, salted salmon, roast potatoes, spinach, feta, olives and toast. 589 kcal · 26 g protein.',
     desc_th: 'อาหารเช้าสดใหม่และสมดุล รสชาติกลมกล่อม ไข่คน แซลมอนเค็ม มันฝรั่งอบ ผักโขม เฟต้าชีส มะกอก และขนมปังปิ้ง 589 กิโลแคลอรี โปรตีน 26 กรัม',
     desc_ru: 'Свежий сбалансированный завтрак с лёгким солоноватым вкусом. Яичница-болтунья, солёный лосось, картофель, шпинат, фета, оливки и тост. 589 ккал · 26 г белка.' },
-  { name: 'Syrniki', th: 'ซีร์นิกิ', ru: 'Сырники',
+  { name: 'Syrniki', image: '/menu/syrniki.webp', th: 'ซีร์นิกิ', ru: 'Сырники',
     category: 'Breakfast', price: 190,
     desc: 'Golden, fluffy cheese pancakes with a creamy center, perfect with sour cream and mango sauce. 260 kcal · 11 g protein.',
     desc_th: 'แพนเค้กชีสสีทองเนื้อฟู ไส้นุ่มครีมมี เสิร์ฟกับซาวร์ครีมและซอสมะม่วง 260 กิโลแคลอรี โปรตีน 11 กรัม',
     desc_ru: 'Золотистые пышные сырники с нежной серединкой — идеальны со сметаной и манговым соусом. 260 ккал · 11 г белка.' },
-  { name: 'Mediterranean Omelette', th: 'ออมเล็ตเมดิเตอร์เรเนียน', ru: 'Средиземноморский омлет',
+  { name: 'Mediterranean Omelette', image: '/menu/mediterranean-omelette.webp', th: 'ออมเล็ตเมดิเตอร์เรเนียน', ru: 'Средиземноморский омлет',
     category: 'Breakfast', price: 195,
     desc: 'Fluffy eggs with tomatoes, mushrooms, bell peppers, broccoli and a fresh side salad, served with bread.',
     desc_th: 'ไข่ออมเล็ตเนื้อนุ่มกับมะเขือเทศ เห็ด พริกหวาน บรอกโคลี เสิร์ฟพร้อมสลัดสดและขนมปัง',
     desc_ru: 'Пышный омлет с томатами, грибами, болгарским перцем и брокколи, подаётся со свежим салатом и хлебом.' },
-  { name: 'Shakshuka', th: 'ชัคชูก้า', ru: 'Шакшука',
+  { name: 'Shakshuka', image: '/menu/shakshuka.webp', th: 'ชัคชูก้า', ru: 'Шакшука',
     category: 'Breakfast', price: 165,
     desc: 'Eggs poached in a smoky, spiced tomato and pepper medley, served with bread.',
     desc_th: 'ไข่ดาวน้ำในซอสมะเขือเทศและพริกหวานปรุงเครื่องเทศกลิ่นรมควัน เสิร์ฟพร้อมขนมปัง',
     desc_ru: 'Яйца, томлённые в пряном томатно-перечном соусе с дымком, подаются с хлебом.' },
-  { name: 'Avocado Breakfast', th: 'อะโวคาโดเบรกฟาสต์', ru: 'Завтрак с авокадо',
+  { name: 'Avocado Breakfast', image: '/menu/avocado-breakfast.webp', th: 'อะโวคาโดเบรกฟาสต์', ru: 'Завтрак с авокадо',
     category: 'Breakfast', price: 195,
     desc: 'Nourishing breakfast with a fresh, clean taste. Avocado, boiled eggs, corn, spinach, feta, olives, seeds and toast. 450 kcal · 16 g protein.',
     desc_th: 'อาหารเช้าสดชื่นรสสะอาด อะโวคาโด ไข่ต้ม ข้าวโพด ผักโขม เฟต้าชีส มะกอก เมล็ดพืช และขนมปังปิ้ง 450 กิโลแคลอรี โปรตีน 16 กรัม',
     desc_ru: 'Питательный завтрак со свежим, чистым вкусом. Авокадо, варёные яйца, кукуруза, шпинат, фета, оливки, семечки и тост. 450 ккал · 16 г белка.' },
-  { name: 'Green Pesto Oats', th: 'โอ๊ตเพสโต้เขียว', ru: 'Овсянка с зелёным песто',
+  { name: 'Green Pesto Oats', image: '/menu/green-pesto-oats.webp', th: 'โอ๊ตเพสโต้เขียว', ru: 'Овсянка с зелёным песто',
     category: 'Breakfast', price: 185,
     desc: 'Savory oats with green pesto, topped with creamy stracciatella and fresh basil. 379 kcal · 21 g protein.',
     desc_th: 'ข้าวโอ๊ตรสเค็มกับเพสโต้เขียว ท็อปด้วยสตราชาเทลลาครีมมีและใบโหระพาสด 379 กิโลแคลอรี โปรตีน 21 กรัม',
     desc_ru: 'Несладкая овсянка с зелёным песто, страчателлой и свежим базиликом. 379 ккал · 21 г белка.' },
-  { name: 'Golden Pumpkin Oats', th: 'โอ๊ตฟักทองสีทอง', ru: 'Золотая тыквенная овсянка',
+  { name: 'Golden Pumpkin Oats', image: '/menu/golden-pumpkin-oats.webp', th: 'โอ๊ตฟักทองสีทอง', ru: 'Золотая тыквенная овсянка',
     category: 'Breakfast', price: 175,
     desc: 'Warm golden oats with sweet roasted pumpkin, topped with pumpkin seeds.',
     desc_th: 'ข้าวโอ๊ตอุ่น ๆ สีทองกับฟักทองอบหวาน โรยเมล็ดฟักทอง',
@@ -160,11 +161,11 @@ const DISHES: Dish[] = [
 
 const findItem = db.prepare('SELECT id FROM menu_items WHERE name = ? AND category = ?');
 const insert = db.prepare(`
-  INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, available, stock_quantity, low_stock_threshold)
-  VALUES (@name, @th, @ru, @desc, @desc_th, @desc_ru, @category, @price, 1, 50, 10)
+  INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, available, stock_quantity, low_stock_threshold)
+  VALUES (@name, @th, @ru, @desc, @desc_th, @desc_ru, @category, @price, @image, 1, 50, 10)
 `);
 const update = db.prepare(`
-  UPDATE menu_items SET name_th=@th, name_ru=@ru, description=@desc, description_th=@desc_th, description_ru=@desc_ru, available=1 WHERE id=@id
+  UPDATE menu_items SET name_th=@th, name_ru=@ru, description=@desc, description_th=@desc_th, description_ru=@desc_ru, image_url=COALESCE(@image, image_url) WHERE id=@id
 `);
 
 let added = 0;
@@ -173,10 +174,10 @@ const run = db.transaction(() => {
   for (const d of DISHES) {
     const row = findItem.get(d.name, d.category) as { id: number } | undefined;
     if (row) {
-      update.run({ ...d, id: row.id });
+      update.run({ image: null, ...d, id: row.id });
       updated++;
     } else {
-      insert.run(d);
+      insert.run({ image: null, ...d });
       added++;
     }
   }
