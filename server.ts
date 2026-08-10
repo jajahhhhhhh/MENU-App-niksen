@@ -857,7 +857,16 @@ async function startServer() {
     const distDir = path.join(process.cwd(), "dist");
     app.use(express.static(distDir));
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
+      // Every path used to return the app with a 200, so a typo'd URL looked
+      // to Google like a real page and could be indexed. The client router
+      // still renders the 404 screen either way — this only fixes the status
+      // code, which is the part crawlers act on.
+      //
+      // Must stay in step with the route table in src/main.tsx.
+      const known = ["/order", "/pos", "/privacy", "/offer", "/journal"];
+      const p = req.path;
+      const isKnown = p === "/" || known.some(r => p === r || p.startsWith(r + "/"));
+      res.status(isKnown ? 200 : 404).sendFile(path.join(distDir, "index.html"));
     });
   }
 
