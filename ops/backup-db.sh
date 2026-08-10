@@ -50,10 +50,18 @@ if [ "$day_of_month" = "01" ]; then
   cp -p "$DEST/pos-$stamp.db.gz" "$DEST/monthly-$stamp.db.gz"
 fi
 
-# Rotate. ls -t is safe here because the names are ISO-dated, so alphabetical
-# and chronological order agree.
-ls -1t "$DEST"/pos-*.db.gz     2>/dev/null | tail -n +$((KEEP_DAILY + 1))   | xargs -r rm --
-ls -1t "$DEST"/monthly-*.db.gz 2>/dev/null | tail -n +$((KEEP_MONTHLY + 1)) | xargs -r rm --
+# Rotate, newest first. Having nothing to prune is the normal state on the
+# first runs, and `ls` exits non-zero on a glob that matches nothing — under
+# `set -e` with `pipefail` that would fail the whole job after the snapshot had
+# already been written successfully.
+prune() {
+  local pattern=$1 keep=$2 files
+  files=$(ls -1t $pattern 2>/dev/null || true)
+  [ -z "$files" ] && return 0
+  printf '%s\n' "$files" | tail -n +$((keep + 1)) | xargs -r rm --
+}
+prune "$DEST/pos-*.db.gz"     "$KEEP_DAILY"
+prune "$DEST/monthly-*.db.gz" "$KEEP_MONTHLY"
 
 orders=$(sqlite3 "$DB" 'SELECT COUNT(*) FROM orders;')
 size=$(du -h "$DEST/pos-$stamp.db.gz" | cut -f1)
