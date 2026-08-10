@@ -13,6 +13,10 @@ interface Strings {
   emptyMenu: string;
   soldOut: string;
   add: string;
+  customise: string;
+  from: string;
+  chooseIngredients: string;
+  clearAll: string;
   cartItems: (n: number) => string;
   checkout: string;
   yourOrder: string;
@@ -52,6 +56,10 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'The menu is being set up — please check back soon.',
     soldOut: 'Sold out',
     add: 'Add',
+    customise: 'Build it',
+    from: 'from',
+    chooseIngredients: 'Pick anything you like — mix and match.',
+    clearAll: 'Clear all',
     cartItems: n => `${n} ${n === 1 ? 'item' : 'items'}`,
     checkout: 'Checkout',
     yourOrder: 'Your order',
@@ -89,6 +97,10 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'เมนูกำลังจัดเตรียม โปรดกลับมาใหม่เร็ว ๆ นี้',
     soldOut: 'หมด',
     add: 'เพิ่ม',
+    customise: 'จัดโบวล์',
+    from: 'เริ่มต้น',
+    chooseIngredients: 'เลือกส่วนผสมที่ชอบได้เลย ผสมกันตามใจ',
+    clearAll: 'ล้างทั้งหมด',
     cartItems: n => `${n} รายการ`,
     checkout: 'ชำระเงิน',
     yourOrder: 'รายการของคุณ',
@@ -126,6 +138,10 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'Меню скоро появится — загляните позже.',
     soldOut: 'Нет в наличии',
     add: 'Добавить',
+    customise: 'Собрать',
+    from: 'от',
+    chooseIngredients: 'Выберите любые ингредиенты — комбинируйте как хотите.',
+    clearAll: 'Очистить всё',
     cartItems: n => {
       const mod10 = n % 10, mod100 = n % 100;
       if (mod10 === 1 && mod100 !== 11) return `${n} позиция`;

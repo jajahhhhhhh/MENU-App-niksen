@@ -13,7 +13,8 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "seed:coffee": "tsx seed-coffee.ts",
-    "wire:photos": "tsx wire-photos.ts"
+    "wire:photos": "tsx wire-photos.ts",
+    "seed:bowl": "tsx seed-bowl-builder.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

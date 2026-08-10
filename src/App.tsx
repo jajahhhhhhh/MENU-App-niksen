@@ -2333,15 +2333,29 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {showReceipt.items?.map(item => (
-                    <div key={item.id} className="flex justify-between">
-                      <div className="flex-1">
-                        <p>{item.name}</p>
-                        <p className="text-xs text-stone-400">{item.quantity} x {formatCurrency(item.price_at_time)}</p>
+                  {showReceipt.items?.map(item => {
+                    // Configurable items (the build-your-own bowl) carry a snapshot
+                    // of what the customer picked. Without it the kitchen sees only
+                    // "Build Your Own Bowl" and has no idea what to make.
+                    let chosen: { group: string; name: string }[] = [];
+                    if ((item as any).options_json) {
+                      try { chosen = JSON.parse((item as any).options_json); } catch { chosen = []; }
+                    }
+                    return (
+                      <div key={item.id} className="flex justify-between">
+                        <div className="flex-1 pr-2">
+                          <p>{item.name}</p>
+                          {chosen.length > 0 && (
+                            <p className="text-xs text-stone-500 leading-snug">
+                              {chosen.map(o => o.name).join(', ')}
+                            </p>
+                          )}
+                          <p className="text-xs text-stone-400">{item.quantity} x {formatCurrency(item.price_at_time)}</p>
+                        </div>
+                        <span className="font-bold">{formatCurrency(item.quantity * item.price_at_time)}</span>
                       </div>
-                      <span className="font-bold">{formatCurrency(item.quantity * item.price_at_time)}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="border-t border-dashed border-stone-200 pt-4 space-y-2 text-xs">

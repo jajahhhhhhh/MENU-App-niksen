@@ -108,6 +108,44 @@ db.exec(`
   UPDATE menu_items SET low_stock_threshold = 10 WHERE low_stock_threshold IS NULL;
 `);
 
+// Configurable items (the build-your-own bowl) carry option groups the flat
+// menu_items table can't express. Created here as well as in seed-bowl-builder
+// so the server starts cleanly on a database that has never been seeded.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS menu_option_groups (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    menu_item_id INTEGER NOT NULL,
+    name         TEXT NOT NULL,
+    name_th      TEXT,
+    name_ru      TEXT,
+    min_select   INTEGER NOT NULL DEFAULT 0,
+    max_select   INTEGER,
+    sort_order   INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(menu_item_id, name),
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+  );
+  CREATE TABLE IF NOT EXISTS menu_options (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id   INTEGER NOT NULL,
+    name       TEXT NOT NULL,
+    name_th    TEXT,
+    name_ru    TEXT,
+    price      REAL NOT NULL DEFAULT 0,
+    kcal       INTEGER,
+    protein    REAL,
+    grams      INTEGER,
+    available  INTEGER NOT NULL DEFAULT 1,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(group_id, name),
+    FOREIGN KEY (group_id) REFERENCES menu_option_groups(id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_option_groups_item ON menu_option_groups(menu_item_id);
+  CREATE INDEX IF NOT EXISTS idx_options_group ON menu_options(group_id);
+`);
+// Chosen options are snapshotted onto the line so a receipt still reads
+// correctly after an option is renamed, repriced or removed.
+try { db.exec("ALTER TABLE order_items ADD COLUMN options_json TEXT"); } catch (e) {}
+
 // Default settings (change PIN and PromptPay ID in Manage → Store Settings)
 db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("staff_pin", "1234");
 db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("shop_name", "Niksen");
@@ -210,7 +248,35 @@ async function startServer() {
     const items = db.prepare(
       "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
     ).all() as any[];
-    res.json(items.map(i => ({ ...i, in_stock: i.stock_quantity === null || i.stock_quantity > 0 })));
+
+    // Attach option groups to the few items that are configurable. Fetched in
+    // two flat queries and stitched in memory rather than per-item, so adding
+    // more configurable items later doesn't turn this into N+1 round trips.
+    const groups = db.prepare(
+      "SELECT id, menu_item_id, name, name_th, name_ru, min_select, max_select FROM menu_option_groups ORDER BY sort_order, id"
+    ).all() as any[];
+    const options = db.prepare(
+      "SELECT id, group_id, name, name_th, name_ru, price, kcal, protein, grams FROM menu_options WHERE available = 1 ORDER BY sort_order, id"
+    ).all() as any[];
+
+    const optionsByGroup = new Map<number, any[]>();
+    for (const o of options) {
+      if (!optionsByGroup.has(o.group_id)) optionsByGroup.set(o.group_id, []);
+      optionsByGroup.get(o.group_id)!.push(o);
+    }
+    const groupsByItem = new Map<number, any[]>();
+    for (const g of groups) {
+      const opts = optionsByGroup.get(g.id) || [];
+      if (opts.length === 0) continue; // an empty group is noise in the UI
+      if (!groupsByItem.has(g.menu_item_id)) groupsByItem.set(g.menu_item_id, []);
+      groupsByItem.get(g.menu_item_id)!.push({ ...g, options: opts });
+    }
+
+    res.json(items.map(i => ({
+      ...i,
+      in_stock: i.stock_quantity === null || i.stock_quantity > 0,
+      option_groups: groupsByItem.get(i.id) || null,
+    })));
   });
 
   app.post("/api/public/orders", (req, res) => {
@@ -225,8 +291,17 @@ async function startServer() {
 
     // Prices always come from the database — never from the client
     const getItem = db.prepare("SELECT * FROM menu_items WHERE id = ? AND available = 1");
+    // An option is only valid for the item whose group it belongs to — without
+    // the join a caller could attach a ฿0 option from another item, or a
+    // sold-out one, and the price would still come out looking legitimate.
+    const getOption = db.prepare(`
+      SELECT o.id, o.name, o.price, o.kcal, o.protein, g.name AS group_name
+      FROM menu_options o
+      JOIN menu_option_groups g ON g.id = o.group_id
+      WHERE o.id = ? AND g.menu_item_id = ? AND o.available = 1
+    `);
     let subtotal = 0;
-    const validated: { id: number; quantity: number; price: number }[] = [];
+    const validated: { id: number; quantity: number; price: number; options: any[] | null }[] = [];
     for (const it of items) {
       const qty = Math.floor(Number(it.quantity));
       if (!Number.isFinite(qty) || qty < 1 || qty > 50) return res.status(400).json({ error: "Invalid quantity" });
@@ -235,8 +310,31 @@ async function startServer() {
       if (menuItem.stock_quantity !== null && menuItem.stock_quantity < qty) {
         return res.status(400).json({ error: `Not enough stock for ${menuItem.name}` });
       }
-      validated.push({ id: menuItem.id, quantity: qty, price: menuItem.price });
-      subtotal += menuItem.price * qty;
+
+      // Option prices are looked up server-side for the same reason item prices
+      // are: the client sends ids only, never amounts.
+      let unitPrice = menuItem.price;
+      let chosen: any[] | null = null;
+      if (Array.isArray(it.options) && it.options.length > 0) {
+        if (it.options.length > 60) return res.status(400).json({ error: "Too many options selected" });
+        const seen = new Set<number>();
+        chosen = [];
+        for (const rawId of it.options) {
+          const optId = Math.floor(Number(rawId));
+          if (!Number.isFinite(optId) || seen.has(optId)) continue; // ignore junk and duplicates
+          seen.add(optId);
+          const opt = getOption.get(optId, menuItem.id) as any;
+          if (!opt) return res.status(400).json({ error: "An option in your cart is no longer available" });
+          chosen.push({ id: opt.id, group: opt.group_name, name: opt.name, price: opt.price, kcal: opt.kcal, protein: opt.protein });
+          unitPrice += opt.price;
+        }
+        if (chosen.length === 0) chosen = null;
+      }
+
+      // price_at_time carries base + options so receipts, totals and the POS
+      // keep working off a single unit price, as they did before options existed.
+      validated.push({ id: menuItem.id, quantity: qty, price: unitPrice, options: chosen });
+      subtotal += unitPrice * qty;
     }
     const total = subtotal * 1.07; // 7% tax, same rule as in-store
     const pointsEarned = Math.floor(total / 50);
@@ -263,10 +361,10 @@ async function startServer() {
       );
       const orderId = orderResult.lastInsertRowid;
 
-      const insertItem = db.prepare("INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_time) VALUES (?, ?, ?, ?)");
+      const insertItem = db.prepare("INSERT INTO order_items (order_id, menu_item_id, quantity, price_at_time, options_json) VALUES (?, ?, ?, ?, ?)");
       const deductStock = db.prepare("UPDATE menu_items SET stock_quantity = MAX(0, stock_quantity - ?) WHERE id = ?");
       for (const v of validated) {
-        insertItem.run(orderId, v.id, v.quantity, v.price);
+        insertItem.run(orderId, v.id, v.quantity, v.price, v.options ? JSON.stringify(v.options) : null);
         deductStock.run(v.quantity, v.id);
       }
 
