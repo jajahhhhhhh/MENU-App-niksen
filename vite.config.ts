@@ -1,23 +1,24 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig, loadEnv} from 'vite';
+import {defineConfig} from 'vite';
 
-export default defineConfig(({mode}) => {
-  const env = loadEnv(mode, '.', '');
+// No `define` block here on purpose. The Google AI Studio scaffold this project
+// grew out of inlined GEMINI_API_KEY into the client bundle, which would have
+// published the key in readable JavaScript the moment the variable was set.
+// Nothing in the app uses Gemini, so the whole path is gone. Anything genuinely
+// secret belongs on the server — see the .env read in server.ts.
+export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // HMR is off in AI Studio via the DISABLE_HMR env var — file watching
+      // there causes flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
     },
   };
