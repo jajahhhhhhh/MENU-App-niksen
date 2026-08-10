@@ -576,6 +576,7 @@ const LandingPage: React.FC = () => {
                 <li><a href="#story" className="hover:text-white transition-colors">{t.navStory}</a></li>
                 <li><a href="#menu" className="hover:text-white transition-colors">{t.navMenu}</a></li>
                 <li><a href="#visit" className="hover:text-white transition-colors">{t.navVisit}</a></li>
+                <li><a href="/journal" className="hover:text-white transition-colors">{t.navJournal}</a></li>
                 <li><a href={ORDER_URL} className="hover:text-white transition-colors">{t.order}</a></li>
               </ul>
             </div>

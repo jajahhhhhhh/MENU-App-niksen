@@ -19,6 +19,7 @@ export interface LandingStrings {
   navMenu: string;
   navRewards: string;
   navVisit: string;
+  navJournal: string;
   order: string;
   staff: string;
   // hero
@@ -101,6 +102,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     navMenu: 'Menu',
     navRewards: 'Rewards',
     navVisit: 'Visit',
+    navJournal: 'Journal',
     order: 'Order online',
     staff: 'Staff',
 
@@ -198,6 +200,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     navMenu: 'เมนู',
     navRewards: 'สะสมแต้ม',
     navVisit: 'มาหาเรา',
+    navJournal: 'บันทึก',
     order: 'สั่งออนไลน์',
     staff: 'พนักงาน',
 
@@ -295,6 +298,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     navMenu: 'Меню',
     navRewards: 'Бонусы',
     navVisit: 'Визит',
+    navJournal: 'Дневник',
     order: 'Заказать',
     staff: 'Персонал',
 
