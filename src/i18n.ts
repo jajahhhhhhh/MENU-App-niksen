@@ -190,8 +190,8 @@ export function localizedDescription(
 // Menu category labels per language (falls back to the raw category name).
 export const CATEGORY_LABELS: Record<Lang, Record<string, string>> = {
   en: {},
-  th: { Coffee: 'กาแฟ', Bowls: 'โบวล์', Breakfast: 'อาหารเช้า', Smoothies: 'สมูทตี้', Juices: 'น้ำผลไม้', 'Signature Tea': 'ชาซิกเนเจอร์', Soups: 'ซุป', 'Triangle Sandwiches': 'แซนด์วิชสามเหลี่ยม', Burritos: 'เบอร์ริโต' },
-  ru: { Coffee: 'Кофе', Bowls: 'Боулы', Breakfast: 'Завтрак', Smoothies: 'Смузи', Juices: 'Соки', 'Signature Tea': 'Фирменный чай', Soups: 'Супы', 'Triangle Sandwiches': 'Треугольные сэндвичи', Burritos: 'Буррито' },
+  th: { Coffee: 'กาแฟ', Bowls: 'โบวล์', Breakfast: 'อาหารเช้า', Smoothies: 'สมูทตี้', Juices: 'น้ำผลไม้', 'Signature Tea': 'ชาซิกเนเจอร์', Soups: 'ซุป', 'Triangle Sandwiches': 'แซนด์วิชสามเหลี่ยม', Burritos: 'เบอร์ริโต', 'Build Your Own Bowl': 'โบวล์จัดเอง' },
+  ru: { Coffee: 'Кофе', Bowls: 'Боулы', Breakfast: 'Завтрак', Smoothies: 'Смузи', Juices: 'Соки', 'Signature Tea': 'Фирменный чай', Soups: 'Супы', 'Triangle Sandwiches': 'Треугольные сэндвичи', Burritos: 'Буррито', 'Build Your Own Bowl': 'Собери свой боул' },
 };
 
 export function localizedCategory(category: string, lang: Lang): string {
