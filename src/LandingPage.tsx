@@ -633,7 +633,7 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="mt-12 pt-6 border-t border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-stone-500">
-            <p>© 2026 niksen secret bar. {t.rights}</p>
+            <p>© 2026 niksen secret bar. {t.rights} <span className="font-display italic text-stone-400">{t.comeIn}</span></p>
             <p className="inline-flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {t.heroHours}</p>
           </div>
         </div>

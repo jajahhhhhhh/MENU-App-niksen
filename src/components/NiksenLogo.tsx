@@ -47,7 +47,7 @@ export const NiksenLogo: React.FC<NiksenLogoProps> = ({
           </text>
 
           {/* i stem */}
-          <rect x="42" y="16" width="9.5" height="32" rx="4.5" transform="skewX(-10 42 16)" />
+          <rect x="42" y="16" width="9.5" height="32" rx="4.5" transform="translate(42 16) skewX(-10) translate(-42 -16)" />
           
           {/* teardrop below i */}
           <path

@@ -94,6 +94,7 @@ export interface LandingStrings {
   privacy: string;
   offer: string;
   rights: string;
+  comeIn: string;
 }
 
 export const LANDING: Record<Lang, LandingStrings> = {
@@ -193,6 +194,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privacy: 'Privacy Policy',
     offer: 'Public Offer',
     rights: 'All rights reserved.',
+    comeIn: 'Please come in.',
   },
 
   th: {
@@ -291,6 +293,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privacy: 'นโยบายความเป็นส่วนตัว',
     offer: 'ข้อเสนอสาธารณะ',
     rights: 'สงวนลิขสิทธิ์',
+    comeIn: 'เชิญเข้ามาเลย',
   },
 
   ru: {
@@ -389,5 +392,6 @@ export const LANDING: Record<Lang, LandingStrings> = {
     privacy: 'Политика конфиденциальности',
     offer: 'Публичная оферта',
     rights: 'Все права защищены.',
+    comeIn: 'Заходите, пожалуйста.',
   },
 };
