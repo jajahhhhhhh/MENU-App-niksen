@@ -8,14 +8,13 @@
     "seed": "tsx seed.ts",
     "seed:tea": "tsx seed-tea.ts",
     "seed:bar": "tsx seed-bar.ts",
-    "seed:bowl": "tsx seed-bowl.ts",
+    "seed:bowl": "tsx seed-bowl-builder.ts",
     "build": "vite build",
     "start": "node server.ts",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "seed:coffee": "tsx seed-coffee.ts",
-    "wire:photos": "tsx wire-photos.ts",
-    "seed:bowl": "tsx seed-bowl-builder.ts"
+    "wire:photos": "tsx wire-photos.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -39,7 +38,7 @@
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.14",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.12",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
