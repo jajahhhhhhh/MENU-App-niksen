@@ -42,14 +42,10 @@ interface SeedItem {
 // Prices in THB. Categories appear on the ordering page in first-seen order.
 const MENU: SeedItem[] = [
   // ── Coffee ──────────────────────────────────────────────
-  { name: 'Espresso',        th: 'เอสเพรสโซ',            ru: 'Эспрессо',              category: 'Coffee', price: 60 },
-  { name: 'Americano',       th: 'อเมริกาโน่',           ru: 'Американо',             category: 'Coffee', price: 70 },
-  { name: 'Cappuccino',      th: 'คาปูชิโน่',            ru: 'Капучино',              category: 'Coffee', price: 85 },
-  { name: 'Caffè Latte',     th: 'คาเฟ่ลาเต้',           ru: 'Латте',                 category: 'Coffee', price: 90 },
-  { name: 'Flat White',      th: 'แฟลตไวท์',             ru: 'Флэт-уайт',             category: 'Coffee', price: 90 },
-  { name: 'Mocha',           th: 'มอคค่า',               ru: 'Мокко',                 category: 'Coffee', price: 100 },
-  { name: 'Iced Latte',      th: 'ไอซ์ลาเต้',            ru: 'Айс-латте',             category: 'Coffee', price: 95 },
-  { name: 'Cold Brew',       th: 'โคลด์บริว',            ru: 'Колд-брю',              category: 'Coffee', price: 110 },
+  // One house drink only. The eight-strong espresso-bar list that used to live
+  // here was never the real menu; re-seeding it is what re-created Caffè Latte,
+  // Flat White, Iced Latte and Mocha on 10 Aug. Owner-confirmed 11 Aug 2026.
+  { name: 'Black Rest Coffee', th: 'แบล็ก เรสต์ คอฟฟี่', ru: 'Блэк Рест Кофе',        category: 'Coffee', price: 90 },
 
   // ── Bowls ───────────────────────────────────────────────
   { name: 'niksen Signature Bowl', th: 'โบวล์ซิกเนเจอร์ niksen', ru: 'Фирменный боул niksen', category: 'Bowls', price: 229 },

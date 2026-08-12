@@ -141,7 +141,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'Order ahead for pickup or delivery in Bophut. The full, live menu lives on the ordering page.',
     menuSample: 'Sample selection — see the live menu to order',
     menuItems: [
-      { emoji: '☕', name: 'Specialty coffee', note: 'Espresso, filter & iced — roasted for slow mornings', price: '฿60+' },
+      { emoji: '☕', name: 'Black Rest Coffee', note: 'Our one coffee — black, and nothing to decide', price: '฿90' },
       { emoji: '🥗', name: 'Signature bowls', note: 'Fresh, balanced, built to order', price: '฿199+' },
       { emoji: '🥣', name: 'Slow breakfasts', note: 'Overnight oats, eggs & warm toasts', price: '฿120+' },
       { emoji: '🥤', name: 'Fresh smoothies', note: 'Fruit, greens & good mornings', price: '฿90+' },
@@ -240,7 +240,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'สั่งล่วงหน้าเพื่อรับเองหรือจัดส่งในบ่อผุด เมนูเต็มแบบเรียลไทม์อยู่ที่หน้าสั่งซื้อ',
     menuSample: 'ตัวอย่างเมนู — ดูเมนูจริงเพื่อสั่งซื้อ',
     menuItems: [
-      { emoji: '☕', name: 'กาแฟพิเศษ', note: 'เอสเพรสโซ ดริป และเย็น คั่วมาเพื่อเช้าสบาย ๆ', price: '฿60+' },
+      { emoji: '☕', name: 'แบล็ก เรสต์ คอฟฟี่', note: 'กาแฟดำตัวเดียวของร้าน ไม่ต้องเลือกอะไรเลย', price: '฿90' },
       { emoji: '🥗', name: 'โบวล์ซิกเนเจอร์', note: 'สด สมดุล จัดตามใจคุณ', price: '฿199+' },
       { emoji: '🥣', name: 'อาหารเช้าสบาย ๆ', note: 'โอ๊ตข้ามคืน ไข่ และขนมปังอุ่น ๆ', price: '฿120+' },
       { emoji: '🥤', name: 'สมูทตี้สดใหม่', note: 'ผลไม้ ผักใบเขียว และเช้าที่ดี', price: '฿90+' },
@@ -339,7 +339,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'Закажите заранее с самовывозом или доставкой в Бопхуте. Полное живое меню — на странице заказа.',
     menuSample: 'Пример меню — откройте живое меню, чтобы заказать',
     menuItems: [
-      { emoji: '☕', name: 'Спешелти-кофе', note: 'Эспрессо, фильтр и айс — обжарен для неспешных утр', price: '฿60+' },
+      { emoji: '☕', name: 'Блэк Рест Кофе', note: 'Наш единственный кофе — чёрный, и выбирать нечего', price: '฿90' },
       { emoji: '🥗', name: 'Фирменные боулы', note: 'Свежие, сбалансированные, на ваш вкус', price: '฿199+' },
       { emoji: '🥣', name: 'Неспешные завтраки', note: 'Ночная овсянка, яйца и тёплые тосты', price: '฿120+' },
       { emoji: '🥤', name: 'Свежие смузи', note: 'Фрукты, зелень и доброе утро', price: '฿90+' },
