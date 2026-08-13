@@ -2302,7 +2302,7 @@ const App: React.FC = () => {
               <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto font-mono text-sm">
                 <div className="text-center space-y-2 flex flex-col items-center">
                   <NiksenLogo variant="blue" size="md" />
-                  <p className="text-stone-500 text-xs">Sukhumvit Soi 11 • Bangkok, Thailand</p>
+                  <p className="text-stone-500 text-xs">15 Moo 2, Bophut • Koh Samui, Thailand</p>
                 </div>
                 
                 <div className="border-y border-dashed border-stone-200 py-4 space-y-1 text-xs">
@@ -2427,7 +2427,7 @@ const App: React.FC = () => {
                     <p className="text-emerald-400 font-mono font-bold text-xl">
                       {formatCurrency(calculateOrderTotal(showReceipt))}
                     </p>
-                    <p className="text-[10px] text-stone-400">PromptPay ID: 081-234-5678 • Niksen Bar Bangkok</p>
+                    <p className="text-[10px] text-stone-400">PromptPay • niksen secret bar · Koh Samui</p>
                   </div>
                 </div>
               </div>
