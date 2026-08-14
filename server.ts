@@ -6,6 +6,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import { orderingOpen } from "./src/config.ts";
 import { SqliteSessionStore } from "./sessionStore.ts";
+import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
 
 const db = new Database("pos.db");
 
@@ -145,6 +146,10 @@ db.exec(`
 // Chosen options are snapshotted onto the line so a receipt still reads
 // correctly after an option is renamed, repriced or removed.
 try { db.exec("ALTER TABLE order_items ADD COLUMN options_json TEXT"); } catch (e) {}
+
+// Ingredient stock, recipes and food cost. Declared after menu_items and
+// menu_options because recipe_items references both.
+initInventorySchema(db);
 
 // Default settings (change PIN and PromptPay ID in Manage → Store Settings)
 db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("staff_pin", "1234");
@@ -366,6 +371,10 @@ async function startServer() {
       for (const v of validated) {
         insertItem.run(orderId, v.id, v.quantity, v.price, v.options ? JSON.stringify(v.options) : null);
         deductStock.run(v.quantity, v.id);
+        // Ingredients come off the shelf too, following the dish's recipe and
+        // the recipes of whichever options were chosen. Inside this same
+        // transaction, so an order can never be recorded half-deducted.
+        consumeForLine(db, Number(orderId), v.id, (v.options || []).map((o: any) => o.id), v.quantity);
       }
 
       const newSpent = member.total_spent + total;
@@ -701,6 +710,10 @@ async function startServer() {
       for (const item of items) {
         insertItem.run(orderId, item.menu_item_id, item.quantity, item.price);
         deductStock.run(item.quantity, item.menu_item_id);
+        // Counter sales draw down ingredients exactly as online orders do.
+        consumeForLine(db, Number(orderId), item.menu_item_id,
+          Array.isArray(item.options) ? item.options.map((o: any) => (typeof o === 'number' ? o : o.id)) : [],
+          item.quantity);
       }
 
       if (member_id) {
@@ -738,9 +751,19 @@ async function startServer() {
     }
 
     params.push(req.params.id);
-    db.prepare(`UPDATE orders SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+    db.transaction(() => {
+      db.prepare(`UPDATE orders SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+      // Ingredients are taken when the order is rung up, so a cancellation has
+      // to put them back — otherwise a mistyped order silently eats the stock.
+      // restoreForOrder is idempotent, so cancelling twice cannot double-credit.
+      if (status === 'cancelled') restoreForOrder(db, Number(req.params.id));
+    })();
     res.json({ success: true });
   });
+
+  // Ingredients, recipes, purchases and food cost. Mounted under /api, so the
+  // blanket staff-auth middleware above already covers every route in it.
+  app.use("/api/inventory", inventoryRouter(db));
 
   app.get("/api/reports/daily", (req, res) => {
     const date = req.query.date || new Date().toISOString().split('T')[0];

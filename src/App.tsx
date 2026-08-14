@@ -48,6 +48,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MenuItem, Order, DailyReport, Member, StaffMember, StaffShift } from './types';
+import InventoryPanel from './InventoryPanel';
 import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
@@ -79,7 +80,7 @@ const App: React.FC = () => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [scanNotification, setScanNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
-  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'store_settings'>('menu_items');
+  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'ingredients' | 'store_settings'>('menu_items');
   const [inventorySearch, setInventorySearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
@@ -109,6 +110,7 @@ const App: React.FC = () => {
   const [showConfirmOrder, setShowConfirmOrder] = useState(false);
   const [report, setReport] = useState<DailyReport | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expiringSoon, setExpiringSoon] = useState<{ id: number; ingredient_name: string; qty_remaining: number; unit: string; days_left: number }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Management state
@@ -131,6 +133,12 @@ const App: React.FC = () => {
     fetchMembers();
     fetchStaff();
     fetchSettings();
+    // Expiry reminder: whoever opens the till in the morning sees what has to
+    // be used or binned today, without having to remember to look for it.
+    fetch('/api/inventory/expiring?days=3')
+      .then(r => (r.ok ? r.json() : []))
+      .then(setExpiringSoon)
+      .catch(() => {});
   }, [authed]);
 
   useEffect(() => {
@@ -709,6 +717,24 @@ const App: React.FC = () => {
           </button>
         </nav>
       </header>
+
+      {expiringSoon.length > 0 && (
+        <div className="bg-amber-50 border-b border-amber-200 px-6 py-2.5 flex items-center gap-3 text-sm">
+          <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+          <span className="font-bold text-amber-800 shrink-0">Use first:</span>
+          <span className="text-amber-900 truncate">
+            {expiringSoon.slice(0, 5).map(l =>
+              `${l.ingredient_name} (${l.days_left < 0 ? 'expired' : l.days_left === 0 ? 'today' : `${l.days_left}d`})`
+            ).join(' · ')}
+            {expiringSoon.length > 5 && ` · +${expiringSoon.length - 5} more`}
+          </span>
+          <button
+            onClick={() => { setActiveTab('manage'); setManageSubTab('ingredients'); }}
+            className="ml-auto shrink-0 text-xs font-bold text-amber-800 underline underline-offset-2">
+            open stock
+          </button>
+        </div>
+      )}
 
       <main className="flex-1 flex overflow-hidden">
         {/* Left Side: Content */}
@@ -1413,6 +1439,15 @@ const App: React.FC = () => {
                     )}
                   </button>
                   <button
+                    onClick={() => setManageSubTab('ingredients')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      manageSubTab === 'ingredients' ? 'bg-white text-stone-900 shadow-md' : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <Package className="w-4 h-4 text-emerald-600" />
+                    Ingredients & Recipes
+                  </button>
+                  <button
                     onClick={() => setManageSubTab('store_settings')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                       manageSubTab === 'store_settings' ? 'bg-white text-stone-900 shadow-md' : 'text-stone-600 hover:text-stone-900'
@@ -1423,6 +1458,10 @@ const App: React.FC = () => {
                   </button>
                 </div>
               </div>
+
+              {manageSubTab === 'ingredients' && (
+                <InventoryPanel menuItems={menuItems} />
+              )}
 
               {manageSubTab === 'store_settings' && (
                 <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 overflow-hidden">
