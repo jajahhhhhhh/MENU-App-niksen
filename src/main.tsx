@@ -1,13 +1,17 @@
-import {StrictMode} from 'react';
+import {StrictMode, Suspense, lazy} from 'react';
 import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import OrderPage from './OrderPage.tsx';
 import LandingPage from './LandingPage.tsx';
-import PrivacyPage from './PrivacyPage.tsx';
-import OfferPage from './OfferPage.tsx';
-import JournalPage from './JournalPage.tsx';
-import NotFoundPage from './NotFoundPage.tsx';
 import './index.css';
+
+// Every page except the landing loads as its own chunk: a visitor on `/`
+// (most traffic, often on island 4G) shouldn't download the POS or the
+// ordering app just to see the brand page.
+const App = lazy(() => import('./App.tsx'));
+const OrderPage = lazy(() => import('./OrderPage.tsx'));
+const PrivacyPage = lazy(() => import('./PrivacyPage.tsx'));
+const OfferPage = lazy(() => import('./OfferPage.tsx'));
+const JournalPage = lazy(() => import('./JournalPage.tsx'));
+const NotFoundPage = lazy(() => import('./NotFoundPage.tsx'));
 
 // Route by path:
 //   /order    → customer online ordering
@@ -32,6 +36,14 @@ const page = path.startsWith('/order')
           ? <LandingPage />
           : <NotFoundPage />;
 
+// The fallback matches the site's ivory ground so the chunk swap reads as a
+// quiet beat, not a flash.
+const fallback = (
+  <div style={{minHeight: '100vh', background: '#F2E9DC'}} />
+);
+
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>{page}</StrictMode>,
+  <StrictMode>
+    <Suspense fallback={fallback}>{page}</Suspense>
+  </StrictMode>,
 );

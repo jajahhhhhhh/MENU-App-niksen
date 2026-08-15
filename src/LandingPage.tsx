@@ -231,7 +231,7 @@ const LandingPage: React.FC = () => {
               <p className="mt-2 font-display text-4xl sm:text-5xl tracking-tight text-stone-900">Scan to order</p>
               <p className="mt-2 text-sm text-stone-500">สแกนเพื่อสั่ง · Отсканируйте, чтобы заказать</p>
               <div className="mx-auto mt-6 w-52 sm:w-60 rounded-3xl bg-white p-4 shadow-lg shadow-stone-900/5">
-                <img src="/qr-order.svg" alt="QR code — order at niksensamui.com/order" className="w-full h-auto" />
+                <img src="/qr-order.svg" alt="QR code — order at niksensamui.com/order" width={296} height={296} className="w-full h-auto" />
               </div>
               <p className="mt-5 font-mono font-bold text-emerald-700">niksensamui.com/order</p>
               <p className="mt-2 text-xs font-semibold text-stone-400">{t.heroCardHours}</p>

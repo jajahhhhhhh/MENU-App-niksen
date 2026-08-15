@@ -878,7 +878,19 @@ async function startServer() {
   } else {
     // Serve the built client from ./dist (relative to the app's working dir).
     const distDir = path.join(process.cwd(), "dist");
-    app.use(express.static(distDir));
+    app.use(express.static(distDir, {
+      setHeaders: (res, filePath) => {
+        // Vite content-hashes everything under /assets — safe to cache forever.
+        // Unhashed media (menu photos, pins, QR) gets a week; HTML stays fresh.
+        if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        } else if (/\.(jpe?g|png|webp|svg|woff2?)$/i.test(filePath)) {
+          res.setHeader("Cache-Control", "public, max-age=604800");
+        } else if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache");
+        }
+      },
+    }));
     app.get("*", (req, res) => {
       // Every path used to return the app with a 200, so a typo'd URL looked
       // to Google like a real page and could be indexed. The client router
