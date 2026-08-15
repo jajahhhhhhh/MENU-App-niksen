@@ -2469,6 +2469,22 @@ const App: React.FC = () => {
                     <p className="text-[10px] text-stone-400">PromptPay • niksen secret bar · Koh Samui</p>
                   </div>
                 </div>
+
+                {/* Google review ask — official review short link for the Niksen
+                    Business Profile (g.page code encodes the listing's place CID). */}
+                <div className="border border-stone-200 p-4 rounded-2xl text-center space-y-2 font-sans mb-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Enjoyed doing nothing?</p>
+                  <div className="bg-white p-2.5 rounded-xl inline-block mx-auto border border-stone-200">
+                    <QRCodeSVG
+                      value="https://g.page/r/Ce2U3g8tMV6WEBI/review"
+                      size={110}
+                      level="M"
+                      includeMargin={false}
+                    />
+                  </div>
+                  <p className="text-xs text-stone-500">Scan to tell people what it felt like ★★★★★</p>
+                  <p className="text-[10px] text-stone-400">สแกนรีวิวให้เราหน่อยนะ · Google Review</p>
+                </div>
               </div>
               <div className="p-6 bg-stone-50 border-t border-stone-200">
                 <button 
