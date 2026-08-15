@@ -12,3 +12,6 @@ coverage/
 *.db-journal
 *.db-wal
 *.db-shm
+
+# playwright-cli session scratch (snapshots, screenshots)
+.playwright-cli/
