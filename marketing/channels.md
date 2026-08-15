@@ -11,6 +11,7 @@ Opens 18.08.2026 · Daily 07:00–14:00 · 17:00–23:00 · 15 Moo 2, Bo Phut, K
 | Website | https://niksensamui.com |
 | Online ordering (table QR) | https://niksensamui.com/order |
 | LINE (bookings & chat) | https://line.me/R/ti/p/@037zxllt |
+| GrabFood delivery (merchant 3-C7WBV4ABRPVUTN) | https://r.grab.com/o/n6fAfaQf |
 
 ## Social
 
