@@ -1,7 +1,6 @@
 import express from "express";
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import { orderingOpen } from "./src/config.ts";
@@ -870,6 +869,10 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    // Imported here rather than at the top of the file: a static import
+    // resolves at module load even though this branch never runs in
+    // production, which would make vite a hard runtime dependency there.
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
