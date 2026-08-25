@@ -86,10 +86,22 @@ adduser --system --group --home /opt/niksen-secret-bar niksen
 git clone https://github.com/jajahhhhhhh/MENU-App-niksen.git /opt/niksen-secret-bar
 cd /opt/niksen-secret-bar
 
-# Install everything (dev deps are needed for the build) and build the client
+# Build with the full tree, then reinstall without the build tooling.
 npm ci --include=dev
 npm run build
+npm ci --omit=dev
 ```
+
+The third command is not a typo. The build needs vite, tailwind and
+typescript; the running app does not. Reinstalling with `--omit=dev` drops
+them — 270 packages down to 182 — and leaves the compiled `dist/` alone,
+since that lives outside `node_modules`.
+
+`tsx` stays behind, because it is a runtime dependency here: the service
+runs `server.ts` directly (Node 20 cannot execute TypeScript on its own),
+so `deploy/niksen.service` calls `node_modules/.bin/tsx`. Keep the two
+installs in that order — building after the prune fails, because the build
+tooling is gone by then.
 
 ## Step 6 — Set the secret
 
@@ -181,8 +193,12 @@ cd /opt/niksen-secret-bar
 git pull
 npm ci --include=dev
 npm run build
+npm ci --omit=dev
 systemctl restart niksen
 ```
+
+Same three-step install as the first deploy: build with everything, then
+prune to the runtime tree.
 
 Your database (`pos.db`, with orders and members) is left untouched by updates.
 
