@@ -29,7 +29,8 @@ Sign up at **[Hetzner Cloud](https://console.hetzner.cloud)** (~€4/mo) or
 - Size: the smallest (1 vCPU / 2 GB RAM is plenty)
 - Add your **SSH key** (or use the root password they email you)
 
-Note the server's **public IP address** (e.g. `203.0.113.10`).
+Note the server's **public IP address**. The current live server is
+`5.223.78.64` — the rest of this guide uses it.
 
 ## Step 2 — Point your domain at the server (Cloudflare)
 
@@ -58,8 +59,12 @@ Cloudflare DNS updates are usually near-instant.
 ## Step 3 — Connect to the server
 
 ```bash
-ssh root@YOUR_SERVER_IP
+ssh root@5.223.78.64
 ```
+
+`5.223.78.64` is the live niksensamui.com server. If you ever rebuild on a
+new VPS, this is the one line to update — Step 1 is where you note the new
+address.
 
 ## Step 4 — Install Node, Caddy, and git
 
