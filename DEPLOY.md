@@ -205,6 +205,19 @@ systemctl restart niksen
 Same three-step install as the first deploy: build with everything, then
 prune to the runtime tree.
 
+Or run the whole thing from your Mac in one command:
+
+```bash
+bash ops/remote-deploy.sh
+```
+
+It deploys over the `niksen` ssh alias, then checks the service came back,
+reports the backup timer, and confirms the live site answers on `/`, `/order`,
+`/pos` and the public menu API. A failed build stops before the restart, so a
+broken build leaves the running site alone. It needs key auth — if it stops
+and prints the public key, that key is not in the server's
+`authorized_keys` yet.
+
 Your database (`pos.db`, with orders and members) is left untouched by updates.
 
 ## Backups
