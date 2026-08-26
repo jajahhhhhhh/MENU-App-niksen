@@ -161,6 +161,22 @@ const App: React.FC = () => {
     setAuthed(false);
   };
 
+  // A failed write used to leave the screen unchanged, which reads as "the
+  // button does nothing". Every write handler reports through here instead.
+  const reportFailure = async (res: Response, action: string) => {
+    if (res.status === 401) {
+      alert('Your session has expired. Please lock and unlock the POS, then try again.');
+      return;
+    }
+    if (res.status === 413) {
+      alert('That photo is too large to save. Please pick a smaller image.');
+      return;
+    }
+    let detail = '';
+    try { detail = (await res.json())?.error || ''; } catch { /* body was not JSON */ }
+    alert(detail || `Could not ${action}. Please try again.`);
+  };
+
   const saveStoreSettings = async () => {
     const body: Record<string, string> = { shop_name: storeForm.shop_name, promptpay_id: storeForm.promptpay_id };
     if (storeForm.staff_pin) body.staff_pin = storeForm.staff_pin;
@@ -174,6 +190,8 @@ const App: React.FC = () => {
       setStoreForm(f => ({ ...f, staff_pin: '' }));
       fetchSettings();
       setTimeout(() => setStoreSaved(false), 2500);
+    } else {
+      await reportFailure(res, 'save the store settings');
     }
   };
 
@@ -230,9 +248,12 @@ const App: React.FC = () => {
       });
       if (res.ok) {
         fetchStaff();
+      } else {
+        await reportFailure(res, 'clock in');
       }
     } catch (err) {
       console.error(err);
+      alert('Could not reach the server to clock in.');
     }
   };
 
@@ -245,9 +266,12 @@ const App: React.FC = () => {
       });
       if (res.ok) {
         fetchStaff();
+      } else {
+        await reportFailure(res, 'clock out');
       }
     } catch (err) {
       console.error(err);
+      alert('Could not reach the server to clock out.');
     }
   };
 
@@ -264,9 +288,12 @@ const App: React.FC = () => {
         setNewStaffForm({ name: '', role: 'Head Bartender' });
         setShowAddStaffModal(false);
         fetchStaff();
+      } else {
+        await reportFailure(res, 'add the staff member');
       }
     } catch (err) {
       console.error(err);
+      alert('Could not reach the server to add the staff member.');
     }
   };
 
@@ -281,9 +308,12 @@ const App: React.FC = () => {
       });
       if (res.ok) {
         fetchMenu();
+      } else {
+        await reportFailure(res, 'update the stock level');
       }
     } catch (err) {
       console.error(err);
+      alert('Could not reach the server to update stock.');
     }
   };
 
@@ -403,12 +433,8 @@ const App: React.FC = () => {
       setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
       setEditingItem(null);
       fetchMenu();
-    } else if (res.status === 413) {
-      alert('That photo is too large to save. Please pick a smaller image.');
-    } else if (res.status === 401) {
-      alert('Your session has expired. Please lock and unlock the POS, then try again.');
     } else {
-      alert('Could not save the item. Please try again.');
+      await reportFailure(res, 'save the item');
     }
   };
 
@@ -480,6 +506,7 @@ const App: React.FC = () => {
       body: JSON.stringify({ available: !item.available })
     });
     if (res.ok) fetchMenu();
+    else await reportFailure(res, 'change availability');
   };
 
   const addToOrder = (item: MenuItem) => {
@@ -558,6 +585,8 @@ const App: React.FC = () => {
       fetchOrders();
       fetchMembers();
       setActiveTab('orders');
+    } else {
+      await reportFailure(res, 'place the order');
     }
   };
 
@@ -569,6 +598,8 @@ const App: React.FC = () => {
       const orderRes = await fetch(`/api/orders/${orderId}`);
       const orderData = await orderRes.json();
       setShowReceipt(orderData);
+    } else {
+      await reportFailure(res, 'mark the order as paid');
     }
   };
 
@@ -579,6 +610,7 @@ const App: React.FC = () => {
       body: JSON.stringify({ status })
     });
     if (res.ok) fetchOrders();
+    else await reportFailure(res, 'update the order status');
   };
 
   const formatCurrency = (amount: number) => {
