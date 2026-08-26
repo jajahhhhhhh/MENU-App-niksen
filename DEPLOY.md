@@ -234,6 +234,11 @@ not survive losing the server. Pull them to your Mac:
 bash ops/pull-backups.sh
 ```
 
+It reaches the server through the `niksen` alias in `~/.ssh/config`, which
+binds the deploy key to that name — targeting `root@<ip>` directly skips that
+block and drops you on a password prompt. Override with `NIKSEN_HOST=` if your
+alias differs.
+
 It copies anything new into `~/niksen-backups`, then actually restores the
 newest snapshot and checks it — an unverified backup is a guess. It deletes
 nothing locally, so the archive outlives the server's 30-day rotation, and it

@@ -17,7 +17,10 @@
 #   NIKSEN_HOST=root@1.2.3.4  NIKSEN_BACKUP_DIR=~/somewhere  bash ops/pull-backups.sh
 set -euo pipefail
 
-HOST=${NIKSEN_HOST:-root@5.223.78.64}
+# Default to the "niksen" alias in ~/.ssh/config, not the raw IP. The config
+# block binds the deploy key to that name, and IdentitiesOnly means a raw
+# root@IP target never offers it — which lands you on a password prompt.
+HOST=${NIKSEN_HOST:-niksen}
 REMOTE_DIR=${NIKSEN_REMOTE_DIR:-/var/backups/niksen}
 DEST=${NIKSEN_BACKUP_DIR:-$HOME/niksen-backups}
 STALE_AFTER_DAYS=${NIKSEN_STALE_DAYS:-2}
