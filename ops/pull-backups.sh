@@ -33,7 +33,9 @@ if [ "${1:-}" != "--verify" ]; then
   command -v rsync >/dev/null || { echo "missing required tool: rsync" >&2; exit 1; }
   echo "pulling $HOST:$REMOTE_DIR -> $DEST"
   # No --delete: the server prunes, this archive keeps.
-  rsync -az --info=stats2 "$HOST:$REMOTE_DIR/" "$DEST/"
+  # Flags kept to what rsync 2.6.9 understands — macOS ships openrsync, which
+  # rejects --info= and treats -h as --help.
+  rsync -az --stats "$HOST:$REMOTE_DIR/" "$DEST/"
 fi
 
 newest=$(ls -1t "$DEST"/pos-*.db.gz 2>/dev/null | head -1 || true)
