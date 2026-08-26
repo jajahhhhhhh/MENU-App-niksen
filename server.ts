@@ -496,7 +496,27 @@ async function startServer() {
     res.json(items);
   });
 
+  // The POS form posts whatever is in its fields. An empty price arrives as
+  // null (parseFloat("") is NaN, and JSON.stringify turns NaN into null) and
+  // used to hit a NOT NULL constraint, surfacing as a 500 with no useful
+  // message. An empty name or category was accepted outright and produced a
+  // blank row on the customer menu. Validate before touching the database.
+  const validateMenuFields = (body: any): string | null => {
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    if (!name) return "Item name is required.";
+    const category = typeof body.category === "string" ? body.category.trim() : "";
+    if (!category) return "Category is required.";
+    const price = Number(body.price);
+    if (body.price === null || body.price === undefined || body.price === "" || !Number.isFinite(price)) {
+      return "Price is required and must be a number.";
+    }
+    if (price < 0) return "Price cannot be negative.";
+    return null;
+  };
+
   app.post("/api/menu", (req, res) => {
+    const invalid = validateMenuFields(req.body);
+    if (invalid) return res.status(400).json({ error: invalid });
     const { name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
     const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
@@ -685,6 +705,15 @@ async function startServer() {
 
   app.post("/api/orders", (req, res) => {
     const { table_number, items, notes, discount_type, discount_value, member_id, points_redeemed } = req.body;
+
+    // Both of these used to reach the INSERT and fail on a NOT NULL constraint,
+    // which reached the POS as an opaque 500.
+    if (table_number === undefined || table_number === null || table_number === "") {
+      return res.status(400).json({ error: "A table number is required." });
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "An order needs at least one item." });
+    }
     
     let itemsSubtotal = 0;
     for (const item of items) {
