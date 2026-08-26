@@ -602,7 +602,27 @@ async function startServer() {
       db.prepare("UPDATE menu_items SET available = 0 WHERE id = ?").run(id);
       return res.json({ success: true, hidden: true, order_lines: used.n });
     }
-    db.prepare("DELETE FROM menu_items WHERE id = ?").run(id);
+    // Option groups belong to the item, so they go with it. Without this the
+    // FK on menu_option_groups.menu_item_id aborts the delete, and a
+    // customisable item (the bowl builder, any item with add-ons) could never
+    // be removed. recipe_items handles itself — it is ON DELETE CASCADE.
+    try {
+      db.transaction(() => {
+        db.prepare(
+          "DELETE FROM menu_options WHERE group_id IN (SELECT id FROM menu_option_groups WHERE menu_item_id = ?)"
+        ).run(id);
+        db.prepare("DELETE FROM menu_option_groups WHERE menu_item_id = ?").run(id);
+        db.prepare("DELETE FROM menu_items WHERE id = ?").run(id);
+      })();
+    } catch (err: any) {
+      // Something else still points at this row. Hiding it keeps the menu
+      // usable and beats a 500 that the UI can only report as "try again".
+      db.prepare("UPDATE menu_items SET available = 0 WHERE id = ?").run(id);
+      return res.status(409).json({
+        error: `"${item.name}" is still referenced elsewhere, so it has been marked Sold Out and hidden from customer ordering instead.`,
+        hidden: true,
+      });
+    }
     res.json({ success: true, deleted: true });
   });
 
