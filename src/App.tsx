@@ -2554,6 +2554,72 @@ const App: React.FC = () => {
         )}
 
         {/* Register Member Modal */}
+        {showAddStaffModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl"
+            >
+              <div className="p-6 bg-stone-900 text-white flex justify-between items-center">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-emerald-400" />
+                  Add Staff Member
+                </h3>
+                <button onClick={() => setShowAddStaffModal(false)} className="p-2 hover:bg-stone-800 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <form onSubmit={handleAddStaffMember} className="p-8 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Somchai P."
+                    className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    value={newStaffForm.name}
+                    onChange={(e) => setNewStaffForm({ ...newStaffForm, name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Role</label>
+                  <select
+                    className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                    value={newStaffForm.role}
+                    onChange={(e) => setNewStaffForm({ ...newStaffForm, role: e.target.value })}
+                  >
+                    {['Head Bartender', 'Bartender', 'Barista', 'Server', 'Kitchen', 'Manager'].map(r => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddStaffModal(false)}
+                    className="flex-1 bg-stone-100 text-stone-600 py-3.5 rounded-2xl font-bold hover:bg-stone-200 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-[2] bg-emerald-500 text-white py-3.5 rounded-2xl font-bold text-base shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95"
+                  >
+                    Add to Roster
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
         {showAddMemberModal && (
           <motion.div 
             initial={{ opacity: 0 }}
