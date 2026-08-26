@@ -403,18 +403,40 @@ const App: React.FC = () => {
       setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
       setEditingItem(null);
       fetchMenu();
+    } else if (res.status === 413) {
+      alert('That photo is too large to save. Please pick a smaller image.');
+    } else if (res.status === 401) {
+      alert('Your session has expired. Please lock and unlock the POS, then try again.');
+    } else {
+      alert('Could not save the item. Please try again.');
     }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewItem(prev => ({ ...prev, image_url: reader.result as string }));
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      // Shrink before storing. The photo travels to the server inside the JSON
+      // body and is served straight back on the customer menu, so a raw phone
+      // photo would both bloat pos.db and slow /order down for every visitor.
+      const img = new Image();
+      img.onload = () => {
+        const MAX_EDGE = 1200;
+        const scale = Math.min(1, MAX_EDGE / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { setNewItem(prev => ({ ...prev, image_url: dataUrl })); return; }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setNewItem(prev => ({ ...prev, image_url: canvas.toDataURL('image/jpeg', 0.82) }));
       };
-      reader.readAsDataURL(file);
-    }
+      img.onerror = () => setNewItem(prev => ({ ...prev, image_url: dataUrl }));
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
   };
 
   const startEdit = (item: MenuItem) => {
