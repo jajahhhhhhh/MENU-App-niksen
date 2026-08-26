@@ -207,6 +207,63 @@ prune to the runtime tree.
 
 Your database (`pos.db`, with orders and members) is left untouched by updates.
 
+## Backups
+
+The server snapshots `pos.db` nightly at 21:00 UTC (04:00 Bangkok). Install it
+once, on the server:
+
+```bash
+cd /opt/niksen-secret-bar && sudo bash ops/install-backup.sh
+```
+
+It is idempotent and prints the next scheduled run. Check it is alive with:
+
+```bash
+systemctl list-timers niksen-backup.timer --no-pager
+```
+
+Snapshots land in `/var/backups/niksen` — 30 dailies plus 12 monthlies, mode
+`600` because customer phone numbers are in them.
+
+### Off-site copies
+
+Those snapshots live on the same disk as the database they protect, so they do
+not survive losing the server. Pull them to your Mac:
+
+```bash
+bash ops/pull-backups.sh
+```
+
+It copies anything new into `~/niksen-backups`, then actually restores the
+newest snapshot and checks it — an unverified backup is a guess. It deletes
+nothing locally, so the archive outlives the server's 30-day rotation, and it
+warns if the newest snapshot is more than two days old, which is what a
+silently stopped timer looks like.
+
+Run it against an archive you already have, without touching the server:
+
+```bash
+bash ops/pull-backups.sh --verify
+```
+
+The pull runs from the Mac on purpose. The server holds no credential for your
+machine, so whatever happens to the VPS cannot reach these copies.
+
+To run it weekly, add it to your Mac's crontab (`crontab -e`) — Mondays at 09:00:
+
+```
+0 9 * * 1 /bin/bash /Users/sujittacharoenpong/code/niksen-secret-bar/ops/pull-backups.sh >> /tmp/niksen-backup-pull.log 2>&1
+```
+
+### Restoring
+
+```bash
+gunzip -c ~/niksen-backups/pos-YYYY-MM-DD.db.gz > pos.db
+```
+
+Copy that file to `/opt/niksen-secret-bar/pos.db` on the server and
+`systemctl restart niksen`.
+
 ## Troubleshooting
 
 - **App won't start:** `journalctl -u niksen -e` — the last lines show the error.
@@ -214,5 +271,5 @@ Your database (`pos.db`, with orders and members) is left untouched by updates.
 - **No HTTPS / cert error:** DNS isn't pointing here yet, or ports 80/443 are
   blocked. Recheck Steps 2 and 10, then `systemctl reload caddy`.
 - **Menu is empty:** re-run `sudo -u niksen npm run seed`, or add items in `/pos`.
-- **Back up your data:** the whole database is the single file
-  `/opt/niksen-secret-bar/pos.db` — copy it somewhere safe periodically.
+- **Back up your data:** see the Backups section above — nightly snapshots on
+  the server, pulled off-site with `ops/pull-backups.sh`.
