@@ -220,6 +220,30 @@ and prints the public key, that key is not in the server's
 
 Your database (`pos.db`, with orders and members) is left untouched by updates.
 
+## Recovering console-only access
+
+If SSH has no key installed, root password login over SSH is disabled
+(Hetzner's default when a server is created with an SSH key), so the web
+console is the only way in. Rather than making that trip twice, log in as
+root there and paste this single line — it installs the Mac's deploy key,
+deploys, sets up the nightly backup, and prints what it built:
+
+```bash
+cd "$(readlink /proc/$(systemctl show -p MainPID --value niksen)/cwd)" && git pull && bash ops/console-bootstrap.sh
+```
+
+If the checkout is too old to contain that script, this equivalent one-liner
+needs nothing from the repo:
+
+```bash
+mkdir -p /root/.ssh && chmod 700 /root/.ssh && echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKfeYqArLZbI7RtVPD7xlFd/RERg2emIhfPCNSCrf+Os niksen-deploy' >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys && D=$(readlink /proc/$(systemctl show -p MainPID --value niksen)/cwd) && cd "$D" && git pull && npm ci --include=dev && npm run build && systemctl restart niksen && bash ops/install-backup.sh && systemctl start niksen-backup.service && grep -oE 'index-[A-Za-z0-9_-]+\.js' dist/index.html | head -1 && echo DONE
+```
+
+Both find the app directory by asking the running process, rather than
+assuming `/opt/niksen-secret-bar` — the app serves `dist/` from its own
+working directory, and a mismatch there is why a build can succeed while
+customers keep getting the old one.
+
 ## Backups
 
 The server snapshots `pos.db` nightly at 21:00 UTC (04:00 Bangkok). Install it
