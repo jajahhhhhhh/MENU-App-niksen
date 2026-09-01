@@ -30,6 +30,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 interface Ingredient {
   id: number; name: string; name_th: string | null; unit: string;
   default_cost: number | null; low_stock_threshold: number; supplier: string | null;
+  pack_size: number | null; pack_label: string | null;
   active: number; unit_cost: number | null; on_hand: number;
   stock_value: number | null; low: boolean;
 }
@@ -188,10 +189,10 @@ const Stat = ({ label, value, sub, tone, subTone }: any) => (
 // ------------------------------------------------------------- ingredients ---
 
 function Ingredients({ rows, run, busy }: { rows: Ingredient[]; run: any; busy: boolean }) {
-  const [form, setForm] = useState({ name: '', name_th: '', unit: 'g', default_cost: '', low_stock_threshold: '', supplier: '' });
+  const [form, setForm] = useState({ name: '', name_th: '', unit: 'g', default_cost: '', low_stock_threshold: '', supplier: '', pack_size: '' });
   const add = () => run(async () => {
     await api('/ingredients', { method: 'POST', body: JSON.stringify(form) });
-    setForm({ name: '', name_th: '', unit: 'g', default_cost: '', low_stock_threshold: '', supplier: '' });
+    setForm({ name: '', name_th: '', unit: 'g', default_cost: '', low_stock_threshold: '', supplier: '', pack_size: '' });
   });
 
   return (
@@ -215,6 +216,16 @@ function Ingredients({ rows, run, busy }: { rows: Ingredient[]; run: any; busy: 
           <Field label="Warn below">
             <input className={input} type="number" step="any" value={form.low_stock_threshold}
               onChange={e => setForm({ ...form, low_stock_threshold: e.target.value })} />
+          </Field>
+          <Field label="Pack size">
+            {/* Shops price a bag, not a gram. Recording "1 pack = 300 g" lets a
+                purchase be entered as one pack while recipes stay in grams. */}
+            <div className="flex items-center gap-1">
+              <input className={input} type="number" step="any" placeholder="e.g. 300"
+                value={form.pack_size}
+                onChange={e => setForm({ ...form, pack_size: e.target.value })} />
+              <span className="text-xs text-stone-400 whitespace-nowrap">{form.unit} / pack</span>
+            </div>
           </Field>
           <Field label="Supplier"><input className={input} value={form.supplier}
             onChange={e => setForm({ ...form, supplier: e.target.value })} /></Field>
@@ -314,6 +325,11 @@ function Purchases({ lots, ingredients, run, busy }: any) {
               <option value="1">{ing?.unit || 'base unit'}</option>
               {ing?.unit === 'g' && <option value="1000">kg</option>}
               {ing?.unit === 'ml' && <option value="1000">litres</option>}
+              {/* Only offered once a pack size is known, otherwise the
+                  multiplier would silently be 1 and the cost 300x too high. */}
+              {ing?.pack_size ? <option value={String(ing.pack_size)}>
+                pack ({ing.pack_size} {ing.unit})
+              </option> : null}
             </select>
           </Field>
           <Field label="Total paid ฿">
@@ -468,8 +484,22 @@ function Recipes({ menuItems, ingredients, costs, onChange }: any) {
                 )}
                 {recipe?.lines.map((l: any) => (
                   <tr key={l.id} className="border-b border-stone-100">
-                    <td className="py-2 font-semibold">{l.name}</td>
-                    <td className="py-2 text-right font-mono">{qty(l.quantity, l.unit)}</td>
+                    <td className="py-2 font-semibold">
+                      {l.name}
+                      {/* The question a cook actually asks holding a bag:
+                          how many of these does one pack make? */}
+                      {(() => {
+                        const ing = ingredients.find((i: Ingredient) => i.id === l.ingredient_id);
+                        if (!ing?.pack_size || !l.quantity) return null;
+                        const servings = ing.pack_size / l.quantity;
+                        return (
+                          <div className="text-xs font-normal text-stone-400">
+                            1 pack ({ing.pack_size} {ing.unit}) = {servings >= 10 ? Math.floor(servings) : servings.toFixed(1)} servings
+                          </div>
+                        );
+                      })()}
+                    </td>
+                    <td className="py-2 text-right font-mono align-top">{qty(l.quantity, l.unit)}</td>
                     <td className="py-2 text-right font-mono">
                       {l.line_cost == null ? <span className="text-amber-600 text-xs font-semibold">not priced</span> : baht(l.line_cost)}
                     </td>

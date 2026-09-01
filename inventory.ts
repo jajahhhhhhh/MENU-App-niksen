@@ -34,6 +34,15 @@ export type DB = BetterSqlite3.Database;
 /** Base units. Bulk entry (kg/L) is converted to these in the UI. */
 export const UNITS = ['g', 'ml', 'piece'] as const;
 
+// How many base units are in one pack, when a shop sells the ingredient by
+// pack rather than by weight — "1 pack = 300 g". Kept separate from `unit`
+// so recipes stay written in grams and millilitres: a recipe asking for
+// "1 pack" could not be costed once the pack size changed.
+export function migratePackSize(db: DB) {
+  try { db.exec('ALTER TABLE ingredients ADD COLUMN pack_size REAL'); } catch { /* already there */ }
+  try { db.exec("ALTER TABLE ingredients ADD COLUMN pack_label TEXT"); } catch { /* already there */ }
+}
+
 export function initInventorySchema(db: DB) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS ingredients (
@@ -98,6 +107,9 @@ export function initInventorySchema(db: DB) {
     CREATE INDEX IF NOT EXISTS idx_movements_ingredient ON stock_movements(ingredient_id, created_at);
     CREATE INDEX IF NOT EXISTS idx_movements_order ON stock_movements(order_id) WHERE order_id IS NOT NULL;
   `);
+
+  // Older databases were created before pack sizes existed.
+  migratePackSize(db);
 }
 
 // ---------------------------------------------------------------- costing ---
@@ -333,16 +345,18 @@ export function inventoryRouter(db: DB) {
   });
 
   r.post('/ingredients', (req, res) => {
-    const { name, name_th, unit, default_cost, low_stock_threshold, supplier } = req.body || {};
+    const { name, name_th, unit, default_cost, low_stock_threshold, supplier, pack_size, pack_label } = req.body || {};
     if (!name || !String(name).trim()) return res.status(400).json({ error: 'name is required' });
     if (unit && !UNITS.includes(unit)) return res.status(400).json({ error: `unit must be one of ${UNITS.join(', ')}` });
     try {
       const info = db.prepare(`
-        INSERT INTO ingredients (name, name_th, unit, default_cost, low_stock_threshold, supplier)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO ingredients (name, name_th, unit, default_cost, low_stock_threshold, supplier, pack_size, pack_label)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).run(String(name).trim(), name_th || null, unit || 'g',
         default_cost === '' || default_cost == null ? null : Number(default_cost),
-        Number(low_stock_threshold) || 0, supplier || null);
+        Number(low_stock_threshold) || 0, supplier || null,
+        pack_size === '' || pack_size == null ? null : Number(pack_size),
+        pack_label || null);
       res.json({ id: info.lastInsertRowid });
     } catch (e: any) {
       if (String(e.message).includes('UNIQUE')) return res.status(409).json({ error: 'that ingredient already exists' });
@@ -351,7 +365,7 @@ export function inventoryRouter(db: DB) {
   });
 
   r.patch('/ingredients/:id', (req, res) => {
-    const allowed = ['name', 'name_th', 'unit', 'default_cost', 'low_stock_threshold', 'supplier', 'active'];
+    const allowed = ['name', 'name_th', 'unit', 'default_cost', 'low_stock_threshold', 'supplier', 'active', 'pack_size', 'pack_label'];
     const sets: string[] = [], vals: any[] = [];
     for (const k of allowed) {
       if (!(k in (req.body || {}))) continue;
