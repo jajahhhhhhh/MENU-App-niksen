@@ -244,6 +244,32 @@ assuming `/opt/niksen-secret-bar` — the app serves `dist/` from its own
 working directory, and a mismatch there is why a build can succeed while
 customers keep getting the old one.
 
+### Do not do this from the rescue system
+
+Hetzner's **Rescue System** is a separate Debian that runs entirely in RAM.
+It is for a server that will not boot; it is not a way into a healthy one.
+
+Booting into it takes the site down — Caddy and the app are not running — and
+anything written there is discarded on the next reboot. A deploy run inside
+rescue reports every step succeeding while changing nothing on disk: the key
+reads as missing afterwards, and the live site keeps serving the previous
+build. That combination is the signature of this mistake, and it cost most of
+a morning to recognise once.
+
+Two ways to tell which system you are on before typing anything:
+
+```bash
+hostname                  # rescue → "rescue";  real system → "niksen"
+systemctl is-active niksen # rescue → inactive/not-found;  real system → active
+```
+
+If you are already in rescue, `reboot` returns to the installed system —
+Hetzner activates rescue for one boot only. To install a key from there the
+disk has to be mounted first (`mount /dev/sda1 /mnt`, then write to
+`/mnt/root/.ssh/authorized_keys`); `ops/rescue-install-key.sh` does that and
+carries the key with it, so nothing long has to be typed into a browser
+console that drops characters.
+
 ## Backups
 
 The server snapshots `pos.db` nightly at 21:00 UTC (04:00 Bangkok). Install it
