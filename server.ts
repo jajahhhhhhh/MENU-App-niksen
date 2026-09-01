@@ -3,6 +3,8 @@ import session from "express-session";
 import cookieParser from "cookie-parser";
 import Database from "better-sqlite3";
 import path from "path";
+import fs from "fs";
+import crypto from "crypto";
 import { orderingOpen } from "./src/config.ts";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
@@ -180,6 +182,63 @@ function promptPayPayload(target: string, amount: number): string | null {
     f("54", amount.toFixed(2)) + f("58", "TH") + "6304";
   return payload + crc16(payload);
 }
+
+// ---- Menu photos ----------------------------------------------------------
+// Photos used to be stored inside menu_items.image_url as a base64 data URL,
+// which meant every customer downloaded every photo inline with the menu JSON
+// on every visit: one dish with a picture already made that response 102 KB,
+// and a browser cannot cache an image embedded in JSON separately from it.
+//
+// They are files now. The name carries a hash of the bytes, so a changed photo
+// is a changed URL and the old one can be cached forever without ever going
+// stale. The directory sits next to pos.db rather than in dist/, which a
+// deploy rebuilds, or public/, which is only copied at build time.
+const PHOTO_DIR = path.join(process.cwd(), "photos");
+const PHOTO_URL = "/menu-photos";
+
+function storeMenuPhoto(dataUrl: string, menuItemId: number): string | null {
+  const m = /^data:image\/([a-zA-Z0-9.+-]+);base64,(.+)$/s.exec(dataUrl);
+  if (!m) return null;
+  const bytes = Buffer.from(m[2], "base64");
+  if (bytes.length === 0) return null;
+  // The editor re-encodes every upload as JPEG; anything else is something we
+  // did not write, so keep its own extension rather than mislabelling it.
+  const ext = m[1].toLowerCase() === "jpeg" ? "jpg" : m[1].toLowerCase().replace(/[^a-z0-9]/g, "");
+  const hash = crypto.createHash("sha256").update(bytes).digest("hex").slice(0, 12);
+  const file = `${menuItemId}-${hash}.${ext || "jpg"}`;
+  fs.mkdirSync(PHOTO_DIR, { recursive: true });
+  fs.writeFileSync(path.join(PHOTO_DIR, file), bytes);
+  return `${PHOTO_URL}/${file}`;
+}
+
+// Replacing or deleting a dish should not leave its old picture on the disk
+// for ever. Only files we wrote are touched, and never the one still in use.
+function forgetMenuPhoto(url: unknown, keep?: string | null) {
+  if (typeof url !== "string" || !url.startsWith(`${PHOTO_URL}/`)) return;
+  if (keep && url === keep) return;
+  const file = path.basename(url);
+  try {
+    fs.unlinkSync(path.join(PHOTO_DIR, file));
+  } catch {
+    /* already gone, or never written — nothing to clean up */
+  }
+}
+
+// One-off move for photos uploaded before this change. Runs at boot, does
+// nothing on a database that has none, and leaves the row alone if the write
+// fails so a full disk cannot blank a menu photo.
+function migrateInlinePhotos() {
+  const rows = db.prepare("SELECT id, image_url FROM menu_items WHERE image_url LIKE 'data:%'").all() as any[];
+  if (rows.length === 0) return;
+  const update = db.prepare("UPDATE menu_items SET image_url = ? WHERE id = ?");
+  let moved = 0;
+  for (const row of rows) {
+    const stored = storeMenuPhoto(row.image_url, row.id);
+    if (stored) { update.run(stored, row.id); moved++; }
+  }
+  console.log(`Moved ${moved} inline menu photo(s) out of the database into ${PHOTO_DIR}`);
+}
+migrateInlinePhotos();
 
 // ---- Live order feed -------------------------------------------------------
 // Until now the POS learned about a customer's QR order only when someone
@@ -578,7 +637,14 @@ async function startServer() {
     const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
     const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 10;
     const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, description || null, description_th || null, description_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
-    res.json({ id: result.lastInsertRowid });
+    const newId = Number(result.lastInsertRowid);
+    // The editor sends the photo inline; the file it becomes is named after the
+    // item, so this can only happen once the row exists.
+    if (typeof image_url === "string" && image_url.startsWith("data:")) {
+      const stored = storeMenuPhoto(image_url, newId);
+      if (stored) db.prepare("UPDATE menu_items SET image_url = ? WHERE id = ?").run(stored, newId);
+    }
+    res.json({ id: newId });
   });
 
   app.patch("/api/menu/:id", (req, res) => {
@@ -622,9 +688,25 @@ async function startServer() {
       updates.push("available = ?");
       params.push(available ? 1 : 0);
     }
+    let replacedPhoto: string | null = null;
     if (image_url !== undefined) {
-      updates.push("image_url = ?");
-      params.push(image_url);
+      let value = image_url;
+      if (typeof image_url === "string" && image_url.startsWith("data:")) {
+        const stored = storeMenuPhoto(image_url, Number(req.params.id));
+        // A photo that cannot be written is not a reason to lose the rest of
+        // the edit, so fall back to leaving the old one in place.
+        if (stored) {
+          value = stored;
+          const prev = db.prepare("SELECT image_url FROM menu_items WHERE id = ?").get(req.params.id) as any;
+          replacedPhoto = prev?.image_url ?? null;
+        } else {
+          value = undefined as any;
+        }
+      }
+      if (value !== undefined) {
+        updates.push("image_url = ?");
+        params.push(value);
+      }
     }
     if (barcode !== undefined) {
       updates.push("barcode = ?");
@@ -642,6 +724,8 @@ async function startServer() {
     if (updates.length > 0) {
       params.push(req.params.id);
       db.prepare(`UPDATE menu_items SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+    // Only once the row actually points at the new file.
+    forgetMenuPhoto(replacedPhoto);
     }
 
     res.json({ success: true });
@@ -649,7 +733,8 @@ async function startServer() {
 
   app.delete("/api/menu/:id", (req, res) => {
     const id = Number(req.params.id);
-    const item = db.prepare("SELECT id, name FROM menu_items WHERE id = ?").get(id) as any;
+    // image_url comes along so the photo file can be cleaned up after the row.
+    const item = db.prepare("SELECT id, name, image_url FROM menu_items WHERE id = ?").get(id) as any;
     if (!item) return res.status(404).json({ error: "not_found" });
     // Items referenced by past orders can't be hard-deleted (order_items FK +
     // receipt history) — hide them from the menu instead and say so.
@@ -670,6 +755,8 @@ async function startServer() {
         db.prepare("DELETE FROM menu_option_groups WHERE menu_item_id = ?").run(id);
         db.prepare("DELETE FROM menu_items WHERE id = ?").run(id);
       })();
+      // The row is gone, so nothing can point at its picture any more.
+      forgetMenuPhoto(item.image_url);
     } catch (err: any) {
       // Something else still points at this row. Hiding it keeps the menu
       // usable and beats a 500 that the UI can only report as "try again".
@@ -1201,13 +1288,30 @@ async function startServer() {
   });
 
   // Vite middleware for development
+  // Menu photos, before the dev/production split so they are served the same
+  // either way. The filename holds a hash of the bytes, so a URL never points
+  // at different content and can be cached for good.
+  app.use(PHOTO_URL, express.static(PHOTO_DIR, {
+    immutable: true,
+    maxAge: "365d",
+    fallthrough: false,
+  }));
+
   if (process.env.NODE_ENV !== "production") {
     // Imported here rather than at the top of the file: a static import
     // resolves at module load even though this branch never runs in
     // production, which would make vite a hard runtime dependency there.
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        // The dev server binds 0.0.0.0 so the ordering page can be opened on a
+        // phone on the same wifi. That also puts the project directory on the
+        // network, and vite serves it: pos.db carries customer phone numbers
+        // and the staff PIN, .env carries the session secret. The source is
+        // already public on GitHub; these are not.
+        fs: { deny: ["**/pos.db", "**/pos.db-*", "**/*.db", "**/.env", "**/.env.*", "**/photos/**"] },
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Daily snapshot of pos.db.
+# Daily snapshot of pos.db and the menu photos beside it.
 #
 # Run by niksen-backup.timer at 21:00 UTC (04:00 Bangkok, three hours before
 # the doors open). Install with ops/install-backup.sh.
@@ -11,6 +11,7 @@
 set -euo pipefail
 
 DB=/opt/niksen-secret-bar/pos.db
+PHOTOS=/opt/niksen-secret-bar/photos
 DEST=/var/backups/niksen
 KEEP_DAILY=30          # a month of daily restore points
 KEEP_MONTHLY=12        # first-of-month kept for a year
@@ -44,6 +45,18 @@ gzip -9 "$tmp"
 mv "$tmp.gz" "$DEST/pos-$stamp.db.gz"
 chmod 600 "$DEST/pos-$stamp.db.gz"   # contains customer phone numbers
 
+# Menu photos used to live inside the database as base64, so a pos.db snapshot
+# held them too. They are files now — faster for customers, but outside this
+# backup unless they are picked up deliberately. Losing them would mean
+# rephotographing the whole menu.
+if [ -d "$PHOTOS" ] && [ -n "$(ls -A "$PHOTOS" 2>/dev/null)" ]; then
+  tar -czf "$DEST/photos-$stamp.tar.gz" -C "$(dirname "$PHOTOS")" "$(basename "$PHOTOS")"
+  chmod 600 "$DEST/photos-$stamp.tar.gz"
+  photo_note=" · $(ls -1 "$PHOTOS" | wc -l | tr -d ' ') photos"
+else
+  photo_note=""
+fi
+
 # Keep the first of each month out of the daily rotation.
 day_of_month=$(date -u +%d)
 if [ "$day_of_month" = "01" ]; then
@@ -62,8 +75,9 @@ prune() {
 }
 prune "$DEST/pos-*.db.gz"     "$KEEP_DAILY"
 prune "$DEST/monthly-*.db.gz" "$KEEP_MONTHLY"
+prune "$DEST/photos-*.tar.gz"  "$KEEP_DAILY"
 
 orders=$(sqlite3 "$DB" 'SELECT COUNT(*) FROM orders;')
 size=$(du -h "$DEST/pos-$stamp.db.gz" | cut -f1)
 count=$(ls -1 "$DEST"/*.db.gz 2>/dev/null | wc -l | tr -d ' ')
-echo "backed up: $items menu items, $orders orders, $size — $count snapshots on disk"
+echo "backed up: $items menu items, $orders orders, $size$photo_note — $count snapshots on disk"

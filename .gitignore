@@ -15,3 +15,6 @@ coverage/
 
 # playwright-cli session scratch (snapshots, screenshots)
 .playwright-cli/
+
+# Uploaded menu photos — runtime data, written next to pos.db
+photos/
