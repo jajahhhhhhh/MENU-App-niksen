@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Beer, 
   Utensils, 
@@ -64,6 +64,8 @@ const App: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'menu' | 'orders' | 'members' | 'staff' | 'reports' | 'manage'>('menu');
   const [authed, setAuthed] = useState<boolean | null>(null);
+  // Orders that arrived from the QR page while the till was on another tab.
+  const [unseenOrders, setUnseenOrders] = useState(0);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
   const [storeForm, setStoreForm] = useState({ shop_name: '', promptpay_id: '', staff_pin: '' });
@@ -140,6 +142,46 @@ const App: React.FC = () => {
       .then(setExpiringSoon)
       .catch(() => {});
   }, [authed]);
+
+  // Read inside the live-feed handler without making the stream a dependency —
+  // reopening the connection on every tab change would drop events mid-swap.
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
+  // A QR order used to sit unseen until someone reloaded the POS. One stream
+  // per open till; EventSource reconnects on its own, so flaky café wifi
+  // recovers without anybody touching the screen.
+  useEffect(() => {
+    if (!authed) return;
+    const es = new EventSource('/api/events');
+
+    const refresh = () => {
+      fetchOrders();
+      // The day's takings move with every order, so keep the report honest for
+      // whoever is watching it.
+      if (activeTabRef.current === 'reports') fetchReport();
+    };
+
+    const onNew = (e: MessageEvent) => {
+      refresh();
+      // Counter sales are rung up by the person already looking at the screen;
+      // only an order that arrived from somewhere else needs to be noticed.
+      let source = '';
+      try { source = JSON.parse(e.data)?.source; } catch { /* keep the badge */ }
+      if (source !== 'counter' && activeTabRef.current !== 'orders') {
+        setUnseenOrders(n => n + 1);
+      }
+    };
+
+    es.addEventListener('order.new', onNew as EventListener);
+    es.addEventListener('order.updated', refresh);
+    return () => es.close();
+  }, [authed]);
+
+  // Opening the tab is what "seen" means.
+  useEffect(() => {
+    if (activeTab === 'orders') setUnseenOrders(0);
+  }, [activeTab]);
 
   useEffect(() => {
     setStoreForm(f => ({ ...f, shop_name: settings.shop_name || '', promptpay_id: settings.promptpay_id || '' }));
@@ -714,6 +756,11 @@ const App: React.FC = () => {
           >
             <ClipboardList className="w-4 h-4" />
             Orders
+            {unseenOrders > 0 && (
+              <span className="ml-1 min-w-[1.25rem] px-1 py-0.5 rounded-full bg-rose-500 text-white text-[11px] font-bold leading-none flex items-center justify-center">
+                {unseenOrders}
+              </span>
+            )}
           </button>
           <button 
             onClick={() => { setActiveTab('members'); fetchMembers(); }}

@@ -181,6 +181,26 @@ function promptPayPayload(target: string, amount: number): string | null {
   return payload + crc16(payload);
 }
 
+// ---- Live order feed -------------------------------------------------------
+// Until now the POS learned about a customer's QR order only when someone
+// happened to reload the page, so an order could sit unseen for as long as the
+// till was left open. Each open till holds one long-lived stream, and every
+// write to the orders table is announced on it.
+type LiveClient = { res: express.Response };
+const liveClients = new Set<LiveClient>();
+
+function broadcast(event: string, data: Record<string, unknown>) {
+  const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+  for (const client of liveClients) {
+    // One till closing its laptop mid-write must not take the others down.
+    try {
+      client.res.write(frame);
+    } catch {
+      liveClients.delete(client);
+    }
+  }
+}
+
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
@@ -389,6 +409,9 @@ async function startServer() {
     });
 
     const { orderId, memberPoints } = transaction();
+    // Announce only once the transaction has committed — a till that reloaded
+    // on a rolled-back order would show one that does not exist.
+    broadcast("order.new", { id: orderId, source: "online" });
     const ppId = (db.prepare("SELECT value FROM settings WHERE key = 'promptpay_id'").get() as any)?.value || "";
     res.json({
       id: orderId,
@@ -674,6 +697,39 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  // Staff-only stream of order activity. It sits under /api, so the auth guard
+  // above already requires a session before a till can listen.
+  app.get("/api/events", (req, res) => {
+    res.set({
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+      // Caddy flushes text/event-stream by itself; this is for any other proxy
+      // that buffers responses by default and would hold every event back.
+      "X-Accel-Buffering": "no",
+    });
+    res.flushHeaders();
+
+    const client: LiveClient = { res };
+    liveClients.add(client);
+    res.write("retry: 3000\n\n");
+
+    // Idle connections are what proxies and phone radios drop. A comment line
+    // is ignored by EventSource but keeps the socket alive.
+    const ping = setInterval(() => {
+      try {
+        res.write(": ping\n\n");
+      } catch {
+        /* already closed; the close handler cleans up */
+      }
+    }, 25000);
+
+    req.on("close", () => {
+      clearInterval(ping);
+      liveClients.delete(client);
+    });
+  });
+
   app.get("/api/orders", (req, res) => {
     const orders = db.prepare(`
       SELECT o.*, m.name as member_name,
@@ -783,11 +839,13 @@ async function startServer() {
       return orderId;
     });
     const orderId = transaction();
+    broadcast("order.new", { id: orderId, source: "counter" });
     res.json({ id: orderId, points_earned: pointsEarned });
   });
 
   app.post("/api/orders/:id/pay", (req, res) => {
     db.prepare("UPDATE orders SET status = 'paid', paid_at = CURRENT_TIMESTAMP WHERE id = ?").run(req.params.id);
+    broadcast("order.updated", { id: Number(req.params.id), status: "paid" });
     res.json({ success: true });
   });
 
@@ -808,6 +866,7 @@ async function startServer() {
       // restoreForOrder is idempotent, so cancelling twice cannot double-credit.
       if (status === 'cancelled') restoreForOrder(db, Number(req.params.id));
     })();
+    broadcast("order.updated", { id: Number(req.params.id), status });
     res.json({ success: true });
   });
 
