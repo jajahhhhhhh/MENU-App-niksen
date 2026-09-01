@@ -537,6 +537,10 @@ const App: React.FC = () => {
 
   const startEdit = (item: MenuItem) => {
     setEditingItem(item);
+    // Recipes are edited on another tab, so the costs loaded at login go stale
+    // exactly when they matter — opening the editor right after writing a
+    // recipe would otherwise still say the dish has none.
+    fetchDishCosts();
     setNewItem({
       name: item.name,
       name_th: item.name_th || '',
@@ -2446,7 +2450,12 @@ const App: React.FC = () => {
       </AnimatePresence>
 
       {/* Confirmation Modal */}
-      <AnimatePresence>
+      {/* No AnimatePresence around these on purpose. Its exit tracking left
+          the modal mounted at opacity 0 — invisible, full-screen, still
+          swallowing every click — so the till looked alive but answered
+          nothing until someone reloaded the page. It reproduces on the
+          production build, not only under StrictMode. A fade-out is not
+          worth a POS that can wedge itself mid-shift. */}
         {showConfirmOrder && (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -2951,7 +2960,6 @@ const App: React.FC = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
     </div>
   );
 };
