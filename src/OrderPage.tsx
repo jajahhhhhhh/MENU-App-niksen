@@ -452,11 +452,28 @@ const OrderPage: React.FC = () => {
         const addedPrice = picked.reduce((s, o) => s + o.price, 0);
         const kcal = picked.reduce((s, o) => s + (o.kcal || 0), 0);
         const protein = picked.reduce((s, o) => s + (o.protein || 0), 0);
+        const countIn = (g: OptionGroup) => g.options.filter(o => builderPicks.has(o.id)).length;
         const toggle = (id: number) => setBuilderPicks(prev => {
           const next = new Set(prev);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) { next.delete(id); return next; }
+          // A group that allows one choice should swap, not refuse: tapping a
+          // second base is a change of mind, and making the customer untick
+          // the first one is a small insult on a phone.
+          const group = groups.find(g => g.options.some(o => o.id === id));
+          if (group && group.max_select !== null) {
+            const chosen = group.options.filter(o => next.has(o.id));
+            if (chosen.length >= group.max_select) {
+              if (group.max_select === 1) next.delete(chosen[0].id);
+              else return prev;
+            }
+          }
+          next.add(id);
           return next;
         });
+        // The same rule the server enforces, said before the customer commits
+        // rather than after: an order rejected at checkout has already wasted
+        // their time.
+        const unmet = groups.find(g => countIn(g) < g.min_select);
         return (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" onClick={() => setBuilderItem(null)}>
             <div className="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[92vh] flex flex-col" onClick={e => e.stopPropagation()}>
@@ -517,10 +534,13 @@ const OrderPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => { addLine(builderItem, picked); setBuilderItem(null); }}
-                  className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2"
+                  disabled={!!unmet}
+                  className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 disabled:bg-stone-300 disabled:cursor-not-allowed"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  {t.add} · {formatTHB(builderItem.price + addedPrice)}
+                  {unmet
+                    ? `${t.choose} ${localizedName(unmet, lang)}`
+                    : `${t.add} · ${formatTHB(builderItem.price + addedPrice)}`}
                 </button>
               </div>
             </div>

@@ -16,6 +16,8 @@ interface Strings {
   customise: string;
   from: string;
   chooseIngredients: string;
+  // Shown on the disabled add button when a required group is unanswered.
+  choose: string;
   clearAll: string;
   cartItems: (n: number) => string;
   checkout: string;
@@ -59,6 +61,7 @@ export const STRINGS: Record<Lang, Strings> = {
     customise: 'Build it',
     from: 'from',
     chooseIngredients: 'Pick anything you like — mix and match.',
+    choose: 'Choose a',
     clearAll: 'Clear all',
     cartItems: n => `${n} ${n === 1 ? 'item' : 'items'}`,
     checkout: 'Checkout',
@@ -100,6 +103,7 @@ export const STRINGS: Record<Lang, Strings> = {
     customise: 'จัดโบวล์',
     from: 'เริ่มต้น',
     chooseIngredients: 'เลือกส่วนผสมที่ชอบได้เลย ผสมกันตามใจ',
+    choose: 'เลือก',
     clearAll: 'ล้างทั้งหมด',
     cartItems: n => `${n} รายการ`,
     checkout: 'ชำระเงิน',
@@ -141,6 +145,7 @@ export const STRINGS: Record<Lang, Strings> = {
     customise: 'Собрать',
     from: 'от',
     chooseIngredients: 'Выберите любые ингредиенты — комбинируйте как хотите.',
+    choose: 'Выберите',
     clearAll: 'Очистить всё',
     cartItems: n => {
       const mod10 = n % 10, mod100 = n % 100;

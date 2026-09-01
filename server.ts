@@ -321,11 +321,19 @@ async function startServer() {
     // the join a caller could attach a ฿0 option from another item, or a
     // sold-out one, and the price would still come out looking legitimate.
     const getOption = db.prepare(`
-      SELECT o.id, o.name, o.price, o.kcal, o.protein, g.name AS group_name
+      SELECT o.id, o.name, o.price, o.kcal, o.protein,
+             g.id AS group_id, g.name AS group_name
       FROM menu_options o
       JOIN menu_option_groups g ON g.id = o.group_id
       WHERE o.id = ? AND g.menu_item_id = ? AND o.available = 1
     `);
+    // How many choices each group requires. The rule is set in the POS and
+    // shown on the ordering page, so it has to hold here too: a cart assembled
+    // by anything other than our own page would otherwise skip a required
+    // choice and arrive as a bowl with no base.
+    const getGroups = db.prepare(
+      "SELECT id, name, min_select, max_select FROM menu_option_groups WHERE menu_item_id = ?",
+    );
     let subtotal = 0;
     const validated: { id: number; quantity: number; price: number; options: any[] | null }[] = [];
     for (const it of items) {
@@ -341,6 +349,9 @@ async function startServer() {
       // are: the client sends ids only, never amounts.
       let unitPrice = menuItem.price;
       let chosen: any[] | null = null;
+      // Tallied while resolving, so the group rules below can be checked
+      // without re-reading what was stored for the receipt.
+      const pickedByGroup = new Map<number, number>();
       if (Array.isArray(it.options) && it.options.length > 0) {
         if (it.options.length > 60) return res.status(400).json({ error: "Too many options selected" });
         const seen = new Set<number>();
@@ -351,10 +362,32 @@ async function startServer() {
           seen.add(optId);
           const opt = getOption.get(optId, menuItem.id) as any;
           if (!opt) return res.status(400).json({ error: "An option in your cart is no longer available" });
+          pickedByGroup.set(opt.group_id, (pickedByGroup.get(opt.group_id) || 0) + 1);
           chosen.push({ id: opt.id, group: opt.group_name, name: opt.name, price: opt.price, kcal: opt.kcal, protein: opt.protein });
           unitPrice += opt.price;
         }
         if (chosen.length === 0) chosen = null;
+      }
+
+      // Check the per-group rules once the whole line is known, so the message
+      // names the group the customer still has to answer.
+      const groups = getGroups.all(menuItem.id) as any[];
+      if (groups.length > 0) {
+        for (const g of groups) {
+          const n = pickedByGroup.get(g.id) || 0;
+          if (n < g.min_select) {
+            return res.status(400).json({
+              error: g.min_select === 1
+                ? `Choose a ${g.name.toLowerCase()} for ${menuItem.name}.`
+                : `Choose at least ${g.min_select} from ${g.name} for ${menuItem.name}.`,
+            });
+          }
+          if (g.max_select !== null && n > g.max_select) {
+            return res.status(400).json({
+              error: `Choose at most ${g.max_select} from ${g.name} for ${menuItem.name}.`,
+            });
+          }
+        }
       }
 
       // price_at_time carries base + options so receipts, totals and the POS
@@ -647,6 +680,196 @@ async function startServer() {
       });
     }
     res.json({ success: true, deleted: true });
+  });
+
+  // ---- Menu option groups ---------------------------------------------------
+  // A configurable dish — a build-your-own bowl, a coffee with a milk choice —
+  // is described by groups of options. Until now nothing but a seed script
+  // could create them, so the one configurable item on the live menu went out
+  // with nothing for a customer to choose.
+  //
+  // What a customer picked is snapshotted into order_items.options_json at the
+  // time of the order, not referenced by id, so editing or removing an option
+  // later cannot rewrite a receipt that has already been printed.
+
+  const optionGroupsFor = (menuItemId: number) => {
+    const groups = db.prepare(`
+      SELECT id, menu_item_id, name, name_th, name_ru, min_select, max_select, sort_order
+        FROM menu_option_groups WHERE menu_item_id = ? ORDER BY sort_order, id
+    `).all(menuItemId) as any[];
+    // One flat query for the options rather than one per group: a bowl builder
+    // has a dozen groups and this is on the path of every menu edit.
+    const options = db.prepare(`
+      SELECT id, group_id, name, name_th, name_ru, price, kcal, protein, grams, available, sort_order
+        FROM menu_options
+       WHERE group_id IN (SELECT id FROM menu_option_groups WHERE menu_item_id = ?)
+       ORDER BY sort_order, id
+    `).all(menuItemId) as any[];
+    const byGroup = new Map<number, any[]>();
+    for (const o of options) {
+      if (!byGroup.has(o.group_id)) byGroup.set(o.group_id, []);
+      byGroup.get(o.group_id)!.push({ ...o, available: !!o.available });
+    }
+    return groups.map(g => ({ ...g, options: byGroup.get(g.id) || [] }));
+  };
+
+  // min/max describe how many of a group's options a customer must pick. Left
+  // blank, max means "no limit" — that is a real choice for a toppings list,
+  // so it is stored as NULL rather than coerced to a number.
+  const readSelectRange = (body: any, fallbackMin = 0) => {
+    const rawMin = body.min_select;
+    const min = rawMin === undefined || rawMin === null || rawMin === ""
+      ? fallbackMin
+      : Math.floor(Number(rawMin));
+    const rawMax = body.max_select;
+    const max = rawMax === undefined || rawMax === null || rawMax === ""
+      ? null
+      : Math.floor(Number(rawMax));
+    if (!Number.isFinite(min) || min < 0) return { error: "Minimum choices must be 0 or more." };
+    if (max !== null && (!Number.isFinite(max) || max < 1)) return { error: "Maximum choices must be 1 or more, or blank for no limit." };
+    if (max !== null && max < min) return { error: "Maximum choices cannot be lower than the minimum." };
+    return { min, max };
+  };
+
+  app.get("/api/menu/:id/option-groups", (req, res) => {
+    const item = db.prepare("SELECT id FROM menu_items WHERE id = ?").get(req.params.id);
+    if (!item) return res.status(404).json({ error: "That menu item no longer exists." });
+    res.json(optionGroupsFor(Number(req.params.id)));
+  });
+
+  app.post("/api/menu/:id/option-groups", (req, res) => {
+    const item = db.prepare("SELECT id FROM menu_items WHERE id = ?").get(req.params.id) as any;
+    if (!item) return res.status(404).json({ error: "That menu item no longer exists." });
+    const name = String(req.body.name || "").trim();
+    if (!name) return res.status(400).json({ error: "A choice group needs a name." });
+    const range = readSelectRange(req.body);
+    if ("error" in range) return res.status(400).json({ error: range.error });
+    const nextOrder = (db.prepare(
+      "SELECT COALESCE(MAX(sort_order), -1) + 1 AS n FROM menu_option_groups WHERE menu_item_id = ?"
+    ).get(item.id) as any).n;
+    try {
+      const r = db.prepare(`
+        INSERT INTO menu_option_groups (menu_item_id, name, name_th, name_ru, min_select, max_select, sort_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(item.id, name, req.body.name_th || null, req.body.name_ru || null, range.min, range.max, nextOrder);
+      res.json({ id: r.lastInsertRowid });
+    } catch {
+      // UNIQUE(menu_item_id, name) — two groups called "Size" on one dish would
+      // read as a bug to whoever met it on the ordering page.
+      res.status(409).json({ error: `This item already has a choice group called "${name}".` });
+    }
+  });
+
+  app.patch("/api/option-groups/:groupId", (req, res) => {
+    const group = db.prepare("SELECT * FROM menu_option_groups WHERE id = ?").get(req.params.groupId) as any;
+    if (!group) return res.status(404).json({ error: "That choice group no longer exists." });
+    const updates: string[] = [];
+    const params: any[] = [];
+    if (req.body.name !== undefined) {
+      const name = String(req.body.name).trim();
+      if (!name) return res.status(400).json({ error: "A choice group needs a name." });
+      updates.push("name = ?"); params.push(name);
+    }
+    for (const field of ["name_th", "name_ru"]) {
+      if (req.body[field] !== undefined) { updates.push(`${field} = ?`); params.push(req.body[field] || null); }
+    }
+    if (req.body.min_select !== undefined || req.body.max_select !== undefined) {
+      const range = readSelectRange(
+        { min_select: req.body.min_select ?? group.min_select, max_select: req.body.max_select ?? group.max_select },
+        group.min_select,
+      );
+      if ("error" in range) return res.status(400).json({ error: range.error });
+      updates.push("min_select = ?", "max_select = ?"); params.push(range.min, range.max);
+    }
+    if (updates.length === 0) return res.json({ success: true });
+    params.push(group.id);
+    try {
+      db.prepare(`UPDATE menu_option_groups SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+      res.json({ success: true });
+    } catch {
+      res.status(409).json({ error: "Another choice group on this item already has that name." });
+    }
+  });
+
+  app.delete("/api/option-groups/:groupId", (req, res) => {
+    const group = db.prepare("SELECT * FROM menu_option_groups WHERE id = ?").get(req.params.groupId) as any;
+    if (!group) return res.status(404).json({ error: "That choice group no longer exists." });
+    // Options carry their own recipe lines; recipe_items cascades from
+    // menu_options, so removing the options first leaves nothing orphaned.
+    db.transaction(() => {
+      db.prepare("DELETE FROM menu_options WHERE group_id = ?").run(group.id);
+      db.prepare("DELETE FROM menu_option_groups WHERE id = ?").run(group.id);
+    })();
+    res.json({ success: true });
+  });
+
+  app.post("/api/option-groups/:groupId/options", (req, res) => {
+    const group = db.prepare("SELECT * FROM menu_option_groups WHERE id = ?").get(req.params.groupId) as any;
+    if (!group) return res.status(404).json({ error: "That choice group no longer exists." });
+    const name = String(req.body.name || "").trim();
+    if (!name) return res.status(400).json({ error: "A choice needs a name." });
+    const price = req.body.price === undefined || req.body.price === "" ? 0 : Number(req.body.price);
+    // A negative surcharge would quietly discount the dish on the customer's
+    // screen, so it is refused rather than stored.
+    if (!Number.isFinite(price) || price < 0) return res.status(400).json({ error: "A choice's extra charge must be 0 or more." });
+    const num = (v: any) => (v === undefined || v === null || v === "" ? null : Number(v));
+    const nextOrder = (db.prepare(
+      "SELECT COALESCE(MAX(sort_order), -1) + 1 AS n FROM menu_options WHERE group_id = ?"
+    ).get(group.id) as any).n;
+    try {
+      const r = db.prepare(`
+        INSERT INTO menu_options (group_id, name, name_th, name_ru, price, kcal, protein, grams, sort_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(group.id, name, req.body.name_th || null, req.body.name_ru || null, price,
+             num(req.body.kcal), num(req.body.protein), num(req.body.grams), nextOrder);
+      res.json({ id: r.lastInsertRowid });
+    } catch {
+      res.status(409).json({ error: `This group already has a choice called "${name}".` });
+    }
+  });
+
+  app.patch("/api/options/:optionId", (req, res) => {
+    const option = db.prepare("SELECT * FROM menu_options WHERE id = ?").get(req.params.optionId) as any;
+    if (!option) return res.status(404).json({ error: "That choice no longer exists." });
+    const updates: string[] = [];
+    const params: any[] = [];
+    if (req.body.name !== undefined) {
+      const name = String(req.body.name).trim();
+      if (!name) return res.status(400).json({ error: "A choice needs a name." });
+      updates.push("name = ?"); params.push(name);
+    }
+    for (const field of ["name_th", "name_ru"]) {
+      if (req.body[field] !== undefined) { updates.push(`${field} = ?`); params.push(req.body[field] || null); }
+    }
+    if (req.body.price !== undefined) {
+      const price = req.body.price === "" ? 0 : Number(req.body.price);
+      if (!Number.isFinite(price) || price < 0) return res.status(400).json({ error: "A choice's extra charge must be 0 or more." });
+      updates.push("price = ?"); params.push(price);
+    }
+    for (const field of ["kcal", "protein", "grams"]) {
+      if (req.body[field] !== undefined) {
+        const v = req.body[field] === "" || req.body[field] === null ? null : Number(req.body[field]);
+        updates.push(`${field} = ?`); params.push(v);
+      }
+    }
+    // Sold out for today: the ordering page hides it, the recipe and the past
+    // receipts stay put.
+    if (req.body.available !== undefined) { updates.push("available = ?"); params.push(req.body.available ? 1 : 0); }
+    if (updates.length === 0) return res.json({ success: true });
+    params.push(option.id);
+    try {
+      db.prepare(`UPDATE menu_options SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+      res.json({ success: true });
+    } catch {
+      res.status(409).json({ error: "Another choice in this group already has that name." });
+    }
+  });
+
+  app.delete("/api/options/:optionId", (req, res) => {
+    const option = db.prepare("SELECT id FROM menu_options WHERE id = ?").get(req.params.optionId);
+    if (!option) return res.status(404).json({ error: "That choice no longer exists." });
+    db.prepare("DELETE FROM menu_options WHERE id = ?").run(req.params.optionId);
+    res.json({ success: true });
   });
 
   // Members API

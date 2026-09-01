@@ -49,6 +49,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MenuItem, Order, DailyReport, Member, StaffMember, StaffShift } from './types';
 import InventoryPanel from './InventoryPanel';
+import MenuOptionsEditor from './MenuOptionsEditor';
 import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
@@ -2116,6 +2117,14 @@ const App: React.FC = () => {
                       </button>
                     )}
                   </form>
+                  {/* Only once the item exists — a choice group has to hang off
+                      a saved item, and asking for its options before the dish
+                      has a name reads as a form that will not end. */}
+                  {editingItem && (
+                    <div className="px-8 pb-8">
+                      <MenuOptionsEditor menuItemId={editingItem.id} itemName={editingItem.name} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Menu List Table */}
