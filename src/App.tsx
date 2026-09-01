@@ -66,6 +66,9 @@ const App: React.FC = () => {
   const [authed, setAuthed] = useState<boolean | null>(null);
   // Orders that arrived from the QR page while the till was on another tab.
   const [unseenOrders, setUnseenOrders] = useState(0);
+  // Recipe cost per dish, so a price can be set against what the dish costs
+  // rather than guessed.
+  const [dishCostRows, setDishCostRows] = useState<any[]>([]);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
   const [storeForm, setStoreForm] = useState({ shop_name: '', promptpay_id: '', staff_pin: '' });
@@ -116,7 +119,9 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Management state
-  const [newItem, setNewItem] = useState({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
+  const [newItem, setNewItem] = useState({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '',
+    description: '', description_th: '', description_ru: '',
+    stock_quantity: '', low_stock_threshold: '' });
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const categories = ['All', ...Array.from(new Set(menuItems.map(i => i.category)))];
@@ -135,6 +140,7 @@ const App: React.FC = () => {
     fetchMembers();
     fetchStaff();
     fetchSettings();
+    fetchDishCosts();
     // Expiry reminder: whoever opens the till in the morning sees what has to
     // be used or binned today, without having to remember to look for it.
     fetch('/api/inventory/expiring?days=3')
@@ -405,6 +411,16 @@ const App: React.FC = () => {
     setOrders(data);
   };
 
+  const fetchDishCosts = async () => {
+    try {
+      const res = await fetch('/api/inventory/costs');
+      if (res.ok) setDishCostRows(await res.json());
+    } catch {
+      // Costing is an aid to pricing, not a precondition for it — a failure
+      // here must not stop anyone editing the menu.
+    }
+  };
+
   const fetchMembers = async (search = '') => {
     try {
       const res = await fetch(`/api/members?q=${encodeURIComponent(search)}`);
@@ -468,13 +484,25 @@ const App: React.FC = () => {
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...newItem, price: parseFloat(newItem.price) })
+      // Blank number fields mean "leave it alone", not zero — sending 0 would
+      // silently mark a new item as out of stock.
+      body: JSON.stringify({
+        ...newItem,
+        price: parseFloat(newItem.price),
+        stock_quantity: newItem.stock_quantity === '' ? undefined : Number(newItem.stock_quantity),
+        low_stock_threshold: newItem.low_stock_threshold === '' ? undefined : Number(newItem.low_stock_threshold),
+      })
     });
     
     if (res.ok) {
-      setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
+      setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '',
+    description: '', description_th: '', description_ru: '',
+    stock_quantity: '', low_stock_threshold: '' });
       setEditingItem(null);
       fetchMenu();
+      // A changed price moves the margin, so the costing table must not keep
+      // showing the old one.
+      fetchDishCosts();
     } else {
       await reportFailure(res, 'save the item');
     }
@@ -515,13 +543,20 @@ const App: React.FC = () => {
       name_ru: item.name_ru || '',
       category: item.category,
       price: item.price.toString(),
-      image_url: item.image_url || ''
+      image_url: item.image_url || '',
+      description: item.description || '',
+      description_th: item.description_th || '',
+      description_ru: item.description_ru || '',
+      stock_quantity: item.stock_quantity?.toString() ?? '',
+      low_stock_threshold: item.low_stock_threshold?.toString() ?? ''
     });
   };
 
   const cancelEdit = () => {
     setEditingItem(null);
-    setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '' });
+    setNewItem({ name: '', name_th: '', name_ru: '', category: '', price: '', image_url: '',
+    description: '', description_th: '', description_ru: '',
+    stock_quantity: '', low_stock_threshold: '' });
   };
 
   // Delete = permanent removal. If the item appears in past orders the server
@@ -1919,14 +1954,109 @@ const App: React.FC = () => {
                       <p className="mt-1 text-[11px] text-stone-400">Pick an existing category or type a new one.</p>
                     </div>
                     <div>
+                      <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Description (EN)</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Shown to customers on the QR ordering page."
+                        className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-y"
+                        value={newItem.description}
+                        onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                      />
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <textarea
+                          rows={2}
+                          placeholder="คำอธิบาย (ไทย)"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-y"
+                          value={newItem.description_th}
+                          onChange={(e) => setNewItem({ ...newItem, description_th: e.target.value })}
+                        />
+                        <textarea
+                          rows={2}
+                          placeholder="Описание (RU)"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-y"
+                          value={newItem.description_ru}
+                          onChange={(e) => setNewItem({ ...newItem, description_ru: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Price (THB ฿)</label>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         required
                         className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         value={newItem.price}
                         onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
                       />
+                      {(() => {
+                        // Pricing against the recipe rather than by feel. Only an
+                        // item whose ingredients all carry a cost can be judged;
+                        // anything else would be a confident wrong number.
+                        const row = editingItem
+                          ? dishCostRows.find((r: any) => r.menu_item_id === editingItem.id)
+                          : null;
+                        if (!row) return null;
+                        if (!row.cost_complete) {
+                          return (
+                            <p className="mt-2 text-[11px] text-amber-600">
+                              {!row.has_recipe
+                                ? 'No recipe yet — add one under Manage → Recipes to see cost and margin here.'
+                                : `Cost is at least ฿${row.partial_cost.toFixed(2)}; still missing a price for ${row.missing.join(', ')}.`}
+                            </p>
+                          );
+                        }
+                        const price = parseFloat(newItem.price);
+                        const cost = row.cost as number;
+                        const valid = Number.isFinite(price) && price > 0;
+                        const marginPct = valid ? ((price - cost) / price) * 100 : null;
+                        // 30% food cost is the usual café target, so the dish
+                        // carries rent and labour as well as its ingredients.
+                        const suggested = cost / 0.30;
+                        return (
+                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+                            <span className="text-stone-500">
+                              Cost <span className="font-mono font-bold text-stone-700">฿{cost.toFixed(2)}</span>
+                            </span>
+                            {marginPct != null && (
+                              <span className={`font-bold ${marginPct < 50 ? 'text-red-600' : marginPct < 65 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                Margin {marginPct.toFixed(0)}%
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setNewItem({ ...newItem, price: suggested.toFixed(0) })}
+                              title="Set the price at a 30% food cost"
+                              className="underline text-stone-500 hover:text-stone-800"
+                            >
+                              suggest ฿{suggested.toFixed(0)}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Stock</label>
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="50"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          value={newItem.stock_quantity}
+                          onChange={(e) => setNewItem({ ...newItem, stock_quantity: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Low-stock alert</label>
+                        <input
+                          type="number"
+                          min={0}
+                          placeholder="10"
+                          className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          value={newItem.low_stock_threshold}
+                          onChange={(e) => setNewItem({ ...newItem, low_stock_threshold: e.target.value })}
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Item Image</label>
