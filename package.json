@@ -5,16 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "seed": "tsx seed.ts",
-    "seed:tea": "tsx seed-tea.ts",
-    "seed:bar": "tsx seed-bar.ts",
-    "seed:bowl": "tsx seed-bowl-builder.ts",
     "build": "vite build",
     "start": "node server.ts",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit",
-    "seed:coffee": "tsx seed-coffee.ts",
-    "wire:photos": "tsx wire-photos.ts"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

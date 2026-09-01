@@ -123,14 +123,16 @@ cat .env   # check SESSION_SECRET is now filled
 (Leave `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` blank unless you use the
 Google Business Profile feature in the POS.)
 
-## Step 7 — Seed the starting menu
+## Step 7 — File ownership
 
 ```bash
 chown -R niksen:niksen /opt/niksen-secret-bar
-sudo -u niksen npm run seed    # loads the 25-item starter menu into the database
 ```
 
-(You can edit the menu later in the POS. Skip this if you'd rather add items by hand.)
+There is no starter menu to load. The demo items and the seed scripts that
+wrote them were removed once the real menu went in; the database starts empty
+and everything — dishes, photos, ingredients, recipes, prices — is entered in
+`/pos` under Manage.
 
 ## Step 8 — Start the app as a service
 
@@ -338,6 +340,6 @@ Copy that file to `/opt/niksen-secret-bar/pos.db` on the server and
   A missing `SESSION_SECRET` is the most common cause.
 - **No HTTPS / cert error:** DNS isn't pointing here yet, or ports 80/443 are
   blocked. Recheck Steps 2 and 10, then `systemctl reload caddy`.
-- **Menu is empty:** re-run `sudo -u niksen npm run seed`, or add items in `/pos`.
+- **Menu is empty:** that is the starting state — add items in `/pos` under Manage.
 - **Back up your data:** see the Backups section above — nightly snapshots on
   the server, pulled off-site with `ops/pull-backups.sh`.

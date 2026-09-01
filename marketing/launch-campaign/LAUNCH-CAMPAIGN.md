@@ -183,4 +183,4 @@
 ## 9. Assets in this folder
 
 `announce-opening.jpg` · `countdown-7.jpg` · `countdown-3.jpg` · `countdown-1.jpg` · `opening-day.jpg` · `tea-season.jpg` (all 1080×1080, IG/FB/LINE-ready) · `gen-assets.cjs` (regenerate/edit anytime)
-Plus existing: scan-to-order QR poster, og.jpg share card, 5 tea posters in `public/menu/`.
+Plus existing: scan-to-order QR poster and the og.jpg share card. (The five tea posters lived in `public/menu/`, which went when that menu was retired — they are still in git history if they are ever wanted again.)

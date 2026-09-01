@@ -108,9 +108,9 @@ db.exec(`
   UPDATE menu_items SET low_stock_threshold = 10 WHERE low_stock_threshold IS NULL;
 `);
 
-// Configurable items (the build-your-own bowl) carry option groups the flat
-// menu_items table can't express. Created here as well as in seed-bowl-builder
-// so the server starts cleanly on a database that has never been seeded.
+// Configurable items carry option groups the flat menu_items table can't
+// express. Created here so the server starts cleanly on an empty database;
+// staff fill them in from the menu editor.
 db.exec(`
   CREATE TABLE IF NOT EXISTS menu_option_groups (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,

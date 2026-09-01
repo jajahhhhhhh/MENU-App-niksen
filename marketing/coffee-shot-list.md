@@ -8,16 +8,13 @@ profile.
 
 ## File
 
-Save as JPEG into `public/menu/`:
+Upload straight into the POS: **Manage → Menu Items → Edit the drink →
+Upload Photo**. Filenames no longer matter — the photo is attached to the item
+you are editing, downscaled to 1200px and stored with it.
 
-| Drink | Filename |
-|---|---|
-| Black Rest Coffee | `black-rest-coffee.jpg` |
-
-The name has to match: `seed-coffee.ts` slugifies whatever is in the database
-(`Black Rest Coffee` → `black-rest-coffee`) and looks for that exact file. If
-the menu item is ever renamed, rename the photo to match — a mismatch is
-skipped silently and the tile keeps its grey placeholder.
+(There used to be a `public/menu/` folder and a seed script that matched photos
+to items by slugified filename. Both are gone: the photo now travels with the
+menu item, so renaming a drink can no longer orphan its picture.)
 
 ## Specs
 
@@ -39,23 +36,10 @@ skipped silently and the tile keeps its grey placeholder.
 
 ## Wiring it in
 
-Drop the file in, then from the app root:
+Nothing to commit and nothing to deploy. In `/pos` → **Manage → Menu Items**,
+open the drink, click **Upload Photo**, pick the file, and save. It is on the
+customer's menu straight away — the menu API reads the database on each
+request, so no restart either.
 
-```bash
-git add public/menu && git commit -m "Black Rest Coffee photo" && git push origin main
-```
-
-Then on the server:
-
-```bash
-cd /opt/niksen-secret-bar && git pull && npm run build && npm run seed:coffee
-```
-
-The script prints what it wired and what is still missing. No restart needed —
-the menu API reads the database on each request.
-
-> ⚠️ `npm run seed:coffee` and `npm run seed` still contain the old multi-item
-> coffee list (Espresso / Americano / Latte / Cappuccino / Cold Brew, plus four
-> more in `seed.ts`). Running either will re-insert drinks that aren't on the
-> menu. Those scripts need updating before they're run again — see the note in
-> the session log.
+The photo is downscaled to 1200px and stored with the item, so a 3 MB shot off
+the camera arrives as roughly 20 KB.
