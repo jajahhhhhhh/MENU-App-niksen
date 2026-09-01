@@ -39,6 +39,11 @@ ssh "$HOST" bash -euo pipefail -s <<REMOTE
   npm run build
   npm ci --omit=dev
   systemctl restart niksen
+  # The timer runs a copy at /usr/local/bin/niksen-backup, not the file in the
+  # repo, so a pull alone leaves it on whatever version was installed first.
+  # That is how the backup silently kept skipping the menu photos. install is
+  # idempotent, so re-running it every deploy keeps the two in step.
+  bash ops/install-backup.sh >/dev/null
 REMOTE
 
 say "service status"
