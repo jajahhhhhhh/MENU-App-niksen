@@ -13,6 +13,10 @@ interface Strings {
   emptyMenu: string;
   soldOut: string;
   add: string;
+  // Heading of the ordering page, and the action on a dish that is not in the
+  // basket yet — spelled out rather than a bare "Add" on the reference card.
+  menuTitle: string;
+  addToOrder: string;
   customise: string;
   from: string;
   chooseIngredients: string;
@@ -47,6 +51,20 @@ interface Strings {
   errNetwork: string;
   errGeneric: string;
   openingBanner: string;
+  // The app shell: the blue opening block, the cards it offers, and the tab
+  // bar. Wording follows the Niksen app rather than being invented here.
+  heroLine: string;
+  openNow: string;
+  homeMenu: string; homeMenuSub: string;
+  homeOrder: string; homeOrderSub: string;
+  homeTonight: string; homeTonightSub: string;
+  homeCard: string; homeCardSub: string;
+  homeFind: string; homeFindSub: string;
+  hoursBreakfast: string; hoursBar: string; place: string;
+  tonightBody: string;
+  eventLabel: string; promoLabel: string;
+  cartEmpty: string;
+  navHome: string; navMenu: string; navOrder: string; navTonight: string; navCard: string;
   openingCta: string;
 }
 
@@ -58,6 +76,8 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'The menu is being set up — please check back soon.',
     soldOut: 'Sold out',
     add: 'Add',
+    menuTitle: 'Menu',
+    addToOrder: 'Add to Order',
     customise: 'Build it',
     from: 'from',
     chooseIngredients: 'Pick anything you like — mix and match.',
@@ -91,6 +111,18 @@ export const STRINGS: Record<Lang, Strings> = {
     errNetwork: 'Network error. Please check your connection and try again.',
     errGeneric: 'Something went wrong. Please try again.',
     openingBanner: 'Opening 18 August 2026 — online ordering opens then. Have a look around!',
+    heroLine: 'This is a cafe. And a bar. And a theatre, too. Please come in.',
+    openNow: 'Open now · bar till 23:00',
+    homeMenu: 'Menu', homeMenuSub: 'Breakfast till 14:00 · bar from 17:00',
+    homeOrder: 'Order for pickup', homeOrderSub: 'Ready in 15–30 minutes',
+    homeTonight: 'On the wall tonight', homeTonightSub: 'Projector · free entrance',
+    homeCard: 'De Nikskaart', homeCardSub: 'Points ride on your phone number',
+    homeFind: 'Find us', homeFindSub: "The blue window on the Fisherman's Village road",
+    hoursBreakfast: '07:00 — 14:00 Breakfast', hoursBar: '17:00 — 23:00 Bar', place: 'Bophut · Koh Samui',
+    tonightBody: 'What goes on the wall is decided on the day. Ask at the bar, or just look up when you come in.',
+    eventLabel: 'Tonight', promoLabel: 'Offer',
+    cartEmpty: 'Nothing in the basket yet.',
+    navHome: 'Home', navMenu: 'Menu', navOrder: 'Order', navTonight: 'Tonight', navCard: 'Card',
     openingCta: 'Ordering opens 18 Aug',
   },
   th: {
@@ -100,6 +132,8 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'เมนูกำลังจัดเตรียม โปรดกลับมาใหม่เร็ว ๆ นี้',
     soldOut: 'หมด',
     add: 'เพิ่ม',
+    menuTitle: 'เมนู',
+    addToOrder: 'สั่งเมนูนี้',
     customise: 'จัดโบวล์',
     from: 'เริ่มต้น',
     chooseIngredients: 'เลือกส่วนผสมที่ชอบได้เลย ผสมกันตามใจ',
@@ -133,6 +167,18 @@ export const STRINGS: Record<Lang, Strings> = {
     errNetwork: 'การเชื่อมต่อมีปัญหา กรุณาลองใหม่อีกครั้ง',
     errGeneric: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
     openingBanner: 'เปิด 18 สิงหาคม 2026 — เปิดรับออเดอร์ออนไลน์วันนั้น ลองดูเมนูก่อนได้เลย!',
+    heroLine: 'ที่นี่เป็นคาเฟ่ เป็นบาร์ และเป็นโรงหนังด้วย เชิญเข้ามาเลย',
+    openNow: 'เปิดอยู่ · บาร์ถึง 23:00',
+    homeMenu: 'เมนู', homeMenuSub: 'อาหารเช้าถึง 14:00 · บาร์เริ่ม 17:00',
+    homeOrder: 'สั่งกลับบ้าน', homeOrderSub: 'พร้อมใน 15–30 นาที',
+    homeTonight: 'คืนนี้ฉายอะไร', homeTonightSub: 'โปรเจกเตอร์ · เข้าฟรี',
+    homeCard: 'บัตรนิกเซน', homeCardSub: 'แต้มผูกกับเบอร์โทรของคุณ',
+    homeFind: 'หาเราเจอได้ที่', homeFindSub: 'หน้าต่างสีน้ำเงิน ถนนหมู่บ้านชาวประมง',
+    hoursBreakfast: '07:00 — 14:00 อาหารเช้า', hoursBar: '17:00 — 23:00 บาร์', place: 'บ่อผุด · เกาะสมุย',
+    tonightBody: 'จะฉายอะไรตัดสินใจกันวันต่อวัน ถามที่บาร์ได้ หรือเข้ามาแล้วเงยหน้าดูเลย',
+    eventLabel: 'คืนนี้', promoLabel: 'โปรโมชั่น',
+    cartEmpty: 'ยังไม่มีอะไรในตะกร้า',
+    navHome: 'หน้าแรก', navMenu: 'เมนู', navOrder: 'ออเดอร์', navTonight: 'คืนนี้', navCard: 'บัตร',
     openingCta: 'เปิดรับออเดอร์ 18 ส.ค.',
   },
   ru: {
@@ -142,6 +188,8 @@ export const STRINGS: Record<Lang, Strings> = {
     emptyMenu: 'Меню скоро появится — загляните позже.',
     soldOut: 'Нет в наличии',
     add: 'Добавить',
+    menuTitle: 'Меню',
+    addToOrder: 'В заказ',
     customise: 'Собрать',
     from: 'от',
     chooseIngredients: 'Выберите любые ингредиенты — комбинируйте как хотите.',
@@ -180,6 +228,18 @@ export const STRINGS: Record<Lang, Strings> = {
     errNetwork: 'Ошибка сети. Проверьте подключение и попробуйте снова.',
     errGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
     openingBanner: 'Открытие 18 августа 2026 — тогда откроются онлайн-заказы. Пока осмотритесь!',
+    heroLine: 'Это кафе. И бар. И ещё театр. Заходите.',
+    openNow: 'Открыто · бар до 23:00',
+    homeMenu: 'Меню', homeMenuSub: 'Завтрак до 14:00 · бар с 17:00',
+    homeOrder: 'Заказ навынос', homeOrderSub: 'Готово за 15–30 минут',
+    homeTonight: 'Что на стене сегодня', homeTonightSub: 'Проектор · вход свободный',
+    homeCard: 'Карта Niksen', homeCardSub: 'Баллы привязаны к номеру телефона',
+    homeFind: 'Как нас найти', homeFindSub: 'Синее окно на дороге Fisherman\'s Village',
+    hoursBreakfast: '07:00 — 14:00 Завтрак', hoursBar: '17:00 — 23:00 Бар', place: 'Бопхут · Ко Самуи',
+    tonightBody: 'Что покажем — решаем в тот же день. Спросите у бара или просто поднимите глаза, когда зайдёте.',
+    eventLabel: 'Сегодня', promoLabel: 'Акция',
+    cartEmpty: 'В корзине пока пусто.',
+    navHome: 'Главная', navMenu: 'Меню', navOrder: 'Заказ', navTonight: 'Вечер', navCard: 'Карта',
     openingCta: 'Заказы с 18 авг.',
   },
 };

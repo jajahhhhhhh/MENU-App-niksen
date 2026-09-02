@@ -43,13 +43,15 @@ import {
   AlertCircle,
   Store,
   Bike,
-  Lock
+  Lock,
+  Clapperboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MenuItem, Order, DailyReport, Member, StaffMember, StaffShift } from './types';
 import InventoryPanel from './InventoryPanel';
 import MenuOptionsEditor from './MenuOptionsEditor';
+import TonightPanel from './TonightPanel';
 import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
@@ -86,7 +88,7 @@ const App: React.FC = () => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [scanNotification, setScanNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
-  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'ingredients' | 'store_settings'>('menu_items');
+  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'ingredients' | 'tonight' | 'store_settings'>('menu_items');
   const [inventorySearch, setInventorySearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
@@ -1589,6 +1591,15 @@ const App: React.FC = () => {
                     Ingredients & Recipes
                   </button>
                   <button
+                    onClick={() => setManageSubTab('tonight')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      manageSubTab === 'tonight' ? 'bg-white text-stone-900 shadow-md' : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <Clapperboard className="w-4 h-4 text-amber-500" />
+                    Tonight & Offers
+                  </button>
+                  <button
                     onClick={() => setManageSubTab('store_settings')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                       manageSubTab === 'store_settings' ? 'bg-white text-stone-900 shadow-md' : 'text-stone-600 hover:text-stone-900'
@@ -1603,6 +1614,8 @@ const App: React.FC = () => {
               {manageSubTab === 'ingredients' && (
                 <InventoryPanel menuItems={menuItems} />
               )}
+
+              {manageSubTab === 'tonight' && <TonightPanel />}
 
               {manageSubTab === 'store_settings' && (
                 <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 overflow-hidden">

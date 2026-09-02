@@ -144,6 +144,29 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_option_groups_item ON menu_option_groups(menu_item_id);
   CREATE INDEX IF NOT EXISTS idx_options_group ON menu_options(group_id);
 `);
+// What is on tonight, and any promotion worth putting in front of a customer
+// before they order. Written in the POS, read by the ordering app's Tonight
+// tab. Dates are optional: a film has one, "10% off breakfast this month" has
+// a range, and a standing note has neither.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind       TEXT NOT NULL DEFAULT 'event',   -- 'event' | 'promo'
+    title      TEXT NOT NULL,
+    title_th   TEXT,
+    title_ru   TEXT,
+    body       TEXT,
+    body_th    TEXT,
+    body_ru    TEXT,
+    starts_on  DATE,
+    ends_on    DATE,
+    active     INTEGER NOT NULL DEFAULT 1,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_events_active ON events(active, starts_on);
+`);
+
 // Chosen options are snapshotted onto the line so a receipt still reads
 // correctly after an option is renamed, repriced or removed.
 try { db.exec("ALTER TABLE order_items ADD COLUMN options_json TEXT"); } catch (e) {}
@@ -512,6 +535,21 @@ async function startServer() {
       member_points: memberPoints,
       promptpay: ppId ? promptPayPayload(ppId, total) : null,
     });
+  });
+
+  // What the ordering app shows under Tonight. Only what is switched on and
+  // in date: an entry that ended yesterday should stop advertising itself
+  // without anyone having to remember to take it down.
+  app.get("/api/public/events", (req, res) => {
+    const rows = db.prepare(`
+      SELECT id, kind, title, title_th, title_ru, body, body_th, body_ru, starts_on, ends_on
+        FROM events
+       WHERE active = 1
+         AND (starts_on IS NULL OR starts_on <= date('now', '+7 hours'))
+         AND (ends_on   IS NULL OR ends_on   >= date('now', '+7 hours'))
+       ORDER BY sort_order, COALESCE(starts_on, '9999-12-31'), id
+    `).all();
+    res.json(rows);
   });
 
   app.get("/api/public/orders/:id/status", (req, res) => {
@@ -956,6 +994,74 @@ async function startServer() {
     const option = db.prepare("SELECT id FROM menu_options WHERE id = ?").get(req.params.optionId);
     if (!option) return res.status(404).json({ error: "That choice no longer exists." });
     db.prepare("DELETE FROM menu_options WHERE id = ?").run(req.params.optionId);
+    res.json({ success: true });
+  });
+
+  // ---- Tonight & promotions -------------------------------------------------
+  // Staff-written notices for the ordering app. Kept deliberately small: a
+  // title, some words, and optional dates. Anything richer would be a CMS, and
+  // the thing this replaces is a chalkboard.
+
+  const EVENT_FIELDS = ["kind", "title", "title_th", "title_ru", "body", "body_th", "body_ru", "starts_on", "ends_on"];
+
+  const validEvent = (body: any, requireTitle: boolean) => {
+    if (requireTitle && !String(body.title || "").trim()) return "A notice needs a title.";
+    for (const f of ["starts_on", "ends_on"]) {
+      const v = body[f];
+      if (v !== undefined && v !== null && v !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(String(v))) {
+        return `${f === "starts_on" ? "Start" : "End"} date must be YYYY-MM-DD.`;
+      }
+    }
+    // A window that ends before it starts would simply never show, and the
+    // person who typed it would have no way of knowing why.
+    if (body.starts_on && body.ends_on && String(body.ends_on) < String(body.starts_on)) {
+      return "The end date is before the start date.";
+    }
+    return null;
+  };
+
+  app.get("/api/events", (req, res) => {
+    res.json(db.prepare("SELECT * FROM events ORDER BY sort_order, id DESC").all());
+  });
+
+  app.post("/api/events", (req, res) => {
+    const invalid = validEvent(req.body, true);
+    if (invalid) return res.status(400).json({ error: invalid });
+    const b = req.body;
+    const next = (db.prepare("SELECT COALESCE(MAX(sort_order), -1) + 1 AS n FROM events").get() as any).n;
+    const r = db.prepare(`
+      INSERT INTO events (kind, title, title_th, title_ru, body, body_th, body_ru, starts_on, ends_on, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      b.kind === "promo" ? "promo" : "event",
+      String(b.title).trim(), b.title_th || null, b.title_ru || null,
+      b.body || null, b.body_th || null, b.body_ru || null,
+      b.starts_on || null, b.ends_on || null, next,
+    );
+    res.json({ id: r.lastInsertRowid });
+  });
+
+  app.patch("/api/events/:id", (req, res) => {
+    const row = db.prepare("SELECT * FROM events WHERE id = ?").get(req.params.id) as any;
+    if (!row) return res.status(404).json({ error: "That notice no longer exists." });
+    const invalid = validEvent({ ...row, ...req.body }, false);
+    if (invalid) return res.status(400).json({ error: invalid });
+    const updates: string[] = [];
+    const params: any[] = [];
+    for (const f of EVENT_FIELDS) {
+      if (req.body[f] !== undefined) { updates.push(`${f} = ?`); params.push(req.body[f] || null); }
+    }
+    if (req.body.active !== undefined) { updates.push("active = ?"); params.push(req.body.active ? 1 : 0); }
+    if (updates.length === 0) return res.json({ success: true });
+    params.push(row.id);
+    db.prepare(`UPDATE events SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+    res.json({ success: true });
+  });
+
+  app.delete("/api/events/:id", (req, res) => {
+    const row = db.prepare("SELECT id FROM events WHERE id = ?").get(req.params.id);
+    if (!row) return res.status(404).json({ error: "That notice no longer exists." });
+    db.prepare("DELETE FROM events WHERE id = ?").run(req.params.id);
     res.json({ success: true });
   });
 
