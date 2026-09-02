@@ -21,8 +21,8 @@ db.exec(`
     available INTEGER DEFAULT 1,
     image_url TEXT,
     barcode TEXT,
-    stock_quantity INTEGER DEFAULT 50,
-    low_stock_threshold INTEGER DEFAULT 10
+    stock_quantity INTEGER DEFAULT 5,
+    low_stock_threshold INTEGER DEFAULT 2
   );
 
   CREATE TABLE IF NOT EXISTS staff_members (
@@ -89,8 +89,8 @@ try { db.exec("ALTER TABLE orders ADD COLUMN member_id INTEGER REFERENCES member
 try { db.exec("ALTER TABLE orders ADD COLUMN points_earned INTEGER DEFAULT 0"); } catch (e) {}
 try { db.exec("ALTER TABLE orders ADD COLUMN points_redeemed INTEGER DEFAULT 0"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN barcode TEXT"); } catch (e) {}
-try { db.exec("ALTER TABLE menu_items ADD COLUMN stock_quantity INTEGER DEFAULT 50"); } catch (e) {}
-try { db.exec("ALTER TABLE menu_items ADD COLUMN low_stock_threshold INTEGER DEFAULT 10"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN stock_quantity INTEGER DEFAULT 5"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN low_stock_threshold INTEGER DEFAULT 2"); } catch (e) {}
 
 // Online-ordering columns for existing databases
 try { db.exec("ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'dine_in'"); } catch (e) {}
@@ -106,8 +106,8 @@ try { db.exec("ALTER TABLE menu_items ADD COLUMN description_ru TEXT"); } catch 
 // Populate initial barcodes if missing
 db.exec(`
   UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id) WHERE barcode IS NULL OR barcode = '';
-  UPDATE menu_items SET stock_quantity = 45 WHERE stock_quantity IS NULL;
-  UPDATE menu_items SET low_stock_threshold = 10 WHERE low_stock_threshold IS NULL;
+  UPDATE menu_items SET stock_quantity = 5 WHERE stock_quantity IS NULL;
+  UPDATE menu_items SET low_stock_threshold = 2 WHERE low_stock_threshold IS NULL;
 `);
 
 // Configurable items carry option groups the flat menu_items table can't
@@ -672,8 +672,9 @@ async function startServer() {
     if (invalid) return res.status(400).json({ error: invalid });
     const { name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
-    const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
-    const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 10;
+    // A dish is counted in handfuls here, not dozens: five made, warn at two.
+    const stockVal = stock_quantity !== undefined ? stock_quantity : 5;
+    const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 2;
     const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, description || null, description_th || null, description_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
     const newId = Number(result.lastInsertRowid);
     // The editor sends the photo inline; the file it becomes is named after the
