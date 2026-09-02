@@ -2168,7 +2168,16 @@ const App: React.FC = () => {
                                   <ImageIcon className="w-4 h-4 text-stone-300" />
                                 )}
                               </div>
-                              <span className="font-bold">{item.name}</span>
+                              <div className="min-w-0">
+                                <span className="font-bold">{item.name}</span>
+                                {/* Hiding a dish silently is how an hour gets
+                                    lost wondering why it never showed up. */}
+                                {!(item.price > 0) && (
+                                  <span className="block text-[11px] font-bold text-amber-600">
+                                    No price yet — hidden from customers
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="p-4">
@@ -2176,7 +2185,9 @@ const App: React.FC = () => {
                               {item.category}
                             </span>
                           </td>
-                          <td className="p-4 font-mono font-bold text-emerald-600">{formatCurrency(item.price)}</td>
+                          <td className={`p-4 font-mono font-bold ${item.price > 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {formatCurrency(item.price)}
+                          </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <button

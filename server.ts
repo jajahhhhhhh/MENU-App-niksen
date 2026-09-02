@@ -354,7 +354,11 @@ async function startServer() {
 
   app.get("/api/public/menu", (req, res) => {
     const items = db.prepare(
-      "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
+      // price > 0 as well as available: a dish is entered before it is costed,
+      // and until a real price is set it must not be orderable. Zero here means
+      // "not priced yet", never "free" — the POS shows these so staff can see
+      // what is still waiting on a price.
+      "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1 AND price > 0"
     ).all() as any[];
 
     // Attach option groups to the few items that are configurable. Fetched in
@@ -423,6 +427,11 @@ async function startServer() {
       if (!Number.isFinite(qty) || qty < 1 || qty > 50) return res.status(400).json({ error: "Invalid quantity" });
       const menuItem = getItem.get(it.menu_item_id) as any;
       if (!menuItem) return res.status(400).json({ error: "An item in your cart is no longer available" });
+      // A page loaded before the dish was hidden would still hold it. Giving
+      // food away because a price was left at zero is not a rounding error.
+      if (!(menuItem.price > 0)) {
+        return res.status(400).json({ error: `${menuItem.name} is not on sale yet.` });
+      }
       if (menuItem.stock_quantity !== null && menuItem.stock_quantity < qty) {
         return res.status(400).json({ error: `Not enough stock for ${menuItem.name}` });
       }
