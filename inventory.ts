@@ -297,6 +297,67 @@ export function restoreForOrder(db: DB, orderId: number) {
   }
 }
 
+// ------------------------------------------------------------- csv import ---
+
+/**
+ * Minimal RFC4180 reader: quoted fields, embedded commas and newlines, ""
+ * for a literal quote. Enough for a spreadsheet export, and small enough to
+ * read — a dependency for this would be more surface than the feature.
+ */
+export function parseCsv(text: string): string[][] {
+  // A BOM from Excel would otherwise become part of the first column name.
+  const s = text.replace(/^﻿/, '');
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let quoted = false;
+
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (quoted) {
+      if (c === '"') {
+        if (s[i + 1] === '"') { field += '"'; i++; }   // "" is one quote
+        else quoted = false;
+      } else field += c;
+      continue;
+    }
+    if (c === '"') { quoted = true; continue; }
+    if (c === ',') { row.push(field); field = ''; continue; }
+    if (c === '\r') continue;                            // CRLF from Windows
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; continue; }
+    field += c;
+  }
+  if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+/**
+ * How many base units one of the written unit is worth, or null if the unit
+ * makes no sense for this ingredient — litres of something measured in grams
+ * is a typo, and silently treating it as 1000 g would quietly wreck the cost.
+ */
+export function unitFactor(written: string, ing: { unit: string; pack_size?: number | null }): number | null {
+  const u = written.trim().toLowerCase();
+  const base = ing.unit;
+  if (!u) return 1;   // blank means "already in the base unit"
+
+  const same = {
+    g: ['g', 'gram', 'grams', 'gr', 'กรัม', 'ก.'],
+    ml: ['ml', 'millilitre', 'millilitres', 'milliliter', 'มล.', 'มิลลิลิตร'],
+    piece: ['piece', 'pieces', 'pcs', 'pc', 'ea', 'ชิ้น', 'อัน', 'ฟอง', 'ใบ'],
+  }[base as 'g' | 'ml' | 'piece'] || [];
+  if (same.includes(u)) return 1;
+
+  if (base === 'g' && ['kg', 'kilo', 'kilos', 'kilogram', 'kilograms', 'กก.', 'กิโล', 'กิโลกรัม'].includes(u)) return 1000;
+  if (base === 'ml' && ['l', 'lt', 'litre', 'litres', 'liter', 'liters', 'ลิตร'].includes(u)) return 1000;
+
+  // A pack only means something once someone has said how big one is.
+  if (['pack', 'packs', 'pk', 'แพค', 'แพ็ค', 'ห่อ'].includes(u)) {
+    return ing.pack_size && ing.pack_size > 0 ? ing.pack_size : null;
+  }
+  return null;
+}
+
 // ----------------------------------------------------------------- routes ---
 
 export function inventoryRouter(db: DB) {
@@ -428,6 +489,135 @@ export function inventoryRouter(db: DB) {
       return info.lastInsertRowid;
     });
     res.json({ id: tx() });
+  });
+
+  /**
+   * Import a whole supplier bill from CSV.
+   *
+   * Typing a Tops delivery in one line at a time is how purchases stop being
+   * recorded, and without purchases every dish cost is a guess. The columns
+   * are the ones already in the template staff were given:
+   *
+   *   ingredient_name, amount, unit, total_paid_THB, bought_on, expires_on, note
+   *
+   * The file speaks the shop's language — kilos and litres and Thai ingredient
+   * names — and this translates to what the table stores: an ingredient id and
+   * a quantity in base units. Both happen here rather than in the browser so
+   * one implementation decides what a row means.
+   *
+   * Nothing is written unless every row is good. A half-imported bill is worse
+   * than a rejected one: you cannot tell which lines landed, and importing it
+   * again to be sure doubles the stock that did.
+   */
+  r.post('/lots/import', (req, res) => {
+    const csv = String(req.body?.csv ?? '');
+    const commit = req.body?.commit === true;
+    if (!csv.trim()) return res.status(400).json({ error: 'The file is empty.' });
+
+    const rows = parseCsv(csv);
+    if (rows.length === 0) return res.status(400).json({ error: 'No rows found in the file.' });
+
+    // Match the header loosely: the template ships with units and hints in the
+    // column names ("unit (g/ml/piece/kg/litre)"), and a spreadsheet round trip
+    // adds its own punctuation.
+    const header = rows[0].map(h => h.toLowerCase().replace(/﻿/g, '').trim());
+    const col = (...names: string[]) => header.findIndex(h => names.some(n => h.startsWith(n)));
+    const iName = col('ingredient_name', 'ingredient', 'ชื่อ');
+    const iAmount = col('amount', 'qty', 'quantity', 'จำนวน');
+    const iUnit = col('unit', 'หน่วย');
+    const iCost = col('total_paid', 'total_cost', 'cost', 'ราคา', 'สุทธิ');
+    const iDate = col('bought_on', 'purchased_on', 'date', 'วันที่');
+    const iExpiry = col('expires_on', 'expiry', 'หมดอายุ');
+    const iNote = col('note', 'หมายเหตุ');
+    const missing = [
+      iName < 0 && 'ingredient_name',
+      iAmount < 0 && 'amount',
+      iUnit < 0 && 'unit',
+      iCost < 0 && 'total_paid_THB',
+    ].filter(Boolean);
+    if (missing.length) {
+      return res.status(400).json({ error: `Missing column(s): ${missing.join(', ')}. Use the 03-purchases.csv template.` });
+    }
+
+    const ingredients = db.prepare('SELECT id, name, name_th, unit, pack_size FROM ingredients WHERE active = 1').all() as any[];
+    const byName = new Map<string, any>();
+    for (const ing of ingredients) {
+      byName.set(ing.name.trim().toLowerCase(), ing);
+      if (ing.name_th) byName.set(String(ing.name_th).trim().toLowerCase(), ing);
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const out: any[] = [];
+    let errors = 0;
+
+    for (let i = 1; i < rows.length; i++) {
+      const r0 = rows[i];
+      // Trailing blank lines are what a spreadsheet leaves behind, not a mistake.
+      if (r0.every(c => !c.trim())) continue;
+
+      const line = i + 1;
+      const rawName = (r0[iName] ?? '').trim();
+      const cell = (idx: number) => (idx >= 0 ? (r0[idx] ?? '').trim() : '');
+      const fail = (error: string) => { errors++; out.push({ line, name: rawName, error }); };
+
+      if (!rawName) { fail('No ingredient name.'); continue; }
+      const ing = byName.get(rawName.toLowerCase());
+      if (!ing) { fail(`No ingredient called "${rawName}". Add it under Ingredients first.`); continue; }
+
+      const amount = Number(cell(iAmount).replace(/,/g, ''));
+      if (!(amount > 0)) { fail('Amount must be a number above 0.'); continue; }
+
+      const unitRaw = cell(iUnit).toLowerCase();
+      const factor = unitFactor(unitRaw, ing);
+      if (factor == null) {
+        fail(`Unit "${cell(iUnit)}" does not fit an ingredient measured in ${ing.unit}.`);
+        continue;
+      }
+
+      const cost = Number(cell(iCost).replace(/[,฿\s]/g, ''));
+      if (!(cost >= 0) || Number.isNaN(cost)) { fail('Total paid must be a number.'); continue; }
+
+      const bought = cell(iDate) || today;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(bought)) { fail(`Date "${bought}" is not YYYY-MM-DD.`); continue; }
+      const expires = cell(iExpiry);
+      if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) { fail(`Expiry "${expires}" is not YYYY-MM-DD.`); continue; }
+      if (expires && expires < bought) { fail('Expiry date is before the purchase date.'); continue; }
+
+      const qtyBase = amount * factor;
+      out.push({
+        line,
+        name: ing.name,
+        ingredient_id: ing.id,
+        qty_base: qtyBase,
+        base_unit: ing.unit,
+        total_cost: cost,
+        cost_per_unit: qtyBase > 0 ? cost / qtyBase : null,
+        purchased_on: bought,
+        expires_on: expires || null,
+        note: cell(iNote) || null,
+      });
+    }
+
+    const ready = out.filter(r => !r.error);
+    if (!commit || errors > 0) {
+      return res.json({ preview: true, rows: out, ready: ready.length, errors });
+    }
+
+    const insertLot = db.prepare(`
+      INSERT INTO ingredient_lots (ingredient_id, qty_purchased, qty_remaining, total_cost, purchased_on, expires_on, note)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertMove = db.prepare(
+      'INSERT INTO stock_movements (ingredient_id, lot_id, delta, reason, note) VALUES (?, ?, ?, ?, ?)'
+    );
+    db.transaction(() => {
+      for (const r0 of ready) {
+        const info = insertLot.run(r0.ingredient_id, r0.qty_base, r0.qty_base, r0.total_cost, r0.purchased_on, r0.expires_on, r0.note);
+        insertMove.run(r0.ingredient_id, info.lastInsertRowid, r0.qty_base, 'purchase', r0.note);
+      }
+    })();
+
+    res.json({ preview: false, imported: ready.length, rows: out, errors: 0 });
   });
 
   /** Write off what went off or got spilled. */

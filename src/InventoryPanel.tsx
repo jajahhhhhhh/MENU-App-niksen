@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Boxes, Plus, Trash2, AlertTriangle, Clock, Calculator, ShoppingCart,
-  ChefHat, X, TrendingDown, Check,
+  ChefHat, X, TrendingDown, Check, Upload,
 } from 'lucide-react';
 
 const api = async (path: string, opts?: RequestInit) => {
@@ -287,6 +287,143 @@ function Ingredients({ rows, run, busy }: { rows: Ingredient[]; run: any; busy: 
 
 // --------------------------------------------------------------- purchases ---
 
+
+/**
+ * A delivery is twenty lines on a receipt. Typing them one at a time is how
+ * purchases stop being recorded, and without purchases every dish cost falls
+ * back to a guess. This takes the 03-purchases.csv the staff were given.
+ *
+ * The file is always read once before anything is written, and a file with any
+ * bad line writes nothing at all: a half-imported bill cannot be told from a
+ * whole one, and importing it again to be sure doubles whatever did land.
+ */
+function ImportPurchases({ run, busy }: any) {
+  const [report, setReport] = useState<any>(null);
+  const [csv, setCsv] = useState<string>('');
+  const [name, setName] = useState<string>('');
+
+  const send = (text: string, commit: boolean) => run(async () => {
+    const res = await api('/lots/import', {
+      method: 'POST',
+      body: JSON.stringify({ csv: text, commit }),
+    });
+    setReport(res);
+    if (!res.preview) { setCsv(''); setName(''); }
+  });
+
+  const pick = async (file: File | undefined) => {
+    if (!file) return;
+    const text = await file.text();
+    setCsv(text); setName(file.name); setReport(null);
+    send(text, false);
+  };
+
+  const clear = () => { setCsv(''); setName(''); setReport(null); };
+  const bad = report?.rows?.filter((r: any) => r.error) || [];
+  const good = report?.rows?.filter((r: any) => !r.error) || [];
+
+  return (
+    <Card>
+      <h3 className="font-bold mb-1 flex items-center gap-2">
+        <Upload className="w-4 h-4" /> Import a bill from CSV
+      </h3>
+      <p className="text-[11px] text-stone-400 mb-4">
+        Columns: <span className="font-mono">ingredient_name, amount, unit, total_paid_THB, bought_on, expires_on, note</span>.
+        Buy in kilos or litres and it converts; write <span className="font-mono">pack</span> for an ingredient that has a pack size.
+        Thai ingredient names work too.
+      </p>
+
+      <div className="flex items-center gap-3">
+        <label className="cursor-pointer">
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-stone-50 border border-dashed border-stone-300 rounded-xl hover:bg-stone-100 text-sm font-bold text-stone-600">
+            <Upload className="w-4 h-4 text-stone-400" /> Choose CSV
+          </div>
+          <input type="file" accept=".csv,text/csv" className="hidden"
+            onChange={e => { pick(e.target.files?.[0]); e.currentTarget.value = ''; }} />
+        </label>
+        {name && <span className="text-sm text-stone-500 truncate">{name}</span>}
+        {report && (
+          <button type="button" onClick={clear} className="ml-auto text-xs font-bold text-stone-400 hover:text-stone-700">
+            Clear
+          </button>
+        )}
+      </div>
+
+      {report && !report.preview && (
+        <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-800 font-medium flex items-center gap-2">
+          <Check className="w-4 h-4" /> Imported {report.imported} purchase{report.imported === 1 ? '' : 's'}.
+        </div>
+      )}
+
+      {report?.preview && (
+        <div className="mt-4 space-y-3">
+          <div className="text-sm">
+            <span className="font-bold">{good.length}</span> row{good.length === 1 ? '' : 's'} ready
+            {bad.length > 0 && <span className="text-red-600 font-bold"> · {bad.length} to fix</span>}
+          </div>
+
+          {bad.length > 0 && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded-xl space-y-1">
+              {/* Named line by line: "the file is invalid" leaves you rereading
+                  a spreadsheet looking for which cell it meant. */}
+              {bad.map((r: any) => (
+                <div key={r.line} className="text-xs text-red-700">
+                  <span className="font-mono font-bold">line {r.line}</span> — {r.error}
+                </div>
+              ))}
+              <p className="text-[11px] text-red-500 pt-1">
+                Nothing is imported while any line is wrong. Fix these and choose the file again.
+              </p>
+            </div>
+          )}
+
+          {good.length > 0 && (
+            <div className="border border-stone-200 rounded-xl overflow-hidden">
+              <table className="w-full text-xs">
+                <thead className="bg-stone-50 text-[10px] uppercase tracking-wide text-stone-500">
+                  <tr>
+                    <th className="text-left px-3 py-2">Ingredient</th>
+                    <th className="text-right px-3 py-2">Quantity</th>
+                    <th className="text-right px-3 py-2">Paid</th>
+                    <th className="text-right px-3 py-2">Per unit</th>
+                    <th className="text-left px-3 py-2">Bought</th>
+                    <th className="text-left px-3 py-2">Expires</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {good.map((r: any) => (
+                    <tr key={r.line} className="border-t border-stone-100">
+                      <td className="px-3 py-2 font-semibold">{r.name}</td>
+                      <td className="px-3 py-2 text-right font-mono">
+                        {r.qty_base.toLocaleString()} {r.base_unit}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono">{baht(r.total_cost)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-stone-500">
+                        {r.cost_per_unit == null ? '—' : `฿${r.cost_per_unit.toFixed(4)}`}
+                      </td>
+                      <td className="px-3 py-2 text-stone-500">{r.purchased_on}</td>
+                      <td className="px-3 py-2 text-stone-500">{r.expires_on || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <button
+            type="button"
+            disabled={busy || bad.length > 0 || good.length === 0}
+            onClick={() => send(csv, true)}
+            className="w-full bg-stone-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {bad.length > 0 ? `Fix ${bad.length} line${bad.length === 1 ? '' : 's'} first` : `Import ${good.length} purchase${good.length === 1 ? '' : 's'}`}
+          </button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function Purchases({ lots, ingredients, run, busy }: any) {
   const blank = { ingredient_id: '', qty: '', bulk: '1', total_cost: '', purchased_on: today(), expires_on: '', note: '' };
   const [form, setForm] = useState(blank);
@@ -355,6 +492,8 @@ function Purchases({ lots, ingredients, run, busy }: any) {
           Record purchase
         </button>
       </Card>
+
+      <ImportPurchases run={run} busy={busy} />
 
       <Card className="!p-0 overflow-hidden">
         <table className="w-full text-sm">
