@@ -301,26 +301,30 @@ function ImportPurchases({ run, busy }: any) {
   const [report, setReport] = useState<any>(null);
   const [csv, setCsv] = useState<string>('');
   const [name, setName] = useState<string>('');
+  const [createMissing, setCreateMissing] = useState(false);
 
-  const send = (text: string, commit: boolean) => run(async () => {
+  const send = (text: string, commit: boolean, create = createMissing) => run(async () => {
     const res = await api('/lots/import', {
       method: 'POST',
-      body: JSON.stringify({ csv: text, commit }),
+      body: JSON.stringify({ csv: text, commit, create_missing: create }),
     });
     setReport(res);
-    if (!res.preview) { setCsv(''); setName(''); }
+    if (!res.preview) { setCsv(''); setName(''); setCreateMissing(false); }
   });
 
   const pick = async (file: File | undefined) => {
     if (!file) return;
     const text = await file.text();
-    setCsv(text); setName(file.name); setReport(null);
-    send(text, false);
+    setCsv(text); setName(file.name); setReport(null); setCreateMissing(false);
+    send(text, false, false);
   };
 
-  const clear = () => { setCsv(''); setName(''); setReport(null); };
+  const clear = () => { setCsv(''); setName(''); setReport(null); setCreateMissing(false); };
   const bad = report?.rows?.filter((r: any) => r.error) || [];
   const good = report?.rows?.filter((r: any) => !r.error) || [];
+  // Count the ingredients the import would add, not the ones still unmatched:
+  // once the box is ticked nothing is missing any more, but they are still new.
+  const newCount = new Set(good.filter((r: any) => r.creating).map((r: any) => r.name)).size;
 
   return (
     <Card>
@@ -328,9 +332,10 @@ function ImportPurchases({ run, busy }: any) {
         <Upload className="w-4 h-4" /> Import a bill from CSV
       </h3>
       <p className="text-[11px] text-stone-400 mb-4">
-        Columns: <span className="font-mono">ingredient_name, amount, unit, total_paid_THB, bought_on, expires_on, note</span>.
-        Buy in kilos or litres and it converts; write <span className="font-mono">pack</span> for an ingredient that has a pack size.
-        Thai ingredient names work too.
+        Takes the <span className="font-mono">03-purchases.csv</span> template, or a bill sheet with
+        <span className="font-mono"> รายการ / จำนวน / หน่วย / สุทธิ</span> — title rows, blank lines and the totals
+        block at the foot are skipped, and the date is read from the bill's own heading. Kilos and litres convert;
+        write <span className="font-mono">pack</span> for an ingredient that has a pack size.
       </p>
 
       <div className="flex items-center gap-3">
@@ -351,7 +356,8 @@ function ImportPurchases({ run, busy }: any) {
 
       {report && !report.preview && (
         <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-800 font-medium flex items-center gap-2">
-          <Check className="w-4 h-4" /> Imported {report.imported} purchase{report.imported === 1 ? '' : 's'}.
+          <Check className="w-4 h-4" /> Imported {report.imported} purchase{report.imported === 1 ? '' : 's'}
+          {report.created > 0 && ` and created ${report.created} ingredient${report.created === 1 ? '' : 's'}`}.
         </div>
       )}
 
@@ -361,6 +367,33 @@ function ImportPurchases({ run, busy }: any) {
             <span className="font-bold">{good.length}</span> row{good.length === 1 ? '' : 's'} ready
             {bad.length > 0 && <span className="text-red-600 font-bold"> · {bad.length} to fix</span>}
           </div>
+
+          {report.missing?.length > 0 && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox" className="mt-0.5"
+                  checked={createMissing}
+                  onChange={e => { setCreateMissing(e.target.checked); send(csv, false, e.target.checked); }}
+                />
+                <span className="text-xs text-amber-900">
+                  <span className="font-bold">
+                    {report.missing.length} ingredient{report.missing.length === 1 ? '' : 's'} in this file
+                    {report.missing.length === 1 ? ' is' : ' are'} not set up yet.
+                  </span>{' '}
+                  Create {report.missing.length === 1 ? 'it' : 'them'} from the bill — the name, the unit and the
+                  price per unit all come from these lines.
+                </span>
+              </label>
+              <div className="mt-2 pl-6 flex flex-wrap gap-x-3 gap-y-1">
+                {report.missing.map((m: any) => (
+                  <span key={m.name} className="text-[11px] text-amber-800">
+                    {m.name_th || m.name} <span className="text-amber-500">({m.unit})</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {bad.length > 0 && (
             <div className="p-3 bg-red-50 border border-red-100 rounded-xl space-y-1">
@@ -393,7 +426,10 @@ function ImportPurchases({ run, busy }: any) {
                 <tbody>
                   {good.map((r: any) => (
                     <tr key={r.line} className="border-t border-stone-100">
-                      <td className="px-3 py-2 font-semibold">{r.name}</td>
+                      <td className="px-3 py-2 font-semibold">
+                        {r.name}
+                        {r.creating && <span className="ml-1 text-[10px] font-bold text-amber-600">NEW</span>}
+                      </td>
                       <td className="px-3 py-2 text-right font-mono">
                         {r.qty_base.toLocaleString()} {r.base_unit}
                       </td>
@@ -416,7 +452,10 @@ function ImportPurchases({ run, busy }: any) {
             onClick={() => send(csv, true)}
             className="w-full bg-stone-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-stone-800 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {bad.length > 0 ? `Fix ${bad.length} line${bad.length === 1 ? '' : 's'} first` : `Import ${good.length} purchase${good.length === 1 ? '' : 's'}`}
+            {bad.length > 0
+              ? `Fix ${bad.length} line${bad.length === 1 ? '' : 's'} first`
+              : `Import ${good.length} purchase${good.length === 1 ? '' : 's'}${
+                  newCount ? ` and create ${newCount} ingredient${newCount === 1 ? '' : 's'}` : ''}`}
           </button>
         </div>
       )}

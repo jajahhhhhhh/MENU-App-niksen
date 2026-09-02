@@ -509,100 +509,213 @@ export function inventoryRouter(db: DB) {
    * than a rejected one: you cannot tell which lines landed, and importing it
    * again to be sure doubles the stock that did.
    */
+  /**
+   * Import a supplier bill from CSV.
+   *
+   * Two shapes arrive in practice and both are read here:
+   *
+   *   - the 03-purchases.csv template staff were given, and
+   *   - the bill workbooks kept per delivery, which open with a few title
+   *     rows, use Thai headings, leave blank lines between groups and finish
+   *     with a totals block.
+   *
+   * The bill is the better source: it already carries ปริมาณฐาน and หน่วยฐาน,
+   * so the conversion has been done and checked against the receipt, and สุทธิ
+   * is what was actually paid after the line discount. Where those columns
+   * exist they win over amount × unit.
+   *
+   * Nothing is written unless every data row is good. A half-imported bill
+   * cannot be told from a whole one, and importing it again to be sure doubles
+   * whatever did land.
+   */
   r.post('/lots/import', (req, res) => {
     const csv = String(req.body?.csv ?? '');
     const commit = req.body?.commit === true;
+    const createMissing = req.body?.create_missing === true;
     if (!csv.trim()) return res.status(400).json({ error: 'The file is empty.' });
 
-    const rows = parseCsv(csv);
-    if (rows.length === 0) return res.status(400).json({ error: 'No rows found in the file.' });
+    const grid = parseCsv(csv);
+    if (grid.length === 0) return res.status(400).json({ error: 'No rows found in the file.' });
 
-    // Match the header loosely: the template ships with units and hints in the
-    // column names ("unit (g/ml/piece/kg/litre)"), and a spreadsheet round trip
-    // adds its own punctuation.
-    const header = rows[0].map(h => h.toLowerCase().replace(/﻿/g, '').trim());
-    const col = (...names: string[]) => header.findIndex(h => names.some(n => h.startsWith(n)));
-    const iName = col('ingredient_name', 'ingredient', 'ชื่อ');
-    const iAmount = col('amount', 'qty', 'quantity', 'จำนวน');
-    const iUnit = col('unit', 'หน่วย');
-    const iCost = col('total_paid', 'total_cost', 'cost', 'ราคา', 'สุทธิ');
-    const iDate = col('bought_on', 'purchased_on', 'date', 'วันที่');
-    const iExpiry = col('expires_on', 'expiry', 'หมดอายุ');
-    const iNote = col('note', 'หมายเหตุ');
-    const missing = [
-      iName < 0 && 'ingredient_name',
-      iAmount < 0 && 'amount',
-      iUnit < 0 && 'unit',
-      iCost < 0 && 'total_paid_THB',
-    ].filter(Boolean);
-    if (missing.length) {
-      return res.status(400).json({ error: `Missing column(s): ${missing.join(', ')}. Use the 03-purchases.csv template.` });
+    const norm = (s: string) => s.replace(/^﻿/, '').trim().toLowerCase();
+    // Column names as they appear in either file. Matched on a prefix so
+    // "unit (g/ml/piece/kg/litre)" and "รายการ (ไทย)" both land.
+    const VOCAB = {
+      name:     ['ingredient_name', 'ingredient', 'รายการ', 'ชื่อ'],
+      nameEn:   ['description (en)', 'description', 'english'],
+      amount:   ['amount', 'qty', 'quantity', 'จำนวน'],
+      unit:     ['unit (', 'unit', 'หน่วย ', 'หน่วย('],
+      baseQty:  ['ปริมาณฐาน', 'base_qty', 'base quantity'],
+      baseUnit: ['หน่วยฐาน', 'base_unit', 'base unit'],
+      cost:     ['total_paid', 'total_cost', 'สุทธิ', 'net', 'ราคาสุทธิ'],
+      date:     ['bought_on', 'purchased_on', 'date', 'วันที่'],
+      expiry:   ['expires_on', 'expiry', 'หมดอายุ'],
+      note:     ['note', 'หมายเหตุ'],
+    };
+    const findCol = (header: string[], keys: string[]) =>
+      header.findIndex(h => keys.some(k => h === k || h.startsWith(k)));
+
+    // The bill opens with a title and a formula reminder, so the header is not
+    // necessarily the first line. Look for the first row that names something
+    // to buy and something to count.
+    let headerRow = -1;
+    let header: string[] = [];
+    for (let i = 0; i < Math.min(grid.length, 20); i++) {
+      const cells = grid[i].map(norm);
+      const hasName = findCol(cells, VOCAB.name) >= 0;
+      const hasQty = findCol(cells, VOCAB.amount) >= 0 || findCol(cells, VOCAB.baseQty) >= 0;
+      if (hasName && hasQty) { headerRow = i; header = cells; break; }
+    }
+    if (headerRow < 0) {
+      return res.status(400).json({
+        error: 'Could not find the column headings. Use the 03-purchases.csv template, or a bill sheet with รายการ / จำนวน columns.',
+      });
+    }
+
+    const C = {
+      name: findCol(header, VOCAB.name),
+      nameEn: findCol(header, VOCAB.nameEn),
+      amount: findCol(header, VOCAB.amount),
+      unit: findCol(header, VOCAB.unit),
+      baseQty: findCol(header, VOCAB.baseQty),
+      baseUnit: findCol(header, VOCAB.baseUnit),
+      cost: findCol(header, VOCAB.cost),
+      date: findCol(header, VOCAB.date),
+      expiry: findCol(header, VOCAB.expiry),
+      note: findCol(header, VOCAB.note),
+    };
+    if (C.cost < 0) {
+      return res.status(400).json({ error: 'No amount-paid column found (total_paid_THB or สุทธิ).' });
+    }
+
+    // A bill has one date, printed in its title rather than on every line.
+    const today = new Date().toISOString().slice(0, 10);
+    let billDate = '';
+    for (let i = 0; i < headerRow; i++) {
+      const text = grid[i].join(' ');
+      const dmy = /(\d{2})\/(\d{2})\/(\d{4})/.exec(text);
+      if (dmy) { billDate = `${dmy[3]}-${dmy[2]}-${dmy[1]}`; break; }
+      const ymd = /(\d{4}-\d{2}-\d{2})/.exec(text);
+      if (ymd) { billDate = ymd[1]; break; }
     }
 
     const ingredients = db.prepare('SELECT id, name, name_th, unit, pack_size FROM ingredients WHERE active = 1').all() as any[];
     const byName = new Map<string, any>();
     for (const ing of ingredients) {
-      byName.set(ing.name.trim().toLowerCase(), ing);
-      if (ing.name_th) byName.set(String(ing.name_th).trim().toLowerCase(), ing);
+      byName.set(norm(ing.name), ing);
+      if (ing.name_th) byName.set(norm(String(ing.name_th)), ing);
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const num = (s: string) => Number(String(s).replace(/[,฿\s]/g, ''));
     const out: any[] = [];
+    const toCreate = new Map<string, any>();
     let errors = 0;
 
-    for (let i = 1; i < rows.length; i++) {
-      const r0 = rows[i];
-      // Trailing blank lines are what a spreadsheet leaves behind, not a mistake.
-      if (r0.every(c => !c.trim())) continue;
-
+    for (let i = headerRow + 1; i < grid.length; i++) {
+      const row = grid[i];
+      const cell = (idx: number) => (idx >= 0 ? String(row[idx] ?? '').trim() : '');
       const line = i + 1;
-      const rawName = (r0[iName] ?? '').trim();
-      const cell = (idx: number) => (idx >= 0 ? (r0[idx] ?? '').trim() : '');
+      const rawName = cell(C.name);
+      const rawAmount = cell(C.amount) || cell(C.baseQty);
+
+      // Blank separators, the totals block, and the footnote listing what was
+      // ordered but never delivered are all the shape of the file rather than
+      // mistakes to report. A line that was actually bought always carries a
+      // price, so that is what separates a purchase from prose.
+      const rawCost = cell(C.cost);
+      // The totals block carries figures under a label rather than an item, so
+      // a row with no name is never a purchase. A row with a name but no
+      // numbers is a heading or the note about what never arrived. A line that
+      // was actually bought has both.
+      if (!rawName) continue;
+      if (!rawAmount && !rawCost) continue;
+
       const fail = (error: string) => { errors++; out.push({ line, name: rawName, error }); };
 
-      if (!rawName) { fail('No ingredient name.'); continue; }
-      const ing = byName.get(rawName.toLowerCase());
-      if (!ing) { fail(`No ingredient called "${rawName}". Add it under Ingredients first.`); continue; }
+      // Prefer the already-converted columns: they were reconciled against the
+      // receipt when the sheet was made.
+      let qtyBase: number | null = null;
+      let baseUnit = '';
+      const bq = num(cell(C.baseQty));
+      if (C.baseQty >= 0 && bq > 0) {
+        qtyBase = bq;
+        baseUnit = cell(C.baseUnit).toLowerCase();
+      }
 
-      const amount = Number(cell(iAmount).replace(/,/g, ''));
-      if (!(amount > 0)) { fail('Amount must be a number above 0.'); continue; }
+      const nameEn = cell(C.nameEn);
+      const known = byName.get(norm(rawName)) || (nameEn ? byName.get(norm(nameEn)) : undefined);
 
-      const unitRaw = cell(iUnit).toLowerCase();
-      const factor = unitFactor(unitRaw, ing);
-      if (factor == null) {
-        fail(`Unit "${cell(iUnit)}" does not fit an ingredient measured in ${ing.unit}.`);
+      if (!known && !createMissing) {
+        if (!toCreate.has(norm(rawName))) {
+          toCreate.set(norm(rawName), { name: nameEn || rawName, name_th: rawName, unit: baseUnit || 'g' });
+        }
+        fail(`No ingredient called "${rawName}".`);
         continue;
       }
 
-      const cost = Number(cell(iCost).replace(/[,฿\s]/g, ''));
-      if (!(cost >= 0) || Number.isNaN(cost)) { fail('Total paid must be a number.'); continue; }
+      const ing = known || {
+        id: null,
+        name: nameEn || rawName,
+        name_th: rawName,
+        unit: baseUnit || 'g',
+        pack_size: null,
+      };
 
-      const bought = cell(iDate) || today;
+      if (qtyBase == null) {
+        const amount = num(cell(C.amount));
+        if (!(amount > 0)) { fail('Amount must be a number above 0.'); continue; }
+        const factor = unitFactor(cell(C.unit), ing);
+        if (factor == null) { fail(`Unit "${cell(C.unit)}" does not fit an ingredient measured in ${ing.unit}.`); continue; }
+        qtyBase = amount * factor;
+        baseUnit = ing.unit;
+      } else if (known && baseUnit && baseUnit !== known.unit) {
+        // The sheet says grams, the ingredient is counted in pieces: one of
+        // the two is wrong and guessing would corrupt every cost that uses it.
+        fail(`The file says ${baseUnit} but "${known.name}" is measured in ${known.unit}.`);
+        continue;
+      }
+
+      const cost = num(cell(C.cost));
+      if (!(cost >= 0) || Number.isNaN(cost)) { fail('Amount paid must be a number.'); continue; }
+
+      const bought = cell(C.date) || billDate || today;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(bought)) { fail(`Date "${bought}" is not YYYY-MM-DD.`); continue; }
-      const expires = cell(iExpiry);
+      const expires = cell(C.expiry);
       if (expires && !/^\d{4}-\d{2}-\d{2}$/.test(expires)) { fail(`Expiry "${expires}" is not YYYY-MM-DD.`); continue; }
       if (expires && expires < bought) { fail('Expiry date is before the purchase date.'); continue; }
 
-      const qtyBase = amount * factor;
       out.push({
         line,
         name: ing.name,
-        ingredient_id: ing.id,
+        name_th: ing.name_th || null,
+        ingredient_id: known ? known.id : null,
+        creating: !known,
         qty_base: qtyBase,
-        base_unit: ing.unit,
+        base_unit: known ? known.unit : ing.unit,
         total_cost: cost,
         cost_per_unit: qtyBase > 0 ? cost / qtyBase : null,
         purchased_on: bought,
         expires_on: expires || null,
-        note: cell(iNote) || null,
+        note: cell(C.note) || null,
       });
     }
 
     const ready = out.filter(r => !r.error);
     if (!commit || errors > 0) {
-      return res.json({ preview: true, rows: out, ready: ready.length, errors });
+      return res.json({
+        preview: true,
+        rows: out,
+        ready: ready.length,
+        errors,
+        bill_date: billDate || null,
+        // Named so the panel can offer to create them rather than just refusing.
+        missing: [...toCreate.values()],
+      });
     }
 
+    const insertIngredient = db.prepare(
+      'INSERT INTO ingredients (name, name_th, unit, default_cost) VALUES (?, ?, ?, ?)'
+    );
     const insertLot = db.prepare(`
       INSERT INTO ingredient_lots (ingredient_id, qty_purchased, qty_remaining, total_cost, purchased_on, expires_on, note)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -610,14 +723,28 @@ export function inventoryRouter(db: DB) {
     const insertMove = db.prepare(
       'INSERT INTO stock_movements (ingredient_id, lot_id, delta, reason, note) VALUES (?, ?, ?, ?, ?)'
     );
+
+    let created = 0;
     db.transaction(() => {
+      // One new ingredient per name, even if the bill lists it on several lines.
+      const fresh = new Map<string, number>();
       for (const r0 of ready) {
-        const info = insertLot.run(r0.ingredient_id, r0.qty_base, r0.qty_base, r0.total_cost, r0.purchased_on, r0.expires_on, r0.note);
-        insertMove.run(r0.ingredient_id, info.lastInsertRowid, r0.qty_base, 'purchase', r0.note);
+        let id = r0.ingredient_id as number | null;
+        if (id == null) {
+          const key = norm(r0.name_th || r0.name);
+          if (!fresh.has(key)) {
+            const info = insertIngredient.run(r0.name, r0.name_th, r0.base_unit, r0.cost_per_unit);
+            fresh.set(key, Number(info.lastInsertRowid));
+            created++;
+          }
+          id = fresh.get(key)!;
+        }
+        const info = insertLot.run(id, r0.qty_base, r0.qty_base, r0.total_cost, r0.purchased_on, r0.expires_on, r0.note);
+        insertMove.run(id, info.lastInsertRowid, r0.qty_base, 'purchase', r0.note);
       }
     })();
 
-    res.json({ preview: false, imported: ready.length, rows: out, errors: 0 });
+    res.json({ preview: false, imported: ready.length, created, rows: out, errors: 0 });
   });
 
   /** Write off what went off or got spilled. */
