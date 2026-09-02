@@ -21,8 +21,8 @@ db.exec(`
     available INTEGER DEFAULT 1,
     image_url TEXT,
     barcode TEXT,
-    stock_quantity INTEGER DEFAULT 50,
-    low_stock_threshold INTEGER DEFAULT 10
+    stock_quantity INTEGER DEFAULT 5,
+    low_stock_threshold INTEGER DEFAULT 2
   );
 
   CREATE TABLE IF NOT EXISTS staff_members (
@@ -89,8 +89,8 @@ try { db.exec("ALTER TABLE orders ADD COLUMN member_id INTEGER REFERENCES member
 try { db.exec("ALTER TABLE orders ADD COLUMN points_earned INTEGER DEFAULT 0"); } catch (e) {}
 try { db.exec("ALTER TABLE orders ADD COLUMN points_redeemed INTEGER DEFAULT 0"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN barcode TEXT"); } catch (e) {}
-try { db.exec("ALTER TABLE menu_items ADD COLUMN stock_quantity INTEGER DEFAULT 50"); } catch (e) {}
-try { db.exec("ALTER TABLE menu_items ADD COLUMN low_stock_threshold INTEGER DEFAULT 10"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN stock_quantity INTEGER DEFAULT 5"); } catch (e) {}
+try { db.exec("ALTER TABLE menu_items ADD COLUMN low_stock_threshold INTEGER DEFAULT 2"); } catch (e) {}
 
 // Online-ordering columns for existing databases
 try { db.exec("ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'dine_in'"); } catch (e) {}
@@ -106,8 +106,8 @@ try { db.exec("ALTER TABLE menu_items ADD COLUMN description_ru TEXT"); } catch 
 // Populate initial barcodes if missing
 db.exec(`
   UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id) WHERE barcode IS NULL OR barcode = '';
-  UPDATE menu_items SET stock_quantity = 45 WHERE stock_quantity IS NULL;
-  UPDATE menu_items SET low_stock_threshold = 10 WHERE low_stock_threshold IS NULL;
+  UPDATE menu_items SET stock_quantity = 5 WHERE stock_quantity IS NULL;
+  UPDATE menu_items SET low_stock_threshold = 2 WHERE low_stock_threshold IS NULL;
 `);
 
 // Configurable items carry option groups the flat menu_items table can't
@@ -144,6 +144,29 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_option_groups_item ON menu_option_groups(menu_item_id);
   CREATE INDEX IF NOT EXISTS idx_options_group ON menu_options(group_id);
 `);
+// What is on tonight, and any promotion worth putting in front of a customer
+// before they order. Written in the POS, read by the ordering app's Tonight
+// tab. Dates are optional: a film has one, "10% off breakfast this month" has
+// a range, and a standing note has neither.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind       TEXT NOT NULL DEFAULT 'event',   -- 'event' | 'promo'
+    title      TEXT NOT NULL,
+    title_th   TEXT,
+    title_ru   TEXT,
+    body       TEXT,
+    body_th    TEXT,
+    body_ru    TEXT,
+    starts_on  DATE,
+    ends_on    DATE,
+    active     INTEGER NOT NULL DEFAULT 1,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_events_active ON events(active, starts_on);
+`);
+
 // Chosen options are snapshotted onto the line so a receipt still reads
 // correctly after an option is renamed, repriced or removed.
 try { db.exec("ALTER TABLE order_items ADD COLUMN options_json TEXT"); } catch (e) {}
@@ -331,7 +354,11 @@ async function startServer() {
 
   app.get("/api/public/menu", (req, res) => {
     const items = db.prepare(
-      "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1"
+      // price > 0 as well as available: a dish is entered before it is costed,
+      // and until a real price is set it must not be orderable. Zero here means
+      // "not priced yet", never "free" — the POS shows these so staff can see
+      // what is still waiting on a price.
+      "SELECT id, name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, stock_quantity FROM menu_items WHERE available = 1 AND price > 0"
     ).all() as any[];
 
     // Attach option groups to the few items that are configurable. Fetched in
@@ -400,6 +427,11 @@ async function startServer() {
       if (!Number.isFinite(qty) || qty < 1 || qty > 50) return res.status(400).json({ error: "Invalid quantity" });
       const menuItem = getItem.get(it.menu_item_id) as any;
       if (!menuItem) return res.status(400).json({ error: "An item in your cart is no longer available" });
+      // A page loaded before the dish was hidden would still hold it. Giving
+      // food away because a price was left at zero is not a rounding error.
+      if (!(menuItem.price > 0)) {
+        return res.status(400).json({ error: `${menuItem.name} is not on sale yet.` });
+      }
       if (menuItem.stock_quantity !== null && menuItem.stock_quantity < qty) {
         return res.status(400).json({ error: `Not enough stock for ${menuItem.name}` });
       }
@@ -512,6 +544,21 @@ async function startServer() {
       member_points: memberPoints,
       promptpay: ppId ? promptPayPayload(ppId, total) : null,
     });
+  });
+
+  // What the ordering app shows under Tonight. Only what is switched on and
+  // in date: an entry that ended yesterday should stop advertising itself
+  // without anyone having to remember to take it down.
+  app.get("/api/public/events", (req, res) => {
+    const rows = db.prepare(`
+      SELECT id, kind, title, title_th, title_ru, body, body_th, body_ru, starts_on, ends_on
+        FROM events
+       WHERE active = 1
+         AND (starts_on IS NULL OR starts_on <= date('now', '+7 hours'))
+         AND (ends_on   IS NULL OR ends_on   >= date('now', '+7 hours'))
+       ORDER BY sort_order, COALESCE(starts_on, '9999-12-31'), id
+    `).all();
+    res.json(rows);
   });
 
   app.get("/api/public/orders/:id/status", (req, res) => {
@@ -634,8 +681,9 @@ async function startServer() {
     if (invalid) return res.status(400).json({ error: invalid });
     const { name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
     const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
-    const stockVal = stock_quantity !== undefined ? stock_quantity : 50;
-    const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 10;
+    // A dish is counted in handfuls here, not dozens: five made, warn at two.
+    const stockVal = stock_quantity !== undefined ? stock_quantity : 5;
+    const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 2;
     const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, description || null, description_th || null, description_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
     const newId = Number(result.lastInsertRowid);
     // The editor sends the photo inline; the file it becomes is named after the
@@ -956,6 +1004,74 @@ async function startServer() {
     const option = db.prepare("SELECT id FROM menu_options WHERE id = ?").get(req.params.optionId);
     if (!option) return res.status(404).json({ error: "That choice no longer exists." });
     db.prepare("DELETE FROM menu_options WHERE id = ?").run(req.params.optionId);
+    res.json({ success: true });
+  });
+
+  // ---- Tonight & promotions -------------------------------------------------
+  // Staff-written notices for the ordering app. Kept deliberately small: a
+  // title, some words, and optional dates. Anything richer would be a CMS, and
+  // the thing this replaces is a chalkboard.
+
+  const EVENT_FIELDS = ["kind", "title", "title_th", "title_ru", "body", "body_th", "body_ru", "starts_on", "ends_on"];
+
+  const validEvent = (body: any, requireTitle: boolean) => {
+    if (requireTitle && !String(body.title || "").trim()) return "A notice needs a title.";
+    for (const f of ["starts_on", "ends_on"]) {
+      const v = body[f];
+      if (v !== undefined && v !== null && v !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(String(v))) {
+        return `${f === "starts_on" ? "Start" : "End"} date must be YYYY-MM-DD.`;
+      }
+    }
+    // A window that ends before it starts would simply never show, and the
+    // person who typed it would have no way of knowing why.
+    if (body.starts_on && body.ends_on && String(body.ends_on) < String(body.starts_on)) {
+      return "The end date is before the start date.";
+    }
+    return null;
+  };
+
+  app.get("/api/events", (req, res) => {
+    res.json(db.prepare("SELECT * FROM events ORDER BY sort_order, id DESC").all());
+  });
+
+  app.post("/api/events", (req, res) => {
+    const invalid = validEvent(req.body, true);
+    if (invalid) return res.status(400).json({ error: invalid });
+    const b = req.body;
+    const next = (db.prepare("SELECT COALESCE(MAX(sort_order), -1) + 1 AS n FROM events").get() as any).n;
+    const r = db.prepare(`
+      INSERT INTO events (kind, title, title_th, title_ru, body, body_th, body_ru, starts_on, ends_on, sort_order)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      b.kind === "promo" ? "promo" : "event",
+      String(b.title).trim(), b.title_th || null, b.title_ru || null,
+      b.body || null, b.body_th || null, b.body_ru || null,
+      b.starts_on || null, b.ends_on || null, next,
+    );
+    res.json({ id: r.lastInsertRowid });
+  });
+
+  app.patch("/api/events/:id", (req, res) => {
+    const row = db.prepare("SELECT * FROM events WHERE id = ?").get(req.params.id) as any;
+    if (!row) return res.status(404).json({ error: "That notice no longer exists." });
+    const invalid = validEvent({ ...row, ...req.body }, false);
+    if (invalid) return res.status(400).json({ error: invalid });
+    const updates: string[] = [];
+    const params: any[] = [];
+    for (const f of EVENT_FIELDS) {
+      if (req.body[f] !== undefined) { updates.push(`${f} = ?`); params.push(req.body[f] || null); }
+    }
+    if (req.body.active !== undefined) { updates.push("active = ?"); params.push(req.body.active ? 1 : 0); }
+    if (updates.length === 0) return res.json({ success: true });
+    params.push(row.id);
+    db.prepare(`UPDATE events SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+    res.json({ success: true });
+  });
+
+  app.delete("/api/events/:id", (req, res) => {
+    const row = db.prepare("SELECT id FROM events WHERE id = ?").get(req.params.id);
+    if (!row) return res.status(404).json({ error: "That notice no longer exists." });
+    db.prepare("DELETE FROM events WHERE id = ?").run(req.params.id);
     res.json({ success: true });
   });
 

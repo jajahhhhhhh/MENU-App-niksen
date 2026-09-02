@@ -43,13 +43,15 @@ import {
   AlertCircle,
   Store,
   Bike,
-  Lock
+  Lock,
+  Clapperboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { MenuItem, Order, DailyReport, Member, StaffMember, StaffShift } from './types';
 import InventoryPanel from './InventoryPanel';
 import MenuOptionsEditor from './MenuOptionsEditor';
+import TonightPanel from './TonightPanel';
 import { NiksenLogo } from './components/NiksenLogo';
 
 const App: React.FC = () => {
@@ -86,7 +88,7 @@ const App: React.FC = () => {
   const [barcodeInput, setBarcodeInput] = useState('');
   const [scanNotification, setScanNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
-  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'ingredients' | 'store_settings'>('menu_items');
+  const [manageSubTab, setManageSubTab] = useState<'menu_items' | 'inventory' | 'ingredients' | 'tonight' | 'store_settings'>('menu_items');
   const [inventorySearch, setInventorySearch] = useState('');
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
@@ -1573,9 +1575,9 @@ const App: React.FC = () => {
                   >
                     <Boxes className="w-4 h-4 text-emerald-400" />
                     Inventory & Stock
-                    {menuItems.filter(i => (i.stock_quantity ?? 50) <= (i.low_stock_threshold ?? 10)).length > 0 && (
+                    {menuItems.filter(i => (i.stock_quantity ?? 5) <= (i.low_stock_threshold ?? 2)).length > 0 && (
                       <span className="bg-amber-400 text-stone-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-1">
-                        {menuItems.filter(i => (i.stock_quantity ?? 50) <= (i.low_stock_threshold ?? 10)).length}
+                        {menuItems.filter(i => (i.stock_quantity ?? 5) <= (i.low_stock_threshold ?? 2)).length}
                       </span>
                     )}
                   </button>
@@ -1587,6 +1589,15 @@ const App: React.FC = () => {
                   >
                     <Package className="w-4 h-4 text-emerald-600" />
                     Ingredients & Recipes
+                  </button>
+                  <button
+                    onClick={() => setManageSubTab('tonight')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      manageSubTab === 'tonight' ? 'bg-white text-stone-900 shadow-md' : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <Clapperboard className="w-4 h-4 text-amber-500" />
+                    Tonight & Offers
                   </button>
                   <button
                     onClick={() => setManageSubTab('store_settings')}
@@ -1603,6 +1614,8 @@ const App: React.FC = () => {
               {manageSubTab === 'ingredients' && (
                 <InventoryPanel menuItems={menuItems} />
               )}
+
+              {manageSubTab === 'tonight' && <TonightPanel />}
 
               {manageSubTab === 'store_settings' && (
                 <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-6 overflow-hidden">
@@ -1720,7 +1733,7 @@ const App: React.FC = () => {
                           Low Stock Alerts
                         </p>
                         <p className="text-3xl font-bold text-amber-600 font-mono mt-1">
-                          {menuItems.filter(i => (i.stock_quantity ?? 50) <= (i.low_stock_threshold ?? 10) && (i.stock_quantity ?? 50) > 0).length}
+                          {menuItems.filter(i => (i.stock_quantity ?? 5) <= (i.low_stock_threshold ?? 2) && (i.stock_quantity ?? 5) > 0).length}
                         </p>
                         <p className="text-xs text-amber-600 mt-1 font-medium">Items below alert threshold</p>
                       </div>
@@ -1733,7 +1746,7 @@ const App: React.FC = () => {
                       <div>
                         <p className="text-xs font-bold text-rose-800 uppercase tracking-wider">Out of Stock</p>
                         <p className="text-3xl font-bold text-rose-600 font-mono mt-1">
-                          {menuItems.filter(i => (i.stock_quantity ?? 50) <= 0).length}
+                          {menuItems.filter(i => (i.stock_quantity ?? 5) <= 0).length}
                         </p>
                         <p className="text-xs text-rose-500 mt-1 font-medium">Depleted menu items</p>
                       </div>
@@ -1744,7 +1757,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Low Stock Callout Alert Banner */}
-                  {menuItems.filter(i => (i.stock_quantity ?? 50) <= (i.low_stock_threshold ?? 10)).length > 0 && (
+                  {menuItems.filter(i => (i.stock_quantity ?? 5) <= (i.low_stock_threshold ?? 2)).length > 0 && (
                     <div className="bg-amber-50 border border-amber-300 p-4 rounded-2xl flex items-center justify-between gap-4 text-amber-900 shadow-sm">
                       <div className="flex items-center gap-3">
                         <div className="bg-amber-500 text-white p-2 rounded-xl shrink-0">
@@ -1753,7 +1766,7 @@ const App: React.FC = () => {
                         <div>
                           <h4 className="font-bold text-sm">Low Stock Alert Notice</h4>
                           <p className="text-xs text-amber-800">
-                            {menuItems.filter(i => (i.stock_quantity ?? 50) <= (i.low_stock_threshold ?? 10)).length} items are running low or depleted. Restock inventory below to prevent order rejections.
+                            {menuItems.filter(i => (i.stock_quantity ?? 5) <= (i.low_stock_threshold ?? 2)).length} items are running low or depleted. Restock inventory below to prevent order rejections.
                           </p>
                         </div>
                       </div>
@@ -1788,7 +1801,7 @@ const App: React.FC = () => {
                             <th className="p-4">Current Stock</th>
                             <th className="p-4">Low Stock Limit</th>
                             <th className="p-4 text-center">Status</th>
-                            <th className="p-4 text-right">Quick Restock</th>
+                            <th className="p-4 text-right">Quick Action</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-stone-100 text-sm">
@@ -1799,8 +1812,8 @@ const App: React.FC = () => {
                               (i.barcode && i.barcode.includes(inventorySearch))
                             )
                             .map(item => {
-                              const stock = item.stock_quantity ?? 50;
-                              const limit = item.low_stock_threshold ?? 10;
+                              const stock = item.stock_quantity ?? 5;
+                              const limit = item.low_stock_threshold ?? 2;
                               const isLow = stock <= limit && stock > 0;
                               const isOut = stock <= 0;
 
@@ -1859,7 +1872,7 @@ const App: React.FC = () => {
                                         type="number"
                                         className="w-14 p-1.5 bg-stone-50 border border-stone-200 rounded-lg text-center font-mono text-xs text-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                         value={limit}
-                                        onChange={(e) => handleUpdateStock(item.id, stock, parseInt(e.target.value) || 5)}
+                                        onChange={(e) => handleUpdateStock(item.id, stock, parseInt(e.target.value) || 2)}
                                       />
                                       <span className="text-xs text-stone-400">units</span>
                                     </div>
@@ -1883,11 +1896,16 @@ const App: React.FC = () => {
                                     )}
                                   </td>
                                   <td className="p-4 text-right">
+                                    {/* Running out mid-service is the thing that
+                                        needs one tap; a fixed +20 was a guess at
+                                        a delivery nobody made. */}
                                     <button
-                                      onClick={() => handleUpdateStock(item.id, stock + 20)}
-                                      className="bg-stone-900 text-stone-100 hover:bg-stone-800 text-xs px-3 py-1.5 rounded-xl font-bold transition-all shadow-sm active:scale-95"
+                                      onClick={() => handleUpdateStock(item.id, 0)}
+                                      disabled={isOut}
+                                      title={isOut ? 'Already out of stock' : 'Mark sold out — hides it from customer ordering'}
+                                      className="bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 text-xs px-3 py-1.5 rounded-xl font-bold transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
-                                      +20 Restock
+                                      Sold out
                                     </button>
                                   </td>
                                 </tr>
@@ -2045,7 +2063,7 @@ const App: React.FC = () => {
                         <input
                           type="number"
                           min={0}
-                          placeholder="50"
+                          placeholder="5"
                           className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           value={newItem.stock_quantity}
                           onChange={(e) => setNewItem({ ...newItem, stock_quantity: e.target.value })}
@@ -2056,7 +2074,7 @@ const App: React.FC = () => {
                         <input
                           type="number"
                           min={0}
-                          placeholder="10"
+                          placeholder="2"
                           className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           value={newItem.low_stock_threshold}
                           onChange={(e) => setNewItem({ ...newItem, low_stock_threshold: e.target.value })}
@@ -2150,7 +2168,16 @@ const App: React.FC = () => {
                                   <ImageIcon className="w-4 h-4 text-stone-300" />
                                 )}
                               </div>
-                              <span className="font-bold">{item.name}</span>
+                              <div className="min-w-0">
+                                <span className="font-bold">{item.name}</span>
+                                {/* Hiding a dish silently is how an hour gets
+                                    lost wondering why it never showed up. */}
+                                {!(item.price > 0) && (
+                                  <span className="block text-[11px] font-bold text-amber-600">
+                                    No price yet — hidden from customers
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="p-4">
@@ -2158,7 +2185,9 @@ const App: React.FC = () => {
                               {item.category}
                             </span>
                           </td>
-                          <td className="p-4 font-mono font-bold text-emerald-600">{formatCurrency(item.price)}</td>
+                          <td className={`p-4 font-mono font-bold ${item.price > 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {formatCurrency(item.price)}
+                          </td>
                           <td className="p-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                               <button
