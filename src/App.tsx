@@ -731,12 +731,12 @@ const App: React.FC = () => {
   };
 
   if (authed === null) {
-    return <div className="min-h-screen bg-stone-900" />;
+    return <div className="pos-ui min-h-screen bg-stone-900" />;
   }
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-stone-900 flex items-center justify-center p-4">
+      <div className="pos-ui min-h-screen bg-stone-900 flex items-center justify-center p-4">
         <form onSubmit={handleLogin} className="bg-stone-800 border border-stone-700 rounded-3xl p-8 w-full max-w-sm text-center space-y-6 shadow-2xl">
           <div className="flex justify-center"><NiksenLogo variant="white" size="sm" /></div>
           <div>
@@ -770,7 +770,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-stone-100 text-stone-900 font-sans flex flex-col">
+    <div className="pos-ui min-h-screen bg-stone-100 text-stone-900 font-sans flex flex-col">
       {/* Header */}
       <header className="bg-stone-900 text-stone-100 px-6 py-3.5 shadow-lg flex justify-between items-center">
         <div className="flex items-center gap-4">
