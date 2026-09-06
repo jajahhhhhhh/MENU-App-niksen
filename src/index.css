@@ -1,11 +1,19 @@
 @import "tailwindcss";
-/* Fonts (Archivo / Instrument Serif / DM Mono) are loaded via <link> in index.html.
-   Shared with the Bangkok identity — same family trio, Samui keeps its own palette. */
+/* Fonts are loaded via <link> in index.html.
+   Public pages: Archivo / Instrument Serif / DM Mono — shared with the Bangkok
+   identity, same family trio, Samui keeps its own palette.
+   The POS runs on its own monospace face instead; see .pos-ui below. */
 
 @theme {
   --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "Instrument Serif", Georgia, ui-serif, serif;
+
+  /* Back-of-house face. Roboto Mono carries the Latin and the figures; Noto
+     Sans Thai picks up Thai, which no Latin monospace covers. Both are on the
+     same Google/Noto skeleton, so a Thai dish name next to an English one
+     doesn't read as two different apps. */
+  --font-pos: "Roboto Mono", "Noto Sans Thai", ui-monospace, SFMono-Regular, monospace;
 
   /* --- niksen palette --------------------------------------------------------
      Warm Ivory #F2E9DC · Natural Wood #D8C9AE · Terracotta #C17A5A
@@ -50,6 +58,21 @@
   --color-amber-800: #6A542C;
   --color-amber-900: #574627;
   --color-amber-950: #322813;
+}
+
+/* The POS, and only the POS. Utilities resolve --font-sans / --font-mono at use
+   time, so redefining the two variables on this one container re-faces the whole
+   staff app — every `font-sans` and `font-mono` inside it — without touching a
+   single className, and without changing anything a customer sees. */
+.pos-ui {
+  /* Set outright, so panels that carry no font utility inherit it too, and
+     remap the two variables, so the `font-sans` / `font-mono` classes already
+     scattered through the app resolve here instead of to the public faces. */
+  font-family: var(--font-pos);
+  --font-sans: var(--font-pos);
+  --font-mono: var(--font-pos);
+  /* Mono ships wide. A hair tighter keeps the dense tables on one line. */
+  letter-spacing: -0.01em;
 }
 
 @layer base {
