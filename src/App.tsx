@@ -2681,7 +2681,7 @@ const App: React.FC = () => {
                     <span>Subtotal</span>
                     <span>{formatCurrency(showReceipt.items?.reduce((s, i) => s + (i.quantity * i.price_at_time), 0) || 0)}</span>
                   </div>
-                  {showReceipt.discount_value && showReceipt.discount_value > 0 && (
+                  {(showReceipt.discount_value ?? 0) > 0 && (
                     <div className="flex justify-between text-red-500">
                       <span>Discount ({showReceipt.discount_type === 'percentage' ? `${showReceipt.discount_value}%` : 'Fixed'})</span>
                       <span>-{formatCurrency(
@@ -2691,7 +2691,7 @@ const App: React.FC = () => {
                       )}</span>
                     </div>
                   )}
-                  {showReceipt.points_redeemed && showReceipt.points_redeemed > 0 && (
+                  {(showReceipt.points_redeemed ?? 0) > 0 && (
                     <div className="flex justify-between text-amber-600">
                       <span>Points Discount ({showReceipt.points_redeemed} pts)</span>
                       <span>-{formatCurrency(showReceipt.points_redeemed)}</span>
@@ -2712,7 +2712,7 @@ const App: React.FC = () => {
                     <span>{formatCurrency(calculateOrderTotal(showReceipt))}</span>
                   </div>
 
-                  {showReceipt.points_earned && showReceipt.points_earned > 0 && (
+                  {(showReceipt.points_earned ?? 0) > 0 && (
                     <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100 text-center font-bold text-emerald-700 mt-2">
                       + Earned {showReceipt.points_earned} Loyalty Points!
                     </div>
