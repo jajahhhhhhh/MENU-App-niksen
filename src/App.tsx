@@ -2628,9 +2628,16 @@ const App: React.FC = () => {
                     <span>Order ID:</span>
                     <span>#{showReceipt.id}</span>
                   </div>
+                  {/* A pickup or delivery order has no table, and the column
+                      defaults to 0 — printing "Table: 0" on a takeaway receipt
+                      reads like a mistake. Say what the order actually is. */}
                   <div className="flex justify-between">
-                    <span>Table:</span>
-                    <span>{showReceipt.table_number}</span>
+                    <span>{showReceipt.order_type && showReceipt.order_type !== 'dine_in' ? 'Order:' : 'Table:'}</span>
+                    <span>
+                      {showReceipt.order_type === 'pickup' ? 'Pickup'
+                        : showReceipt.order_type === 'delivery' ? 'Delivery'
+                        : showReceipt.table_number}
+                    </span>
                   </div>
                   {showReceipt.member_name && (
                     <div className="flex justify-between font-bold text-amber-700">
