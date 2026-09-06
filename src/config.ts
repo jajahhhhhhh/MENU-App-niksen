@@ -12,3 +12,15 @@ export function orderingOpen(now: Date = new Date()): boolean {
   if (ORDERING_OVERRIDE !== null) return ORDERING_OVERRIDE;
   return now.getTime() >= new Date(OPENING_ISO).getTime();
 }
+
+// ---------------------------------------------------------------- money ---
+// The shop quotes whole baht. The till and the ordering page have to agree to
+// the satang: a customer holding a PromptPay slip next to a printed receipt
+// must not see two numbers. So the rounding happens once, here, on the total —
+// not per line, and not separately in each screen's formatter, which is how
+// the two sides drifted to ฿95.23 and ฿95 in the first place.
+export const TAX_RATE = 1.07;
+
+export function totalWithTax(subtotal: number): number {
+  return Math.round(subtotal * TAX_RATE);
+}

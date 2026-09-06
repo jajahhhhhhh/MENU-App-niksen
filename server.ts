@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { orderingOpen } from "./src/config.ts";
+import { orderingOpen, totalWithTax } from "./src/config.ts";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
 
@@ -486,7 +486,7 @@ async function startServer() {
       validated.push({ id: menuItem.id, quantity: qty, price: unitPrice, options: chosen });
       subtotal += unitPrice * qty;
     }
-    const total = subtotal * 1.07; // 7% tax, same rule as in-store
+    const total = totalWithTax(subtotal); // whole baht, same rule as in-store
     const pointsEarned = Math.floor(total / 50);
 
     const transaction = db.transaction(() => {
@@ -1175,7 +1175,7 @@ async function startServer() {
         : (o.discount_value || 0);
       const ptsDiscount = o.points_redeemed || 0;
       const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      return { ...o, total: discSubtotal * 1.07 };
+      return { ...o, total: totalWithTax(discSubtotal) };
     });
     
     res.json(ordersWithTotal);
@@ -1204,7 +1204,7 @@ async function startServer() {
       : (order.discount_value || 0);
     const ptsDiscount = order.points_redeemed || 0;
     const discSubtotal = Math.max(0, order.subtotal - discAmount - ptsDiscount);
-    const total = discSubtotal * 1.07;
+    const total = totalWithTax(discSubtotal);
     
     res.json({ ...order, total, items });
   });
@@ -1230,7 +1230,7 @@ async function startServer() {
       : (discount_value || 0);
     const ptsDiscount = points_redeemed || 0;
     const discSubtotal = Math.max(0, itemsSubtotal - discAmount - ptsDiscount);
-    const orderTotal = discSubtotal * 1.07;
+    const orderTotal = totalWithTax(discSubtotal);
 
     const pointsEarned = Math.floor(orderTotal / 50); // Earn 1 point per 50 THB spent
 
@@ -1321,7 +1321,7 @@ async function startServer() {
         : (o.discount_value || 0);
       const ptsDiscount = o.points_redeemed || 0;
       const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      totalRevenue += discSubtotal * 1.07;
+      totalRevenue += totalWithTax(discSubtotal);
     }
 
     const summary = {

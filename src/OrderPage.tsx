@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { totalWithTax } from './config';
 import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
@@ -72,7 +73,7 @@ interface OrderResult {
 }
 
 const formatTHB = (n: number) =>
-  `฿${n.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  `฿${n.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
 const OrderPage: React.FC = () => {
   const [shopName, setShopName] = useState('Niksen');
@@ -128,7 +129,7 @@ const OrderPage: React.FC = () => {
 
   const cartCount = cart.reduce((s, l) => s + l.quantity, 0);
   const subtotal = cart.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
-  const total = subtotal * 1.07;
+  const total = totalWithTax(subtotal);
 
   const addLine = (item: PublicMenuItem, options: MenuOption[]) => {
     const key = lineKey(item.id, options.map(o => o.id));
@@ -573,7 +574,7 @@ const OrderPage: React.FC = () => {
                 ))}
                 <div className="border-t border-[#141414]/10 pt-2 space-y-1 text-sm">
                   <div className="flex justify-between text-[#141414]/55"><span>{t.subtotal}</span><span className="font-mono">{formatTHB(subtotal)}</span></div>
-                  <div className="flex justify-between text-[#141414]/55"><span>{t.tax}</span><span className="font-mono">{formatTHB(subtotal * 0.07)}</span></div>
+                  <div className="flex justify-between text-[#141414]/55"><span>{t.tax}</span><span className="font-mono">{formatTHB(total - subtotal)}</span></div>
                   <div className="flex justify-between font-bold text-base"><span>{t.total}</span><span className="font-mono text-[#2B4FA8]">{formatTHB(total)}</span></div>
                 </div>
               </div>

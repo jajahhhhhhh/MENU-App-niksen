@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { totalWithTax } from './config';
 import { 
   Beer, 
   Utensils, 
@@ -727,7 +728,7 @@ const App: React.FC = () => {
       : (order.discount_value || 0);
     const ptsDiscount = order.points_redeemed || 0;
     const discSubtotal = Math.max(0, itemsTotal - discAmount - ptsDiscount);
-    return discSubtotal * 1.07; // 7% TAX, no service
+    return totalWithTax(discSubtotal); // whole baht, no service charge
   };
 
   if (authed === null) {
