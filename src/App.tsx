@@ -162,7 +162,7 @@ const App: React.FC = () => {
   // recovers without anybody touching the screen.
   useEffect(() => {
     if (!authed) return;
-    const es = new EventSource('/api/events');
+    const es = new EventSource('/api/live');
 
     const refresh = () => {
       fetchOrders();

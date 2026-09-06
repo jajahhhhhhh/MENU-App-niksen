@@ -1125,7 +1125,11 @@ async function startServer() {
 
   // Staff-only stream of order activity. It sits under /api, so the auth guard
   // above already requires a session before a till can listen.
-  app.get("/api/events", (req, res) => {
+  //
+  // Not /api/events: the Tonight & Offers CRUD claimed that path first, and
+  // Express serves the first match, so this handler never ran and the till
+  // silently lost its live feed. Anything added here needs a path of its own.
+  app.get("/api/live", (req, res) => {
     res.set({
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
