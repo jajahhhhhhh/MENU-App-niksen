@@ -14,9 +14,34 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
+import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 
 const BASE = (process.env.NIKSEN_POS_URL || 'https://niksensamui.com').replace(/\/$/, '');
-const PIN = process.env.NIKSEN_POS_PIN || '';
+
+// The PIN can come from the environment, or from a file named by it. The file
+// exists for clients whose config format has no way to prompt for a secret —
+// putting the shop's PIN in a JSON file next to other credentials is worse
+// than a chmod 600 file the config merely points at.
+function readPin() {
+  const direct = process.env.NIKSEN_POS_PIN;
+  if (direct) return direct.trim();
+  const file = process.env.NIKSEN_POS_PIN_FILE;
+  if (!file) return '';
+  try {
+    return readFileSync(file.replace(/^~/, homedir()), 'utf8').trim();
+  } catch (e) {
+    throw new Error(`Could not read NIKSEN_POS_PIN_FILE at ${file} — ${(e && e.message) || e}`);
+  }
+}
+// Resolved on first use, not at startup. A bad path here used to throw before
+// the MCP handshake, which an editor can only report as "the server died" —
+// the same mistake surfaces as a readable tool error instead.
+let pinCache = null;
+function pin() {
+  if (pinCache === null) pinCache = readPin();
+  return pinCache;
+}
 
 let cookie = null;
 
@@ -34,7 +59,7 @@ async function login() {
   const res = await reach(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pin: PIN }),
+    body: JSON.stringify({ pin: pin() }),
   });
   if (!res.ok) throw new Error('The POS refused that PIN.');
   cookie = (res.headers.get('set-cookie') || '').split(';')[0] || null;
@@ -44,7 +69,7 @@ async function login() {
 /** One retry on 401 and no more: a PIN that is wrong stays wrong, and a loop
  *  of login attempts against a live shop is indistinguishable from an attack. */
 async function api(path) {
-  if (!PIN) throw new Error('NIKSEN_POS_PIN is not set, so there is nothing to log in with.');
+  if (!pin()) throw new Error('No PIN: set NIKSEN_POS_PIN, or NIKSEN_POS_PIN_FILE pointing at a file holding it.');
   if (!cookie) await login();
   let res = await reach(`${BASE}${path}`, { headers: { Cookie: cookie } });
   if (res.status === 401) {
