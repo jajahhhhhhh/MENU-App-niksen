@@ -1363,51 +1363,83 @@ async function startServer() {
   app.use("/api/inventory", inventoryRouter(db));
 
   app.get("/api/reports/daily", (req, res) => {
-    const date = req.query.date || new Date().toISOString().split('T')[0];
-    
+    // The shop's day is a Thai day. paid_at is stored in UTC, and Thailand is
+    // seven hours ahead, so comparing the raw timestamps would start the day
+    // at 07:00 local — the exact hour the café opens. A bill settled at half
+    // past midnight would have been booked to the day before. Shifting both
+    // sides by +7 is the same rule the Tonight feed already uses.
+    const today = db.prepare("SELECT date('now', '+7 hours') AS d").get() as any;
+    const date = (req.query.date as string) || today.d;
+
     const paidOrders = db.prepare(`
-      SELECT o.*, 
+      SELECT o.*,
              (SELECT SUM(quantity * price_at_time) FROM order_items WHERE order_id = o.id) as subtotal
       FROM orders o
-      WHERE status = 'paid' AND date(paid_at) = date(?)
-    `).all(date);
+      WHERE status = 'paid' AND date(paid_at, '+7 hours') = date(?)
+    `).all(date) as any[];
 
+    // What each order was actually worth, and by how much its menu prices had
+    // to be scaled to get there. The scale carries the discount and the tax
+    // together, which is what lets the category figures below add up to the
+    // headline instead of sitting a few percent under it.
     let totalRevenue = 0;
+    const factor = new Map<number, number>();
     for (const o of paidOrders) {
       const discAmount = o.discount_type === 'percentage'
         ? (o.subtotal * (o.discount_value || 0) / 100)
         : (o.discount_value || 0);
       const ptsDiscount = o.points_redeemed || 0;
       const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      totalRevenue += totalWithTax(discSubtotal);
+      const total = totalWithTax(discSubtotal);
+      totalRevenue += total;
+      factor.set(o.id, o.subtotal > 0 ? total / o.subtotal : 0);
     }
 
     const summary = {
       total_orders: paidOrders.length,
-      total_revenue: totalRevenue
+      total_revenue: totalRevenue,
     };
 
-    const categoryBreakdown = db.prepare(`
-      SELECT mi.category, SUM(oi.quantity * oi.price_at_time) as revenue
+    // Sold at menu price, per category, before anything is applied — then
+    // scaled per order so a discounted bill contributes what it really earned.
+    const lines = db.prepare(`
+      SELECT o.id AS order_id, mi.category, SUM(oi.quantity * oi.price_at_time) AS gross
       FROM order_items oi
       JOIN menu_items mi ON oi.menu_item_id = mi.id
       JOIN orders o ON oi.order_id = o.id
-      WHERE o.status = 'paid' AND date(o.paid_at) = date(?)
-      GROUP BY mi.category
-    `).all(date);
+      WHERE o.status = 'paid' AND date(o.paid_at, '+7 hours') = date(?)
+      GROUP BY o.id, mi.category
+    `).all(date) as any[];
 
+    const byCategory = new Map<string, number>();
+    for (const l of lines) {
+      const f = factor.get(l.order_id) ?? 0;
+      byCategory.set(l.category, (byCategory.get(l.category) || 0) + l.gross * f);
+    }
+    const categoryBreakdown = [...byCategory.entries()]
+      .map(([category, revenue]) => ({ category, revenue: Math.round(revenue) }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    // Rounding each category on its own can leave the column a baht or two
+    // short of the headline, and a breakdown that does not add up is the kind
+    // of thing that makes staff stop trusting the whole report. Put the
+    // difference on the largest category, where it is proportionally least.
+    const drift = totalRevenue - categoryBreakdown.reduce((n, c) => n + c.revenue, 0);
+    if (drift !== 0 && categoryBreakdown.length > 0) categoryBreakdown[0].revenue += drift;
+
+    // A count, not money, so it needs no scaling.
     const topItems = db.prepare(`
       SELECT mi.name, SUM(oi.quantity) as total_quantity
       FROM order_items oi
       JOIN menu_items mi ON oi.menu_item_id = mi.id
       JOIN orders o ON oi.order_id = o.id
-      WHERE o.status = 'paid' AND date(o.paid_at) = date(?)
+      WHERE o.status = 'paid' AND date(o.paid_at, '+7 hours') = date(?)
       GROUP BY mi.id
       ORDER BY total_quantity DESC
       LIMIT 5
     `).all(date);
 
-    res.json({ summary, categoryBreakdown, topItems });
+    res.json({ summary, categoryBreakdown, topItems, date });
   });
 
   // Staff & Shifts API
