@@ -737,6 +737,12 @@ async function startServer() {
       acc[s.key] = s.value;
       return acc;
     }, {});
+    // The PIN goes out to nobody. It was in this response, so any till left
+    // logged in on the counter would show the shop's permanent door code to
+    // whoever opened the network tab — and a borrowed session is temporary
+    // where a PIN is not. The form only needs to know whether one is set.
+    settingsMap.staff_pin_set = Boolean(settingsMap.staff_pin);
+    delete settingsMap.staff_pin;
     res.json(settingsMap);
   });
 
@@ -1336,6 +1342,17 @@ async function startServer() {
     });
   });
 
+  /** What an order comes to, from what is stored against it. The same three
+   *  lines had been written out in four places; they must agree, because the
+   *  receipt, the report, the QR code and the refund all read them. */
+  const orderTotal = (o: { subtotal: number; discount_type?: string | null;
+                           discount_value?: number | null; points_redeemed?: number | null }) => {
+    const discAmount = o.discount_type === 'percentage'
+      ? ((o.subtotal || 0) * (o.discount_value || 0) / 100)
+      : (o.discount_value || 0);
+    return totalWithTax(Math.max(0, (o.subtotal || 0) - discAmount - (o.points_redeemed || 0)));
+  };
+
   app.get("/api/orders", (req, res) => {
     const orders = db.prepare(`
       SELECT o.*, m.name as member_name,
@@ -1346,12 +1363,7 @@ async function startServer() {
     `).all();
     
     const ordersWithTotal = orders.map((o: any) => {
-      const discAmount = o.discount_type === 'percentage'
-        ? (o.subtotal * (o.discount_value || 0) / 100)
-        : (o.discount_value || 0);
-      const ptsDiscount = o.points_redeemed || 0;
-      const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      return { ...o, total: totalWithTax(discSubtotal) };
+      return { ...o, total: orderTotal(o) };
     });
     
     res.json(ordersWithTotal);
@@ -1375,14 +1387,7 @@ async function startServer() {
       WHERE oi.order_id = ?
     `).all(req.params.id);
     
-    const discAmount = order.discount_type === 'percentage'
-      ? (order.subtotal * (order.discount_value || 0) / 100)
-      : (order.discount_value || 0);
-    const ptsDiscount = order.points_redeemed || 0;
-    const discSubtotal = Math.max(0, order.subtotal - discAmount - ptsDiscount);
-    const total = totalWithTax(discSubtotal);
-    
-    res.json({ ...order, total, items });
+    res.json({ ...order, total: orderTotal(order), items });
   });
 
   app.post("/api/orders", (req, res) => {
@@ -1401,14 +1406,13 @@ async function startServer() {
     for (const item of items) {
       itemsSubtotal += (item.price || 0) * (item.quantity || 1);
     }
-    const discAmount = discount_type === 'percentage'
-      ? (itemsSubtotal * (discount_value || 0) / 100)
-      : (discount_value || 0);
+    // Same rule as everywhere else, before the order exists to be read back.
+    // It used to be spelled out here under the name orderTotal, which quietly
+    // shadowed the shared one.
     const ptsDiscount = points_redeemed || 0;
-    const discSubtotal = Math.max(0, itemsSubtotal - discAmount - ptsDiscount);
-    const orderTotal = totalWithTax(discSubtotal);
+    const total = orderTotal({ subtotal: itemsSubtotal, discount_type, discount_value, points_redeemed });
 
-    const pointsEarned = pointsFor(orderTotal);
+    const pointsEarned = pointsFor(total);
 
     const transaction = db.transaction(() => {
       const orderResult = db.prepare(`
@@ -1431,7 +1435,7 @@ async function startServer() {
       if (member_id) {
         const member = db.prepare("SELECT * FROM members WHERE id = ?").get(member_id) as any;
         if (member) {
-          const newSpent = member.total_spent + orderTotal;
+          const newSpent = member.total_spent + total;
           const newPoints = Math.max(0, member.points - ptsDiscount + pointsEarned);
           let newTier = 'Silver';
           if (newSpent >= 5000) newTier = 'Platinum';
@@ -1455,8 +1459,24 @@ async function startServer() {
     res.json({ success: true });
   });
 
+  const ORDER_STATUSES = ["open", "preparing", "ready", "paid", "cancelled"] as const;
+
   app.patch("/api/orders/:id/status", (req, res) => {
     const { status } = req.body;
+    // Whitelisted: the status was written straight through, so a typo or a
+    // stray call could park an order in a state no screen filters for, and it
+    // would vanish from the till while still being owed to a customer.
+    if (!ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Unknown status. Use one of: ${ORDER_STATUSES.join(", ")}.` });
+    }
+    const id = Number(req.params.id);
+    const before = db.prepare(
+      "SELECT status, member_id, points_earned, points_redeemed, discount_type, discount_value,"
+      + " (SELECT SUM(quantity * price_at_time) FROM order_items WHERE order_id = orders.id) AS subtotal"
+      + " FROM orders WHERE id = ?"
+    ).get(id) as any;
+    if (!before) return res.status(404).json({ error: "Order not found" });
+
     const updates: string[] = ["status = ?"];
     const params: any[] = [status];
 
@@ -1464,13 +1484,32 @@ async function startServer() {
       updates.push("paid_at = CURRENT_TIMESTAMP");
     }
 
-    params.push(req.params.id);
+    params.push(id);
     db.transaction(() => {
       db.prepare(`UPDATE orders SET ${updates.join(", ")} WHERE id = ?`).run(...params);
       // Ingredients are taken when the order is rung up, so a cancellation has
       // to put them back — otherwise a mistyped order silently eats the stock.
       // restoreForOrder is idempotent, so cancelling twice cannot double-credit.
-      if (status === 'cancelled') restoreForOrder(db, Number(req.params.id));
+      if (status === 'cancelled') {
+        restoreForOrder(db, id);
+        // And so are the points. They are credited when the order is rung up,
+        // so a cancelled order was leaving the customer holding points, spend
+        // and tier progress for food nobody made. Only on the way in to
+        // 'cancelled', so cancelling an already-cancelled order takes nothing.
+        if (before.status !== 'cancelled' && before.member_id) {
+          const spent = orderTotal(before);
+          const points = (before.points_earned || 0) - (before.points_redeemed || 0);
+          db.prepare(`
+            UPDATE members
+               SET total_spent = MAX(0, total_spent - ?),
+                   points      = MAX(0, points - ?),
+                   tier        = CASE WHEN MAX(0, total_spent - ?) >= 5000 THEN 'Platinum'
+                                      WHEN MAX(0, total_spent - ?) >= 2000 THEN 'Gold'
+                                      ELSE 'Silver' END
+             WHERE id = ?
+          `).run(spent, points, spent, spent, before.member_id);
+        }
+      }
     })();
     broadcast("order.updated", { id: Number(req.params.id), status });
     res.json({ success: true });
@@ -1503,12 +1542,7 @@ async function startServer() {
     let totalRevenue = 0;
     const factor = new Map<number, number>();
     for (const o of paidOrders) {
-      const discAmount = o.discount_type === 'percentage'
-        ? (o.subtotal * (o.discount_value || 0) / 100)
-        : (o.discount_value || 0);
-      const ptsDiscount = o.points_redeemed || 0;
-      const discSubtotal = Math.max(0, o.subtotal - discAmount - ptsDiscount);
-      const total = totalWithTax(discSubtotal);
+      const total = orderTotal(o);
       totalRevenue += total;
       factor.set(o.id, o.subtotal > 0 ? total / o.subtotal : 0);
     }
