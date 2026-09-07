@@ -5,7 +5,8 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { orderingOpen, totalWithTax, pointsFor } from "./src/config.ts";
+import { orderingOpen, withinOpeningHours, totalWithTax, pointsFor } from "./src/config.ts";
+import rateLimit from "express-rate-limit";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
 import { initPaymentsSchema, paymentsRouter, createCharge, settleCharge, paymentsEnabled, publicKey } from "./payments.ts";
@@ -98,6 +99,13 @@ try { db.exec("ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'dine_in'")
 try { db.exec("ALTER TABLE orders ADD COLUMN customer_name TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE orders ADD COLUMN customer_phone TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE orders ADD COLUMN delivery_address TEXT"); } catch (e) {}
+// Idempotency for online orders. A phone on a hotel wifi drops the response
+// and the browser retries; without this the customer is billed twice, the
+// stock comes off twice and the kitchen cooks two breakfasts. The token is
+// minted per checkout attempt by the ordering page, so a genuine second order
+// carries a different one and is never folded into the first.
+try { db.exec("ALTER TABLE orders ADD COLUMN client_token TEXT"); } catch (e) {}
+try { db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_client_token ON orders(client_token) WHERE client_token IS NOT NULL"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN name_th TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN name_ru TEXT"); } catch (e) {}
 try { db.exec("ALTER TABLE menu_items ADD COLUMN description TEXT"); } catch (e) {}
@@ -343,6 +351,47 @@ async function startServer() {
   }));
 
   // ---- Staff authentication (PIN) ----
+  // A four-digit PIN is ten thousand guesses, and without a brake a script
+  // works through all of them in under a minute — every order, every
+  // customer's phone number, and the price of everything on the menu. Ten
+  // tries a quarter of an hour turns that minute into about ten days.
+  // Successful logins are not counted, so a busy till never locks itself out.
+  const loginLimiter = rateLimit({
+    // A four-digit PIN typed on a touchscreen over a service counter gets
+    // mistyped; 10 in 15 minutes locked the till out for a clumsy morning.
+    // 15 in 10 still leaves a guesser well over a hundred hours to walk the
+    // 10,000 combinations, and correct PINs do not count against it at all.
+    windowMs: 10 * 60 * 1000,
+    limit: 15,
+    skipSuccessfulRequests: true,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many wrong PINs. Wait ten minutes, then try again." },
+  });
+
+  // The café's own wifi puts every customer behind one address, so this has to
+  // be loose enough for a full evening service from a single IP and still tight
+  // enough that a script cannot empty the stock.
+  const orderLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many orders from this connection. Please order at the counter." },
+  });
+
+  // Reads: generous, because one page load makes several.
+  const publicReadLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 120,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use("/api/public/", publicReadLimiter);
+  app.post("/api/auth/login", loginLimiter, (req, res, next) => next());
+  app.post("/api/public/orders", orderLimiter, (req, res, next) => next());
+
   app.post("/api/auth/login", (req, res) => {
     const { pin } = req.body || {};
     const row = db.prepare("SELECT value FROM settings WHERE key = 'staff_pin'").get() as any;
@@ -427,8 +476,43 @@ async function startServer() {
   });
 
   app.post("/api/public/orders", (req, res) => {
-    if (!orderingOpen()) return res.status(403).json({ error: "Online ordering opens 18 August 2026." });
+    if (!orderingOpen()) return res.status(403).json({ error: "Online ordering is not open yet." });
+    // The kitchen has to be in it. An order taken at three in the morning is
+    // one nobody sees until half past seven, by which time the customer has
+    // been waiting four hours for food that was never started.
+    if (!withinOpeningHours()) {
+      return res.status(403).json({
+        error: "We are closed right now. Orders are taken 07:30–14:00 and 17:00–23:00.",
+      });
+    }
     const { items, order_type, customer_name, customer_phone, delivery_address, notes } = req.body || {};
+
+    // A repeat of an attempt we already committed: hand back the order that
+    // exists instead of making a second one. Answered before any validation,
+    // so a retry still succeeds even if the last of that dish sold in between.
+    const clientToken = typeof req.body?.client_token === "string" && /^[A-Za-z0-9-]{8,64}$/.test(req.body.client_token)
+      ? req.body.client_token
+      : null;
+    if (clientToken) {
+      const prior = db.prepare(
+        "SELECT id, member_id, points_earned FROM orders WHERE client_token = ?"
+      ).get(clientToken) as any;
+      if (prior) {
+        const sub = (db.prepare(
+          "SELECT COALESCE(SUM(price_at_time * quantity), 0) AS s FROM order_items WHERE order_id = ?"
+        ).get(prior.id) as any).s as number;
+        const priorTotal = totalWithTax(sub);
+        const pp = (db.prepare("SELECT value FROM settings WHERE key = 'promptpay_id'").get() as any)?.value || "";
+        return res.json({
+          id: prior.id,
+          total: priorTotal,
+          points_earned: prior.points_earned,
+          member_points: (db.prepare("SELECT points FROM members WHERE id = ?").get(prior.member_id) as any)?.points ?? 0,
+          promptpay: pp ? promptPayPayload(pp, priorTotal) : null,
+        });
+      }
+    }
+
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "Cart is empty" });
     if (order_type !== "pickup" && order_type !== "delivery") return res.status(400).json({ error: "Invalid order type" });
     if (!customer_name || !customer_phone) return res.status(400).json({ error: "Name and phone are required" });
@@ -536,13 +620,14 @@ async function startServer() {
 
       const orderResult = db.prepare(`
         INSERT INTO orders (table_number, status, notes, discount_value, member_id, points_earned, points_redeemed,
-                            order_type, customer_name, customer_phone, delivery_address)
-        VALUES (0, 'open', ?, 0, ?, ?, 0, ?, ?, ?, ?)
+                            order_type, customer_name, customer_phone, delivery_address, client_token)
+        VALUES (0, 'open', ?, 0, ?, ?, 0, ?, ?, ?, ?, ?)
       `).run(
         notes ? String(notes).slice(0, 500) : null,
         member.id, pointsEarned, order_type,
         String(customer_name).slice(0, 100), phone,
-        order_type === "delivery" ? String(delivery_address).slice(0, 300) : null
+        order_type === "delivery" ? String(delivery_address).slice(0, 300) : null,
+        clientToken
       );
       const orderId = orderResult.lastInsertRowid;
 
