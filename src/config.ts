@@ -24,3 +24,14 @@ export const TAX_RATE = 1.07;
 export function totalWithTax(subtotal: number): number {
   return Math.round(subtotal * TAX_RATE);
 }
+
+// One loyalty point per this many baht spent, floored. Written here once
+// because it was written in three places — the online order, the till's
+// charge, and the till's on-screen preview — and a shop that changes the
+// rate would have had to find all three, plus the sentence on the ordering
+// page that quotes it to the customer.
+export const BAHT_PER_POINT = 50;
+
+export function pointsFor(total: number): number {
+  return Math.floor(total / BAHT_PER_POINT);
+}

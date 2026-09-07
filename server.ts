@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { orderingOpen, totalWithTax } from "./src/config.ts";
+import { orderingOpen, totalWithTax, pointsFor } from "./src/config.ts";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
 import { initPaymentsSchema, paymentsRouter, createCharge, settleCharge, paymentsEnabled, publicKey } from "./payments.ts";
@@ -522,7 +522,7 @@ async function startServer() {
       subtotal += unitPrice * qty;
     }
     const total = totalWithTax(subtotal); // whole baht, same rule as in-store
-    const pointsEarned = Math.floor(total / 50);
+    const pointsEarned = pointsFor(total);
 
     const transaction = db.transaction(() => {
       // Find or create the member by phone — online orders always earn points
@@ -1323,7 +1323,7 @@ async function startServer() {
     const discSubtotal = Math.max(0, itemsSubtotal - discAmount - ptsDiscount);
     const orderTotal = totalWithTax(discSubtotal);
 
-    const pointsEarned = Math.floor(orderTotal / 50); // Earn 1 point per 50 THB spent
+    const pointsEarned = pointsFor(orderTotal);
 
     const transaction = db.transaction(() => {
       const orderResult = db.prepare(`
