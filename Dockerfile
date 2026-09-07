@@ -1,3 +1,4 @@
+# Keep Node 22+ here: package-lock pins better-sqlite3@13, which requires Node >=22.
 FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
