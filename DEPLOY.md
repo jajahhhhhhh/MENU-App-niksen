@@ -359,11 +359,36 @@ re-price the menu is a worse trade than typing the change yourself.
 Command Palette, run *MCP: List Servers*, start `niksen-pos`, and VS Code asks
 for the staff PIN once per session. The PIN is never written to the file.
 
-**Copilot CLI or another client** — run it directly:
+**Copilot CLI, Claude Desktop, and anything else using the `mcpServers`
+format** — that format has no way to prompt for a secret, so point it at a
+file holding the PIN rather than writing the PIN into the config next to
+your other credentials:
+
+```json
+{
+  "mcpServers": {
+    "niksen-pos": {
+      "type": "local",
+      "command": "node",
+      "args": ["/absolute/path/to/niksen-secret-bar/mcp/niksen-mcp.mjs"],
+      "env": {
+        "NIKSEN_POS_URL": "https://niksensamui.com",
+        "NIKSEN_POS_PIN_FILE": "/Users/you/.copilot/niksen-pos-pin"
+      },
+      "tools": ["*"]
+    }
+  }
+}
+```
+
+Copilot CLI reads `~/.copilot/mcp-config.json`. Create the PIN file yourself
+and keep it to yourself:
 
 ```
-NIKSEN_POS_URL=https://niksensamui.com NIKSEN_POS_PIN=… node mcp/niksen-mcp.mjs
+printf '%s' 'YOUR-PIN' > ~/.copilot/niksen-pos-pin && chmod 600 ~/.copilot/niksen-pos-pin
 ```
+
+Or skip the file and export `NIKSEN_POS_PIN` in the shell before launching.
 
 Point `NIKSEN_POS_URL` at `http://127.0.0.1:3000` to work against a local dev
 server instead of the live shop.
