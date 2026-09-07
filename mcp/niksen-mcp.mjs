@@ -173,7 +173,9 @@ server.registerTool('expiring_stock', {
   const rows = await api(`/api/inventory/expiring?days=${days ?? 7}`);
   if (!rows.length) return text(`Nothing expires in the next ${days ?? 7} days.`);
   return text(rows.map(r => {
-    const when = r.days_left === 0 ? 'today' : r.days_left === 1 ? 'tomorrow' : `in ${r.days_left} days`;
+    const d = Number(r.days_left);
+    const when = d < 0 ? `${-d} day${d === -1 ? '' : 's'} past its date`
+      : d === 0 ? 'today' : d === 1 ? 'tomorrow' : `in ${d} days`;
     return `${r.ingredient_name} — ${r.qty_remaining} ${r.unit}, ${when} (${r.expires_on})`;
   }).join('\n'));
 });

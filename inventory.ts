@@ -461,7 +461,7 @@ export function inventoryRouter(db: DB) {
     res.json(db.prepare(`
       SELECT l.*, i.name AS ingredient_name, i.unit,
              l.total_cost / l.qty_purchased AS unit_cost,
-             CAST(julianday(l.expires_on) - julianday('now') AS INTEGER) AS days_left
+             CAST(julianday(l.expires_on) - julianday(date('now', '+7 hours')) AS INTEGER) AS days_left
         FROM ingredient_lots l JOIN ingredients i ON i.id = l.ingredient_id
        ${showEmpty ? '' : 'WHERE l.qty_remaining > 0'}
        ORDER BY (l.expires_on IS NULL), l.expires_on, l.purchased_on DESC
@@ -766,14 +766,20 @@ export function inventoryRouter(db: DB) {
     res.json({ success: true });
   });
 
+  // How many days are left is counted between two dates, not between a date
+  // and an instant. julianday('now') carries the time of day, so the
+  // difference was fractional and CAST truncated it toward zero: something
+  // expiring tomorrow read as 0 days left, i.e. today. Both sides are dates
+  // now, and the day is the Thai one — the kitchen throws food out on its own
+  // calendar, not the server's UTC one.
   r.get('/expiring', (req, res) => {
     const days = Number(req.query.days ?? 7);
     res.json(db.prepare(`
       SELECT l.id, l.qty_remaining, l.expires_on, i.name AS ingredient_name, i.unit,
-             CAST(julianday(l.expires_on) - julianday('now') AS INTEGER) AS days_left
+             CAST(julianday(l.expires_on) - julianday(date('now', '+7 hours')) AS INTEGER) AS days_left
         FROM ingredient_lots l JOIN ingredients i ON i.id = l.ingredient_id
        WHERE l.qty_remaining > 0 AND l.expires_on IS NOT NULL
-         AND julianday(l.expires_on) - julianday('now') <= ?
+         AND julianday(l.expires_on) - julianday(date('now', '+7 hours')) <= ?
        ORDER BY l.expires_on
     `).all(days));
   });
@@ -847,11 +853,11 @@ export function inventoryRouter(db: DB) {
       expiring_7d: (db.prepare(`
         SELECT COUNT(*) AS n FROM ingredient_lots
          WHERE qty_remaining > 0 AND expires_on IS NOT NULL
-           AND julianday(expires_on) - julianday('now') <= 7
+           AND julianday(expires_on) - julianday(date('now', '+7 hours')) <= 7
       `).get() as any).n,
       expired: (db.prepare(`
         SELECT COUNT(*) AS n FROM ingredient_lots
-         WHERE qty_remaining > 0 AND expires_on IS NOT NULL AND expires_on < date('now')
+         WHERE qty_remaining > 0 AND expires_on IS NOT NULL AND expires_on < date('now', '+7 hours')
       `).get() as any).n,
       // Ingredients whose balance is currently below zero — i.e. more was sold
       // than was ever recorded as bought. A count of past shortfall events
