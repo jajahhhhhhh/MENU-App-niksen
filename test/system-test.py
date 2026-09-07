@@ -211,8 +211,12 @@ s,b = call("POST","/api/public/orders", {"items":[{"menu_item_id":psoda["id"],"q
     "order_type":"pickup","customer_name":"NoPhone","customer_phone":"123"})
 ok("short phone refused", s==400, f"{s} {b}")
 s,b = call("POST","/api/public/orders", {"items":[{"menu_item_id":psoda["id"],"quantity":1}],
-    "order_type":"delivery","customer_name":"NoAddr","customer_phone":"0899999004"})
-ok("delivery without an address refused", s==400, f"{s} {b}")
+    "order_type":"delivery","customer_name":"Rider","customer_phone":"0899999004",
+    "delivery_address":"123 Fisherman's Village, Bophut"})
+ok("delivery refused while it is switched off", s==400 and "delivery" in str(b).lower(), f"{s} {b}")
+s,b = call("POST","/api/public/orders", {"items":[{"menu_item_id":psoda["id"],"quantity":1}],
+    "order_type":"eat-in-the-car","customer_name":"X","customer_phone":"0899999005"})
+ok("an invented order type refused", s==400, f"{s} {b}")
 
 print("\n=== 9. รายจ่าย: ลงบิลซื้อของ / purchases ===")
 _,ings = call("GET","/api/inventory/ingredients")

@@ -4,7 +4,7 @@ import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
 import { Lang, LANGS, LOCALE, STRINGS, detectLang, localizedName, localizedCategory, localizedDescription } from './i18n';
-import { orderingOpen, withinOpeningHours, openingDateLabel } from './config';
+import { orderingOpen, withinOpeningHours, openingDateLabel, DELIVERY_ENABLED } from './config';
 
 interface PublicEvent {
   id: number; kind: string;
@@ -653,25 +653,33 @@ const OrderPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Order type */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setOrderType('pickup')}
-                  className={`py-3 rounded-[3px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
-                    orderType === 'pickup' ? 'border-[#2B4FA8] bg-[#2B4FA8]/[0.06] text-[#2B4FA8]' : 'border-[#141414]/[0.14] text-[#141414]/55'
-                  }`}
-                >
-                  <Store className="w-4 h-4" /> {t.pickup}
-                </button>
-                <button
-                  onClick={() => setOrderType('delivery')}
-                  className={`py-3 rounded-[3px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
-                    orderType === 'delivery' ? 'border-[#2B4FA8] bg-[#2B4FA8]/[0.06] text-[#2B4FA8]' : 'border-[#141414]/[0.14] text-[#141414]/55'
-                  }`}
-                >
-                  <Bike className="w-4 h-4" /> {t.delivery}
-                </button>
-              </div>
+              {/* Order type. With delivery off there is nothing to choose, so
+                  the page says what will happen instead of offering a button
+                  that does not work. */}
+              {DELIVERY_ENABLED ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setOrderType('pickup')}
+                    className={`py-3 rounded-[3px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
+                      orderType === 'pickup' ? 'border-[#2B4FA8] bg-[#2B4FA8]/[0.06] text-[#2B4FA8]' : 'border-[#141414]/[0.14] text-[#141414]/55'
+                    }`}
+                  >
+                    <Store className="w-4 h-4" /> {t.pickup}
+                  </button>
+                  <button
+                    onClick={() => setOrderType('delivery')}
+                    className={`py-3 rounded-[3px] font-bold flex items-center justify-center gap-2 border-2 transition-colors ${
+                      orderType === 'delivery' ? 'border-[#2B4FA8] bg-[#2B4FA8]/[0.06] text-[#2B4FA8]' : 'border-[#141414]/[0.14] text-[#141414]/55'
+                    }`}
+                  >
+                    <Bike className="w-4 h-4" /> {t.delivery}
+                  </button>
+                </div>
+              ) : (
+                <div className="py-3 rounded-[3px] font-bold flex items-center justify-center gap-2 border-2 border-[#2B4FA8] bg-[#2B4FA8]/[0.06] text-[#2B4FA8]">
+                  <Store className="w-4 h-4" /> {t.pickupOnly}
+                </div>
+              )}
 
               {/* Customer details */}
               <div className="space-y-3">
@@ -685,7 +693,7 @@ const OrderPage: React.FC = () => {
                   className="w-full px-4 py-3 bg-[#FAF8F3] border border-[#141414]/[0.14] rounded-[3px] focus:outline-none focus:ring-2 focus:ring-[#2B4FA8]"
                   value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
                 />
-                {orderType === 'delivery' && (
+                {DELIVERY_ENABLED && orderType === 'delivery' && (
                   <textarea
                     placeholder={t.addressPh} rows={2}
                     className="w-full px-4 py-3 bg-[#FAF8F3] border border-[#141414]/[0.14] rounded-[3px] focus:outline-none focus:ring-2 focus:ring-[#2B4FA8]"

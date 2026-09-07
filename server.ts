@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { orderingOpen, withinOpeningHours, totalWithTax, pointsFor } from "./src/config.ts";
+import { orderingOpen, withinOpeningHours, totalWithTax, pointsFor, DELIVERY_ENABLED } from "./src/config.ts";
 import rateLimit from "express-rate-limit";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
@@ -515,6 +515,11 @@ async function startServer() {
 
     if (!Array.isArray(items) || items.length === 0) return res.status(400).json({ error: "Cart is empty" });
     if (order_type !== "pickup" && order_type !== "delivery") return res.status(400).json({ error: "Invalid order type" });
+    // Checked here and not only in the page: the page is what a customer sees,
+    // this is what anything else gets.
+    if (order_type === "delivery" && !DELIVERY_ENABLED) {
+      return res.status(400).json({ error: "Delivery is not available yet. Please choose pickup." });
+    }
     if (!customer_name || !customer_phone) return res.status(400).json({ error: "Name and phone are required" });
     if (order_type === "delivery" && !delivery_address) return res.status(400).json({ error: "Delivery address is required" });
     const phone = String(customer_phone).replace(/[^0-9]/g, "");
