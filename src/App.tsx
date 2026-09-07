@@ -137,6 +137,28 @@ const App: React.FC = () => {
       .catch(() => setAuthed(false));
   }, []);
 
+  // Every till action that reaches the server checks res.ok, but a request
+  // that never arrives — café wifi, the server restarting mid-deploy — rejects
+  // instead, and the tap simply does nothing. Staff then press it again, and
+  // again. One handler here so a dropped request is always visible, rather
+  // than a try/catch bolted onto each of the twenty-odd call sites.
+  useEffect(() => {
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const reason: any = e.reason;
+      const message = String(reason?.message ?? reason ?? '');
+      // Only what a failed fetch actually throws — "Failed to fetch" on
+      // Chrome, "Load failed" on the iPad's Safari. A plain TypeError from a
+      // bug in our own code must not be reported as a wifi problem, or the
+      // first thing anyone does about a broken button is reboot the router.
+      if (reason instanceof TypeError && /fetch|network|load failed|connection/i.test(message)) {
+        e.preventDefault();
+        alert('Lost connection to the till server. Check the wifi, then try again — nothing was saved.');
+      }
+    };
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => window.removeEventListener('unhandledrejection', onRejection);
+  }, []);
+
   useEffect(() => {
     if (!authed) return;
     fetchMenu();

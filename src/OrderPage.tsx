@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { totalWithTax } from './config';
 import { Plus, Minus, ShoppingBag, X, Store, Bike, CheckCircle2, Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { NiksenLogo } from './components/NiksenLogo';
-import { Lang, LANGS, STRINGS, detectLang, localizedName, localizedCategory, localizedDescription } from './i18n';
-import { orderingOpen } from './config';
+import { Lang, LANGS, LOCALE, STRINGS, detectLang, localizedName, localizedCategory, localizedDescription } from './i18n';
+import { orderingOpen, withinOpeningHours, openingDateLabel } from './config';
 
 interface PublicEvent {
   id: number; kind: string;
@@ -102,7 +102,17 @@ const OrderPage: React.FC = () => {
   const [tab, setTab] = useState<'home' | 'menu' | 'order' | 'tonight' | 'card'>('menu');
   const [events, setEvents] = useState<PublicEvent[]>([]);
   const t = STRINGS[lang];
-  const canOrder = orderingOpen();
+  // Re-checked on a timer so a page left open at 16:55 lets the customer order
+  // at 17:00 without reloading, and stops taking orders at 14:00 without one.
+  // The server checks again on submit; this only keeps the screen honest.
+  const [clock, setClock] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setClock(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, []);
+  const launched = orderingOpen();
+  const openNow = withinOpeningHours(clock);
+  const canOrder = launched && openNow;
 
   const changeLang = (l: Lang) => {
     setLang(l);
@@ -164,8 +174,18 @@ const OrderPage: React.FC = () => {
       .filter(l => l.quantity > 0));
   };
 
+  // Held across retries of the same checkout, so a dropped response cannot
+  // turn into a second order, and cleared on success so the next order is its
+  // own. randomUUID needs a secure context; the fallback is for the rare
+  // browser that reaches us without one.
+  const attemptToken = useRef<string | null>(null);
+
   const submitOrder = async () => {
-    if (!canOrder) return;
+    if (!canOrder || submitting) return;
+    if (!attemptToken.current) {
+      attemptToken.current = crypto.randomUUID?.() ??
+        `t-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -183,12 +203,14 @@ const OrderPage: React.FC = () => {
           customer_phone: form.phone,
           delivery_address: orderType === 'delivery' ? form.address : undefined,
           notes: form.notes || undefined,
+          client_token: attemptToken.current,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || t.errGeneric);
       } else {
+        attemptToken.current = null;
         setResult(data);
         setCart([]);
         setShowCheckout(false);
@@ -341,7 +363,7 @@ const OrderPage: React.FC = () => {
       {/* Opening-soon banner — ordering is disabled until launch */}
       {!canOrder && (
         <div className="bg-[#2B4FA8] text-white text-center text-sm font-bold px-4 py-3">
-          {t.openingBanner}
+          {launched ? t.closedNow : t.openingBanner(openingDateLabel(LOCALE[lang]))}
         </div>
       )}
 
@@ -445,7 +467,7 @@ const OrderPage: React.FC = () => {
               </p>
               <p className="mt-5 font-mono text-[13px] tracking-[0.14em] text-[#F5C518] uppercase flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#F5C518] inline-block" />
-                {canOrder ? t.openNow : t.openingBanner}
+                {canOrder ? t.openNow : launched ? t.closedNow : t.openingBanner(openingDateLabel(LOCALE[lang]))}
               </p>
             </div>
           </header>
@@ -684,7 +706,7 @@ const OrderPage: React.FC = () => {
                 disabled={!canOrder || submitting || !form.name || !form.phone || (orderType === 'delivery' && !form.address)}
                 className="w-full bg-[#2B4FA8] hover:bg-[#24408B] disabled:bg-[#141414]/15 disabled:text-[#141414]/40 text-white py-4 rounded-[3px] font-bold transition-colors"
               >
-                {!canOrder ? t.openingCta : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
+                {!canOrder ? (launched ? t.closedNowCta : t.openingCta) : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
               </button>
               <p className="text-[11px] text-[#141414]/40 text-center">
                 {t.pointsNote}

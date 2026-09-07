@@ -6,6 +6,10 @@ export const LANGS: { code: Lang; label: string }[] = [
   { code: 'ru', label: 'RU' },
 ];
 
+/** BCP-47 tags for Intl. en-GB, not en-US: the shop writes dates the way its
+ *  guests read them, "18 August 2026" rather than "August 18, 2026". */
+export const LOCALE: Record<Lang, string> = { en: 'en-GB', th: 'th-TH', ru: 'ru-RU' };
+
 interface Strings {
   tagline: string;
   all: string;
@@ -42,6 +46,8 @@ interface Strings {
   orderWord: string;
   totalTax: string;
   scanToPay: string;
+  closedNow: string;
+  closedNowCta: string;
   paidTitle: string;
   paidBody: string;
   waitingForPayment: string;
@@ -53,7 +59,7 @@ interface Strings {
   orderMore: string;
   errNetwork: string;
   errGeneric: string;
-  openingBanner: string;
+  openingBanner: (date: string | null) => string;
   // The app shell: the blue opening block, the cards it offers, and the tab
   // bar. Wording follows the Niksen app rather than being invented here.
   heroLine: string;
@@ -105,6 +111,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'Order',
     totalTax: 'Total (7% tax incl.)',
     scanToPay: 'Scan to pay with PromptPay',
+    closedNow: 'The kitchen is closed right now. Breakfast 07:30–14:00, bar 17:00–23:00.',
+    closedNowCta: 'Closed right now',
     paidTitle: 'Payment received', paidBody: 'The bar has your order. Nothing else to do.',
     waitingForPayment: 'Waiting for your payment…',
     orCashPickup: 'Or pay cash on pickup.',
@@ -115,7 +123,9 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'Order more',
     errNetwork: 'Network error. Please check your connection and try again.',
     errGeneric: 'Something went wrong. Please try again.',
-    openingBanner: 'Opening 18 August 2026 — online ordering opens then. Have a look around!',
+    openingBanner: date => date
+      ? `Opening ${date} — online ordering opens then. Have a look around!`
+      : 'Opening soon — online ordering opens with us. Have a look around!',
     heroLine: 'This is a cafe. And a bar. And a theatre, too. Please come in.',
     openNow: 'Open now · bar till 23:00',
     homeMenu: 'Menu', homeMenuSub: 'Breakfast till 14:00 · bar from 17:00',
@@ -163,6 +173,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'ออเดอร์',
     totalTax: 'ยอดรวม (รวมภาษี 7%)',
     scanToPay: 'สแกนจ่ายด้วยพร้อมเพย์',
+    closedNow: 'ตอนนี้ครัวปิดอยู่ อาหารเช้า 07:30–14:00 บาร์ 17:00–23:00',
+    closedNowCta: 'ตอนนี้ปิดอยู่',
     paidTitle: 'ได้รับเงินแล้ว', paidBody: 'ทางร้านได้รับออเดอร์แล้ว ไม่ต้องทำอะไรต่อ',
     waitingForPayment: 'กำลังรอการชำระเงิน…',
     orCashPickup: 'หรือชำระเงินสดตอนรับสินค้า',
@@ -173,7 +185,9 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'สั่งเพิ่ม',
     errNetwork: 'การเชื่อมต่อมีปัญหา กรุณาลองใหม่อีกครั้ง',
     errGeneric: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
-    openingBanner: 'เปิด 18 สิงหาคม 2026 — เปิดรับออเดอร์ออนไลน์วันนั้น ลองดูเมนูก่อนได้เลย!',
+    openingBanner: date => date
+      ? `เปิด ${date} — เปิดรับออเดอร์ออนไลน์วันนั้น ลองดูเมนูก่อนได้เลย!`
+      : 'เปิดเร็ว ๆ นี้ — สั่งออนไลน์ได้วันเปิดร้าน ลองดูเมนูก่อนได้เลย!',
     heroLine: 'ที่นี่เป็นคาเฟ่ เป็นบาร์ และเป็นโรงหนังด้วย เชิญเข้ามาเลย',
     openNow: 'เปิดอยู่ · บาร์ถึง 23:00',
     homeMenu: 'เมนู', homeMenuSub: 'อาหารเช้าถึง 14:00 · บาร์เริ่ม 17:00',
@@ -226,6 +240,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'Заказ',
     totalTax: 'Итого (вкл. налог 7%)',
     scanToPay: 'Отсканируйте, чтобы оплатить через PromptPay',
+    closedNow: 'Сейчас кухня закрыта. Завтрак 07:30–14:00, бар 17:00–23:00.',
+    closedNowCta: 'Сейчас закрыто',
     paidTitle: 'Платёж получен', paidBody: 'Бар получил ваш заказ. Больше ничего делать не нужно.',
     waitingForPayment: 'Ожидаем оплату…',
     orCashPickup: 'Или оплатите наличными при получении.',
@@ -236,7 +252,9 @@ export const STRINGS: Record<Lang, Strings> = {
     orderMore: 'Заказать ещё',
     errNetwork: 'Ошибка сети. Проверьте подключение и попробуйте снова.',
     errGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
-    openingBanner: 'Открытие 18 августа 2026 — тогда откроются онлайн-заказы. Пока осмотритесь!',
+    openingBanner: date => date
+      ? `Открытие ${date} — тогда откроются онлайн-заказы. Пока осмотритесь!`
+      : 'Скоро открытие — тогда откроются онлайн-заказы. Пока осмотритесь!',
     heroLine: 'Это кафе. И бар. И ещё театр. Заходите.',
     openNow: 'Открыто · бар до 23:00',
     homeMenu: 'Меню', homeMenuSub: 'Завтрак до 14:00 · бар с 17:00',

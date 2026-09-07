@@ -23,7 +23,7 @@ export interface LandingStrings {
   order: string;
   staff: string;
   // hero
-  heroBadge: string;
+  heroBadge: (date: string | null) => string;
   heroTitleA: string;
   heroTitleEm: string;
   heroSub: string;
@@ -107,7 +107,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     order: 'Order online',
     staff: 'Staff',
 
-    heroBadge: 'Opening 18 August 2026 · Bophut',
+    heroBadge: date => date ? `Opening ${date} · Bophut` : 'Opening soon · Bophut',
     heroTitleA: 'The fine art of',
     heroTitleEm: 'doing nothing',
     heroSub: 'A secret little café and bar in Bophut, Koh Samui. Specialty coffee and slow breakfasts from 7:30, and the bar opens again in the evening. Come early. Take the quiet seat. Do gloriously nothing.',
@@ -206,7 +206,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     order: 'สั่งออนไลน์',
     staff: 'พนักงาน',
 
-    heroBadge: 'เปิด 18 สิงหาคม 2026 · บ่อผุด',
+    heroBadge: date => date ? `เปิด ${date} · บ่อผุด` : 'เปิดเร็ว ๆ นี้ · บ่อผุด',
     heroTitleA: 'ศิลปะของการ',
     heroTitleEm: 'ไม่ทำอะไรเลย',
     heroSub: 'คาเฟ่และบาร์ลับเล็ก ๆ ในบ่อผุด เกาะสมุย กาแฟพิเศษและอาหารเช้าสบาย ๆ ตั้งแต่ 7:30 และเปิดบาร์อีกครั้งในช่วงเย็น มาเช้าหน่อย เลือกมุมเงียบ ๆ แล้วปล่อยใจไม่ต้องทำอะไรเลย',
@@ -305,7 +305,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     order: 'Заказать',
     staff: 'Персонал',
 
-    heroBadge: 'Открытие 18 августа 2026 · Бопхут',
+    heroBadge: date => date ? `Открытие ${date} · Бопхут` : 'Скоро открытие · Бопхут',
     heroTitleA: 'Тонкое искусство',
     heroTitleEm: 'ничего не делать',
     heroSub: 'Маленькое секретное кафе и бар в Бопхуте на Самуи. Спешелти-кофе и неспешные завтраки с 7:30, а вечером бар открывается снова. Приходите пораньше, займите тихое место и с наслаждением не делайте ничего.',

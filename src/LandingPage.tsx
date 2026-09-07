@@ -5,8 +5,9 @@ import {
   X, Navigation, Sparkles, Check, Phone,
 } from 'lucide-react';
 import { NiksenLogo } from './components/NiksenLogo';
-import { Lang, LANGS, detectLang } from './i18n';
+import { Lang, LANGS, LOCALE, detectLang } from './i18n';
 import { LANDING } from './landingStrings';
+import { openingDateLabel } from './config';
 import { COMPANY } from './privacyStrings';
 
 // --- Editable links -----------------------------------------------------
@@ -188,7 +189,7 @@ const LandingPage: React.FC = () => {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-8 items-center">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/70 border border-stone-200 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" /> {t.heroBadge}
+              <Sparkles className="w-3.5 h-3.5" /> {t.heroBadge(openingDateLabel(LOCALE[lang]))}
             </span>
             <h1 className="mt-6 font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.02] tracking-tight text-stone-900">
               {t.heroTitleA}{' '}
