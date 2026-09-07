@@ -107,9 +107,29 @@ try { db.exec("ALTER TABLE menu_items ADD COLUMN description_ru TEXT"); } catch 
 // Populate initial barcodes if missing
 db.exec(`
   UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id) WHERE barcode IS NULL OR barcode = '';
+  -- Rows left colliding by the old random-suffix generator. The row that keeps
+  -- the code is the one the code belongs to — the id it encodes — and the
+  -- squatter is moved onto its own. Only ever touches codes this app generated;
+  -- a real barcode read off a packet is left alone even if it collides, because
+  -- rewriting one would stop the packet scanning.
+  UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id)
+   WHERE barcode IN (SELECT barcode FROM menu_items
+                      WHERE barcode IS NOT NULL AND barcode <> ''
+                      GROUP BY barcode HAVING COUNT(*) > 1)
+     AND barcode LIKE '88500000%'
+     AND barcode <> '88500000' || PRINTF('%02d', id);
   UPDATE menu_items SET stock_quantity = 5 WHERE stock_quantity IS NULL;
   UPDATE menu_items SET low_stock_threshold = 2 WHERE low_stock_threshold IS NULL;
 `);
+
+// Enforced by the database from here on, so a future generator cannot quietly
+// reintroduce the clash. Created after the clean-up above, and nullable, so an
+// item may still carry no barcode at all.
+try {
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_menu_barcode ON menu_items(barcode) WHERE barcode IS NOT NULL AND barcode <> ''");
+} catch (e) {
+  console.warn("[menu] barcode uniqueness not enforced — duplicates remain:", (e as Error).message);
+}
 
 // Configurable items carry option groups the flat menu_items table can't
 // express. Created here so the server starts cleanly on an empty database;
@@ -738,12 +758,25 @@ async function startServer() {
     const invalid = validateMenuFields(req.body);
     if (invalid) return res.status(400).json({ error: invalid });
     const { name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold } = req.body;
-    const barcodeVal = barcode || `88500000${Math.floor(Math.random() * 90 + 10)}`;
+    // A supplied barcode is the real one off the packet and has to be unique;
+    // anything else is generated from the row id below, once there is an id.
+    if (barcode) {
+      const clash = db.prepare("SELECT name FROM menu_items WHERE barcode = ?").get(barcode) as any;
+      if (clash) return res.status(400).json({ error: `That barcode already belongs to ${clash.name}.` });
+    }
+    const barcodeVal = barcode || null;
     // A dish is counted in handfuls here, not dozens: five made, warn at two.
     const stockVal = stock_quantity !== undefined ? stock_quantity : 5;
     const lowVal = low_stock_threshold !== undefined ? low_stock_threshold : 2;
     const result = db.prepare("INSERT INTO menu_items (name, name_th, name_ru, description, description_th, description_ru, category, price, image_url, barcode, stock_quantity, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").run(name, name_th || null, name_ru || null, description || null, description_th || null, description_ru || null, category, price, image_url, barcodeVal, stockVal, lowVal);
     const newId = Number(result.lastInsertRowid);
+    // Generated from the id rather than at random. The old code picked two
+    // random digits — ninety possible codes for a menu that already has more
+    // items than that, so a clash was not a risk but a certainty, and the till
+    // would scan one dish and ring up another.
+    if (!barcodeVal) {
+      db.prepare("UPDATE menu_items SET barcode = '88500000' || PRINTF('%02d', id) WHERE id = ?").run(newId);
+    }
     // The editor sends the photo inline; the file it becomes is named after the
     // item, so this can only happen once the row exists.
     if (typeof image_url === "string" && image_url.startsWith("data:")) {
