@@ -1,0 +1,60 @@
+# What a person would otherwise have to remember to run before deploying.
+# Deploying stays a deliberate act — ops/remote-deploy.sh, run by hand — because
+# the thing on the other end is a till taking money, and every deploy so far has
+# been worth watching. This only tells you whether main is safe to deploy.
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22          # package.json engines says >=20; the server runs 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      # The qs advisory sat in the request path for weeks because nobody read the
+      # warning npm prints during a deploy. Failing here is how it gets read.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=low
+
+      # Starting the server is the cheapest way to catch a migration that throws,
+      # a route that no longer registers, or an import that does not resolve —
+      # none of which typecheck or build would notice.
+      - name: Smoke test
+        run: |
+          npm run dev > /tmp/server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:3000/api/public/info && break
+            sleep 1
+          done
+          fail=0
+          for path in / /order /pos /api/public/menu /api/public/info /api/public/events; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3000$path")
+            printf '%-24s %s\n' "$path" "$code"
+            [ "$code" = "200" ] || fail=1
+          done
+          # Staff routes must stay shut to anyone without a session.
+          for path in /api/menu /api/orders /api/members /api/settings /api/reports/daily; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3000$path")
+            printf '%-24s %s (expect 401)\n' "$path" "$code"
+            [ "$code" = "401" ] || fail=1
+          done
+          if [ "$fail" != "0" ]; then echo '--- server log ---'; cat /tmp/server.log; fi
+          exit $fail
