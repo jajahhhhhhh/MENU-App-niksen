@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { orderingOpen, totalWithTax } from "./src/config.ts";
 import { SqliteSessionStore } from "./sessionStore.ts";
 import { initInventorySchema, inventoryRouter, consumeForLine, restoreForOrder } from "./inventory.ts";
+import { initPaymentsSchema, paymentsRouter, createCharge, settleCharge, paymentsEnabled, publicKey } from "./payments.ts";
 
 const db = new Database("pos.db");
 
@@ -174,6 +175,7 @@ try { db.exec("ALTER TABLE order_items ADD COLUMN options_json TEXT"); } catch (
 // Ingredient stock, recipes and food cost. Declared after menu_items and
 // menu_options because recipe_items references both.
 initInventorySchema(db);
+initPaymentsSchema(db);
 
 // Default settings (change PIN and PromptPay ID in Manage → Store Settings)
 db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)").run("staff_pin", "1234");
@@ -339,17 +341,30 @@ async function startServer() {
     res.json({ authed: !!((req as any).session)?.authed });
   });
 
-  // Everything under /api requires staff login, except auth + public customer endpoints
+  // Everything under /api requires staff login, except auth + public customer
+  // endpoints, and the payment provider's webhook — Opn is not a logged-in
+  // user. That route trusts nothing in the request body; it re-reads the
+  // charge from Opn before acting. See payments.ts.
   app.use("/api", (req, res, next) => {
     if (((req as any).session)?.authed) return next();
     if (req.path.startsWith("/auth/") || req.path.startsWith("/public/")) return next();
+    if (req.path.startsWith("/webhooks/")) return next();
     return res.status(401).json({ error: "Unauthorized" });
   });
+
+  app.use("/api", paymentsRouter(db, broadcast));
 
   // ---- Public customer-facing endpoints ----
   app.get("/api/public/info", (req, res) => {
     const get = (k: string) => (db.prepare("SELECT value FROM settings WHERE key = ?").get(k) as any)?.value || "";
-    res.json({ shop_name: get("shop_name") || "Niksen", promptpay_enabled: !!get("promptpay_id") });
+    res.json({
+      shop_name: get("shop_name") || "Niksen",
+      promptpay_enabled: !!get("promptpay_id"),
+      // When this is on the ordering page shows Opn's QR and waits for the
+      // confirmation instead of asking the customer to show a slip.
+      gateway_enabled: paymentsEnabled(),
+      gateway_public_key: publicKey(),
+    });
   });
 
   app.get("/api/public/menu", (req, res) => {
@@ -544,6 +559,49 @@ async function startServer() {
       member_points: memberPoints,
       promptpay: ppId ? promptPayPayload(ppId, total) : null,
     });
+  });
+
+  // ---- Paying for an online order -------------------------------------
+  // Kept separate from placing it. The order is already safe in the database
+  // by the time any of this runs, so a provider outage costs the shop a
+  // confirmation, not the order.
+
+  app.post("/api/public/orders/:id/pay", async (req, res) => {
+    if (!paymentsEnabled()) return res.status(503).json({ error: "Online payment is not switched on" });
+    const orderId = Number(req.params.id);
+    const method = req.body?.method === "card" ? "card" : "promptpay";
+    const order = db.prepare("SELECT id, status FROM orders WHERE id = ?").get(orderId) as any;
+    if (!order) return res.status(404).json({ error: "No such order" });
+    if (order.status === "paid") return res.json({ status: "successful", already: true });
+    try {
+      const charge = await createCharge(db, orderId, method, req.body?.token, req.body?.return_uri);
+      res.json(charge);
+    } catch (e) {
+      console.error("[opn] charge", orderId, (e as Error).message);
+      res.status(502).json({ error: "Could not start the payment. Please pay at the counter." });
+    }
+  });
+
+  // The customer's page polls this while the QR is on screen. It asks Opn
+  // again itself rather than trusting the webhook to have arrived: webhooks
+  // are delivered eventually, and "eventually" is too slow for someone
+  // standing at a counter holding a phone.
+  app.get("/api/public/orders/:id/payment", async (req, res) => {
+    const orderId = Number(req.params.id);
+    const order = db.prepare("SELECT status FROM orders WHERE id = ?").get(orderId) as any;
+    if (!order) return res.status(404).json({ error: "No such order" });
+    if (order.status === "paid") return res.json({ status: "successful" });
+    const row = db.prepare(
+      "SELECT charge_id, status FROM payments WHERE order_id = ? ORDER BY id DESC LIMIT 1",
+    ).get(orderId) as any;
+    if (!row) return res.json({ status: "none" });
+    if (row.status !== "pending") return res.json({ status: row.status });
+    try {
+      const out = await settleCharge(db, row.charge_id, broadcast);
+      res.json({ status: out.known ? out.status : "unknown" });
+    } catch {
+      res.json({ status: "pending" });
+    }
   });
 
   // What the ordering app shows under Tonight. Only what is switched on and

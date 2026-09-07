@@ -86,6 +86,12 @@ const OrderPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<OrderResult | null>(null);
+  // Opn charge for this order, when the shop has the gateway switched on. The
+  // QR here is an image Opn hosts, not a payload we build, because only Opn
+  // can tell us afterwards whether that particular code was paid.
+  const [gateway, setGateway] = useState(false);
+  const [charge, setCharge] = useState<{ qr_uri: string | null } | null>(null);
+  const [paid, setPaid] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [builderItem, setBuilderItem] = useState<PublicMenuItem | null>(null);
   const [builderPicks, setBuilderPicks] = useState<Set<number>>(new Set());
@@ -114,6 +120,7 @@ const OrderPage: React.FC = () => {
       fetch('/api/public/events').then(r => (r.ok ? r.json() : [])).catch(() => []),
     ]).then(([info, items, whatsOn]) => {
       if (info?.shop_name) setShopName(info.shop_name);
+      setGateway(!!info?.gateway_enabled);
       setMenu(Array.isArray(items) ? items : []);
       setEvents(Array.isArray(whatsOn) ? whatsOn : []);
       setLoading(false);
@@ -193,6 +200,38 @@ const OrderPage: React.FC = () => {
     }
   };
 
+  // Start the charge once the order exists, then watch it. The watching is
+  // polling rather than a push: the customer is not logged in, so the staff
+  // event stream is not theirs to listen to, and a phone at a counter needs an
+  // answer in seconds rather than whenever the webhook lands.
+  useEffect(() => {
+    if (!result || !gateway || paid) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout>;
+    (async () => {
+      if (!charge) {
+        const c = await fetch(`/api/public/orders/${result.id}/pay`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ method: 'promptpay' }),
+        }).then(r => (r.ok ? r.json() : null)).catch(() => null);
+        if (!alive) return;
+        if (!c) return;              // fall back to the shop's own QR below
+        setCharge(c);
+        if (c.status === 'successful') { setPaid(true); return; }
+      }
+      const poll = async () => {
+        const s = await fetch(`/api/public/orders/${result.id}/payment`)
+          .then(r => (r.ok ? r.json() : null)).catch(() => null);
+        if (!alive) return;
+        if (s?.status === 'successful') { setPaid(true); return; }
+        timer = setTimeout(poll, 3000);
+      };
+      timer = setTimeout(poll, 3000);
+    })();
+    return () => { alive = false; clearTimeout(timer); };
+  }, [result, gateway, charge, paid]);
+
   // ---- Confirmation screen ----
   if (result) {
     return (
@@ -207,7 +246,20 @@ const OrderPage: React.FC = () => {
             <p className="text-xs text-[#141414]/40 uppercase font-bold tracking-wider">{t.totalTax}</p>
             <p className="text-3xl font-mono font-bold text-[#2B4FA8]">{formatTHB(result.total)}</p>
           </div>
-          {result.promptpay ? (
+          {paid ? (
+            <div className="bg-[#2B4FA8] text-white rounded-[3px] p-4 space-y-1">
+              <p className="text-lg font-bold">{t.paidTitle}</p>
+              <p className="text-sm text-white/75">{t.paidBody}</p>
+            </div>
+          ) : charge?.qr_uri ? (
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-[#141414]/60">{t.scanToPay}</p>
+              <div className="bg-white inline-block p-3 rounded-[3px] border-2 border-[#141414]/[0.14]">
+                <img src={charge.qr_uri} alt="PromptPay QR" width={180} height={180} />
+              </div>
+              <p className="text-xs text-[#141414]/40">{t.waitingForPayment}</p>
+            </div>
+          ) : result.promptpay ? (
             <div className="space-y-2">
               <p className="text-sm font-medium text-[#141414]/60">{t.scanToPay}</p>
               <div className="bg-white inline-block p-3 rounded-[3px] border-2 border-[#141414]/[0.14]">

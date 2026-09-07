@@ -42,6 +42,9 @@ interface Strings {
   orderWord: string;
   totalTax: string;
   scanToPay: string;
+  paidTitle: string;
+  paidBody: string;
+  waitingForPayment: string;
   orCashPickup: string;
   orCashDelivery: string;
   payLaterPickup: string;
@@ -102,6 +105,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'Order',
     totalTax: 'Total (7% tax incl.)',
     scanToPay: 'Scan to pay with PromptPay',
+    paidTitle: 'Payment received', paidBody: 'The bar has your order. Nothing else to do.',
+    waitingForPayment: 'Waiting for your payment…',
     orCashPickup: 'Or pay cash on pickup.',
     orCashDelivery: 'Or pay cash on delivery.',
     payLaterPickup: 'Pay by cash or PromptPay on pickup.',
@@ -158,6 +163,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'ออเดอร์',
     totalTax: 'ยอดรวม (รวมภาษี 7%)',
     scanToPay: 'สแกนจ่ายด้วยพร้อมเพย์',
+    paidTitle: 'ได้รับเงินแล้ว', paidBody: 'ทางร้านได้รับออเดอร์แล้ว ไม่ต้องทำอะไรต่อ',
+    waitingForPayment: 'กำลังรอการชำระเงิน…',
     orCashPickup: 'หรือชำระเงินสดตอนรับสินค้า',
     orCashDelivery: 'หรือชำระเงินสดตอนจัดส่ง',
     payLaterPickup: 'ชำระเงินสดหรือพร้อมเพย์ตอนรับสินค้า',
@@ -219,6 +226,8 @@ export const STRINGS: Record<Lang, Strings> = {
     orderWord: 'Заказ',
     totalTax: 'Итого (вкл. налог 7%)',
     scanToPay: 'Отсканируйте, чтобы оплатить через PromptPay',
+    paidTitle: 'Платёж получен', paidBody: 'Бар получил ваш заказ. Больше ничего делать не нужно.',
+    waitingForPayment: 'Ожидаем оплату…',
     orCashPickup: 'Или оплатите наличными при получении.',
     orCashDelivery: 'Или оплатите наличными при доставке.',
     payLaterPickup: 'Оплата наличными или PromptPay при получении.',
