@@ -112,6 +112,12 @@ export function initInventorySchema(db: DB) {
   migratePackSize(db);
 }
 
+/** Today on the shop's calendar. Thailand runs seven hours ahead of the
+ *  server's UTC clock, so a bare toISOString() names yesterday all morning. */
+function thaiToday(db: DB): string {
+  return (db.prepare("SELECT date('now', '+7 hours') AS d").get() as any).d;
+}
+
 // ---------------------------------------------------------------- costing ---
 
 /**
@@ -474,7 +480,10 @@ export function inventoryRouter(db: DB) {
     if (!ingredient_id) return res.status(400).json({ error: 'ingredient is required' });
     if (!(q > 0)) return res.status(400).json({ error: 'quantity must be more than 0' });
     if (!(c >= 0)) return res.status(400).json({ error: 'cost cannot be negative' });
-    const bought = purchased_on || new Date().toISOString().slice(0, 10);
+    // The shop's date, not the server's. toISOString() is UTC, so between
+    // midnight and 07:00 local a purchase recorded without a date would have
+    // been filed to the day before.
+    const bought = purchased_on || thaiToday(db);
     if (expires_on && expires_on < bought) {
       return res.status(400).json({ error: 'expiry date is before the purchase date' });
     }
@@ -589,7 +598,7 @@ export function inventoryRouter(db: DB) {
     }
 
     // A bill has one date, printed in its title rather than on every line.
-    const today = new Date().toISOString().slice(0, 10);
+    const today = thaiToday(db);   // the shop's calendar, as above
     let billDate = '';
     for (let i = 0; i < headerRow; i++) {
       const text = grid[i].join(' ');

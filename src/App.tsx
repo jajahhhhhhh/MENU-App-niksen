@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { totalWithTax } from './config';
+import { totalWithTax, pointsFor } from './config';
 import { 
   Beer, 
   Utensils, 
@@ -719,7 +719,7 @@ const App: React.FC = () => {
   const discountedSubtotal = Math.max(0, subtotal - discountAmount - pointsDiscountAmount);
   const tax = discountedSubtotal * 0.07; // TAX 7%
   const total = discountedSubtotal + tax;
-  const pointsEarnedPreview = Math.floor(total / 50);
+  const pointsEarnedPreview = pointsFor(total);
 
   const calculateOrderTotal = (order: Order) => {
     const itemsTotal = order.items?.reduce((sum, i) => sum + (i.price_at_time * i.quantity), 0) || 0;
