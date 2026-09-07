@@ -119,7 +119,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroCardHours: 'Every day · 07:30–14:00 · 17:00–23:00',
     heroCardNote: 'Coffee · bowls · breakfasts · evening bar',
 
-    strip: ['Specialty coffee', 'Healthy bowls', 'Slow breakfasts', 'Open from 7:30', 'Evening bar from 17:00', 'Bophut · Koh Samui', 'Pickup & delivery', 'Earn points'],
+    strip: ['Specialty coffee', 'Healthy bowls', 'Slow breakfasts', 'Open from 7:30', 'Evening bar from 17:00', 'Bophut · Koh Samui', 'Order ahead for pickup', 'Earn points'],
 
     storyKicker: 'What is niksen?',
     storyTitle: 'Doing nothing, on purpose.',
@@ -138,7 +138,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
 
     menuKicker: 'A taste of it',
     menuTitle: 'A few of our favourites.',
-    menuSub: 'Order ahead for pickup or delivery in Bophut. The full, live menu lives on the ordering page.',
+    menuSub: 'Order ahead and collect at the bar in Bophut. The full, live menu lives on the ordering page.',
     menuSample: 'Sample selection — see the live menu to order',
     menuItems: [
       { emoji: '☕', name: 'Black Rest Coffee', note: 'Our one coffee — black, and nothing to decide', price: '฿90' },
@@ -180,7 +180,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     mapHint: 'Tap for directions',
 
     ctaTitle: 'Ready to do nothing?',
-    ctaSub: 'Order ahead and skip the wait — pickup or delivery in Bophut.',
+    ctaSub: 'Order ahead and skip the wait — collect at the bar in Bophut.',
     ctaButton: 'Order online',
 
     socialKicker: 'Stay close',
@@ -218,7 +218,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroCardHours: 'ทุกวัน · 07:30–14:00 · 17:00–23:00',
     heroCardNote: 'กาแฟ · โบวล์ · อาหารเช้า · บาร์ตอนเย็น',
 
-    strip: ['กาแฟพิเศษ', 'โบวล์เพื่อสุขภาพ', 'อาหารเช้าสบาย ๆ', 'เปิดตั้งแต่ 7:30', 'บาร์ตอนเย็นตั้งแต่ 17:00', 'บ่อผุด · เกาะสมุย', 'รับเอง & จัดส่ง', 'สะสมแต้ม'],
+    strip: ['กาแฟพิเศษ', 'โบวล์เพื่อสุขภาพ', 'อาหารเช้าสบาย ๆ', 'เปิดตั้งแต่ 7:30', 'บาร์ตอนเย็นตั้งแต่ 17:00', 'บ่อผุด · เกาะสมุย', 'สั่งล่วงหน้ารับเองที่ร้าน', 'สะสมแต้ม'],
 
     storyKicker: 'niksen คืออะไร?',
     storyTitle: 'ตั้งใจ…ที่จะไม่ทำอะไรเลย',
@@ -237,7 +237,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
 
     menuKicker: 'ลองชิมดู',
     menuTitle: 'เมนูโปรดบางส่วนของเรา',
-    menuSub: 'สั่งล่วงหน้าเพื่อรับเองหรือจัดส่งในบ่อผุด เมนูเต็มแบบเรียลไทม์อยู่ที่หน้าสั่งซื้อ',
+    menuSub: 'สั่งล่วงหน้าแล้วมารับที่ร้านในบ่อผุด เมนูเต็มแบบเรียลไทม์อยู่ที่หน้าสั่งซื้อ',
     menuSample: 'ตัวอย่างเมนู — ดูเมนูจริงเพื่อสั่งซื้อ',
     menuItems: [
       { emoji: '☕', name: 'แบล็ก เรสต์ คอฟฟี่', note: 'กาแฟดำตัวเดียวของร้าน ไม่ต้องเลือกอะไรเลย', price: '฿90' },
@@ -279,7 +279,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     mapHint: 'แตะเพื่อดูเส้นทาง',
 
     ctaTitle: 'พร้อมจะไม่ทำอะไรหรือยัง?',
-    ctaSub: 'สั่งล่วงหน้าไม่ต้องรอ — รับเองหรือจัดส่งในบ่อผุด',
+    ctaSub: 'สั่งล่วงหน้าไม่ต้องรอ — มารับที่ร้านในบ่อผุด',
     ctaButton: 'สั่งออนไลน์',
 
     socialKicker: 'ติดตามกัน',
@@ -317,7 +317,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroCardHours: 'Каждый день · 07:30–14:00 · 17:00–23:00',
     heroCardNote: 'Кофе · боулы · завтраки · вечерний бар',
 
-    strip: ['Спешелти-кофе', 'Полезные боулы', 'Неспешные завтраки', 'Открыто с 7:30', 'Вечерний бар с 17:00', 'Бопхут · Самуи', 'Самовывоз и доставка', 'Копите баллы'],
+    strip: ['Спешелти-кофе', 'Полезные боулы', 'Неспешные завтраки', 'Открыто с 7:30', 'Вечерний бар с 17:00', 'Бопхут · Самуи', 'Закажите заранее с самовывозом', 'Копите баллы'],
 
     storyKicker: 'Что такое niksen?',
     storyTitle: 'Ничего не делать — намеренно.',
@@ -336,7 +336,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
 
     menuKicker: 'Попробуйте',
     menuTitle: 'Немного наших любимцев.',
-    menuSub: 'Закажите заранее с самовывозом или доставкой в Бопхуте. Полное живое меню — на странице заказа.',
+    menuSub: 'Закажите заранее и заберите в баре в Бопхуте. Полное живое меню — на странице заказа.',
     menuSample: 'Пример меню — откройте живое меню, чтобы заказать',
     menuItems: [
       { emoji: '☕', name: 'Блэк Рест Кофе', note: 'Наш единственный кофе — чёрный, и выбирать нечего', price: '฿90' },
@@ -378,7 +378,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     mapHint: 'Нажмите для маршрута',
 
     ctaTitle: 'Готовы ничего не делать?',
-    ctaSub: 'Закажите заранее и не ждите — самовывоз или доставка в Бопхуте.',
+    ctaSub: 'Закажите заранее и не ждите — заберите в баре в Бопхуте.',
     ctaButton: 'Заказать',
 
     socialKicker: 'Оставайтесь рядом',

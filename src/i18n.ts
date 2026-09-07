@@ -35,6 +35,7 @@ interface Strings {
   total: string;
   pickup: string;
   delivery: string;
+  pickupOnly: string;
   namePh: string;
   phonePh: string;
   addressPh: string;
@@ -100,6 +101,7 @@ export const STRINGS: Record<Lang, Strings> = {
     total: 'Total',
     pickup: 'Pickup',
     delivery: 'Delivery',
+    pickupOnly: 'Pickup at the bar',
     namePh: 'Your name *',
     phonePh: 'Phone number * (earns points)',
     addressPh: 'Delivery address in Bophut *',
@@ -162,6 +164,7 @@ export const STRINGS: Record<Lang, Strings> = {
     total: 'รวมทั้งหมด',
     pickup: 'รับที่ร้าน',
     delivery: 'จัดส่ง',
+    pickupOnly: 'รับเองที่ร้าน',
     namePh: 'ชื่อของคุณ *',
     phonePh: 'เบอร์โทรศัพท์ * (สะสมแต้ม)',
     addressPh: 'ที่อยู่จัดส่งในบ่อผุด *',
@@ -229,6 +232,7 @@ export const STRINGS: Record<Lang, Strings> = {
     total: 'Итого',
     pickup: 'Самовывоз',
     delivery: 'Доставка',
+    pickupOnly: 'Самовывоз в баре',
     namePh: 'Ваше имя *',
     phonePh: 'Номер телефона * (начисляются баллы)',
     addressPh: 'Адрес доставки в Бопхуте *',

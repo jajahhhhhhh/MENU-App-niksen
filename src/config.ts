@@ -33,6 +33,18 @@ export function orderingOpen(now: Date = new Date()): boolean {
   return now.getTime() >= new Date(OPENING_ISO).getTime();
 }
 
+// ------------------------------------------------------------- delivery ---
+// Off. Delivery needs four things the shop does not have yet: online payment
+// taken before the rider leaves, an order the customer can follow, a real map
+// and address, and someone to carry it. Taking a delivery order without them
+// means a stranger's food sitting on the counter with an address nobody can
+// find. Pickup works today and is all the page offers.
+//
+// Turning it back on: set this to true, rebuild, deploy. The address field,
+// the delivery button and the wording all come back with it — but do the four
+// things first.
+export const DELIVERY_ENABLED = false;
+
 // ---------------------------------------------------------------- money ---
 // The shop quotes whole baht. The till and the ordering page have to agree to
 // the satang: a customer holding a PromptPay slip next to a printed receipt
