@@ -88,7 +88,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'fulfilment',
         heading: '7. Pickup and delivery',
         bullets: [
-          'We are open daily from 7:00. Pickup is at our bar in Bophut.',
+          'We are open daily from 7:30. Pickup is at our bar in Bophut.',
           'Delivery is available within the Bophut area. Any minimum order or delivery fee is shown before you confirm.',
           'Please give an accurate address and keep your phone reachable so we can complete your delivery.',
           'If we cannot reach you or you are not available to receive the order, we may be unable to complete the delivery.',
@@ -229,7 +229,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'fulfilment',
         heading: '7. การรับที่ร้านและการจัดส่ง',
         bullets: [
-          'เราเปิดทุกวันตั้งแต่ 7:00 น. การรับสินค้าทำที่ร้านของเราในบ่อผุด',
+          'เราเปิดทุกวันตั้งแต่ 7:30 น. การรับสินค้าทำที่ร้านของเราในบ่อผุด',
           'บริการจัดส่งครอบคลุมพื้นที่บ่อผุด ยอดสั่งซื้อขั้นต่ำหรือค่าจัดส่ง (ถ้ามี) จะแสดงก่อนที่คุณจะยืนยัน',
           'โปรดระบุที่อยู่ที่ถูกต้องและเปิดรับสายโทรศัพท์ เพื่อให้เราจัดส่งได้สำเร็จ',
           'หากเราติดต่อคุณไม่ได้หรือคุณไม่พร้อมรับสินค้า เราอาจไม่สามารถจัดส่งให้สำเร็จได้',
@@ -370,7 +370,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'fulfilment',
         heading: '7. Самовывоз и доставка',
         bullets: [
-          'Мы открыты каждый день с 7:00. Самовывоз — в нашем баре в Бопхуте.',
+          'Мы открыты каждый день с 7:30. Самовывоз — в нашем баре в Бопхуте.',
           'Доставка доступна в пределах района Бопхут. Минимальный заказ или стоимость доставки, если применимо, показываются до подтверждения.',
           'Пожалуйста, укажите точный адрес и будьте на связи по телефону, чтобы мы могли выполнить доставку.',
           'Если мы не сможем связаться с вами или вы не сможете принять заказ, доставка может не состояться.',
