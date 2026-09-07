@@ -343,3 +343,30 @@ Copy that file to `/opt/niksen-secret-bar/pos.db` on the server and
 - **Menu is empty:** that is the starting state — add items in `/pos` under Manage.
 - **Back up your data:** see the Backups section above — nightly snapshots on
   the server, pulled off-site with `ops/pull-backups.sh`.
+
+## Asking the till questions from an editor
+
+`mcp/niksen-mcp.mjs` is an MCP server that exposes the shop's own API as tools,
+so GitHub Copilot — or any MCP client — can answer "what sold today", "what is
+running out", "which dishes have no recipe yet" without anyone opening /pos.
+
+It is **read-only by design**. Every tool answers a question; none changes a
+price, a stock count or an order. Those stay behind the PIN in /pos, where a
+person can see what they are about to do. An assistant that can quietly
+re-price the menu is a worse trade than typing the change yourself.
+
+**VS Code / Copilot** — `.vscode/mcp.json` is already in the repo. Open the
+Command Palette, run *MCP: List Servers*, start `niksen-pos`, and VS Code asks
+for the staff PIN once per session. The PIN is never written to the file.
+
+**Copilot CLI or another client** — run it directly:
+
+```
+NIKSEN_POS_URL=https://niksensamui.com NIKSEN_POS_PIN=… node mcp/niksen-mcp.mjs
+```
+
+Point `NIKSEN_POS_URL` at `http://127.0.0.1:3000` to work against a local dev
+server instead of the live shop.
+
+Tools: `sales_report`, `menu`, `low_stock`, `open_orders`, `dish_costs`,
+`expiring_stock`.

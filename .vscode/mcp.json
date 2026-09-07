@@ -1,0 +1,21 @@
+{
+  "inputs": [
+    {
+      "id": "niksen-pos-pin",
+      "type": "promptString",
+      "description": "Staff PIN for the niksen POS (asked once per session, never written to this file)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "niksen-pos": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/mcp/niksen-mcp.mjs"],
+      "env": {
+        "NIKSEN_POS_URL": "https://niksensamui.com",
+        "NIKSEN_POS_PIN": "${input:niksen-pos-pin}"
+      }
+    }
+  }
+}
