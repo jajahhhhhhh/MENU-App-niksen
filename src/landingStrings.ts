@@ -110,16 +110,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: date => date ? `Opening ${date} · Bophut` : 'Opening soon · Bophut',
     heroTitleA: 'The fine art of',
     heroTitleEm: 'doing nothing',
-    heroSub: 'A secret little café and bar in Bophut, Koh Samui. Specialty coffee and slow breakfasts from 7:30, and the bar opens again in the evening. Come early. Take the quiet seat. Do gloriously nothing.',
+    heroSub: 'A secret little café and bar in Bophut, Koh Samui. Twenty-three craft sodas, sandwiches and rice from 7:30, and the bar opens again in the evening. Come early. Take the quiet seat. Do gloriously nothing.',
     heroLocation: 'Bophut · Koh Samui',
     heroHours: 'Daily 07:30–14:00 · 17:00–23:00',
     heroCta: 'Order online',
     heroCta2: 'Find us',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'Every day · 07:30–14:00 · 17:00–23:00',
-    heroCardNote: 'Coffee · bowls · breakfasts · evening bar',
+    heroCardNote: 'Craft soda · sandwiches · rice · evening bar',
 
-    strip: ['Specialty coffee', 'Healthy bowls', 'Slow breakfasts', 'Open from 7:30', 'Evening bar from 17:00', 'Bophut · Koh Samui', 'Order ahead for pickup', 'Earn points'],
+    strip: ['23 craft sodas', 'Sandwiches, rice & burritos', 'Open from 7:30', 'Evening bar from 17:00', 'Bophut · Koh Samui', 'Order ahead for pickup', 'Earn points'],
 
     storyKicker: 'What is niksen?',
     storyTitle: 'Doing nothing, on purpose.',
@@ -131,8 +131,8 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'Why niksen',
     pillarsTitle: 'Three small promises.',
     pillars: [
-      { icon: 'coffee', title: 'Slow mornings', body: 'We open at 7:30, hours before the island really wakes up. Specialty coffee, quiet corners, and absolutely no rush.' },
-      { icon: 'leaf', title: 'Honest food', body: 'Healthy bowls, breakfasts, sandwiches and smoothies. Real ingredients, made fresh, priced fair.' },
+      { icon: 'coffee', title: 'Slow mornings', body: 'We open at 7:30, hours before the island really wakes up. Quiet corners, something cold and fizzy, and absolutely no rush.' },
+      { icon: 'leaf', title: 'Honest food', body: 'Sandwiches, rice and burritos. Real ingredients, made fresh, priced fair.' },
       { icon: 'moon', title: 'Evenings at the bar', body: 'From 17:00 the secret bar opens again — cocktails and beer, low light, and nowhere else to be. Every day until 23:00.' },
     ],
 
@@ -141,10 +141,10 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'Order ahead and collect at the bar in Bophut. The full, live menu lives on the ordering page.',
     menuSample: 'Sample selection — see the live menu to order',
     menuItems: [
-      { emoji: '☕', name: 'Black Rest Coffee', note: 'Our one coffee — black, and nothing to decide', price: '฿90' },
-      { emoji: '🥗', name: 'Signature bowls', note: 'Fresh, balanced, built to order', price: '฿199+' },
-      { emoji: '🥣', name: 'Slow breakfasts', note: 'Overnight oats, eggs & warm toasts', price: '฿120+' },
-      { emoji: '🥤', name: 'Fresh smoothies', note: 'Fruit, greens & good mornings', price: '฿90+' },
+      { emoji: '🥤', name: 'Craft soda — 23 flavours', note: 'Yuzu, ume, lychee, root beer, muscat — poured over ice', price: '฿89' },
+      { emoji: '🥪', name: 'Sandwiches', note: 'Ham, bacon, egg or shrimp', price: '฿169' },
+      { emoji: '🍚', name: 'Braised pork belly rice', note: 'Slow-cooked until it gives way', price: '฿169' },
+      { emoji: '🍗', name: 'Crispy fried chicken', note: 'Fried to order, eaten with your hands', price: '฿169' },
     ],
     menuCta: 'See full menu & order',
 
@@ -185,7 +185,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
 
     socialKicker: 'Stay close',
     socialTitle: 'Follow along.',
-    socialSub: 'Slow mornings, new bowls and secret-bar moments.',
+    socialSub: 'Slow mornings, new soda flavours and secret-bar moments.',
 
     footerTagline: 'The art of doing nothing. Bophut, Koh Samui.',
     footerExplore: 'Explore',
@@ -209,16 +209,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: date => date ? `เปิด ${date} · บ่อผุด` : 'เปิดเร็ว ๆ นี้ · บ่อผุด',
     heroTitleA: 'ศิลปะของการ',
     heroTitleEm: 'ไม่ทำอะไรเลย',
-    heroSub: 'คาเฟ่และบาร์ลับเล็ก ๆ ในบ่อผุด เกาะสมุย กาแฟพิเศษและอาหารเช้าสบาย ๆ ตั้งแต่ 7:30 และเปิดบาร์อีกครั้งในช่วงเย็น มาเช้าหน่อย เลือกมุมเงียบ ๆ แล้วปล่อยใจไม่ต้องทำอะไรเลย',
+    heroSub: 'คาเฟ่และบาร์ลับเล็ก ๆ ในบ่อผุด เกาะสมุย คราฟต์โซดา 23 รส แซนด์วิชและข้าว ตั้งแต่ 7:30 และเปิดบาร์อีกครั้งในช่วงเย็น มาเช้าหน่อย เลือกมุมเงียบ ๆ แล้วปล่อยใจไม่ต้องทำอะไรเลย',
     heroLocation: 'บ่อผุด · เกาะสมุย',
     heroHours: 'ทุกวัน 07:30–14:00 · 17:00–23:00',
     heroCta: 'สั่งออนไลน์',
     heroCta2: 'ดูที่ตั้ง',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'ทุกวัน · 07:30–14:00 · 17:00–23:00',
-    heroCardNote: 'กาแฟ · โบวล์ · อาหารเช้า · บาร์ตอนเย็น',
+    heroCardNote: 'คราฟต์โซดา · แซนด์วิช · ข้าว · บาร์ตอนเย็น',
 
-    strip: ['กาแฟพิเศษ', 'โบวล์เพื่อสุขภาพ', 'อาหารเช้าสบาย ๆ', 'เปิดตั้งแต่ 7:30', 'บาร์ตอนเย็นตั้งแต่ 17:00', 'บ่อผุด · เกาะสมุย', 'สั่งล่วงหน้ารับเองที่ร้าน', 'สะสมแต้ม'],
+    strip: ['คราฟต์โซดา 23 รส', 'แซนด์วิช ข้าว เบอร์ริโต', 'เปิดตั้งแต่ 7:30', 'บาร์ตอนเย็นตั้งแต่ 17:00', 'บ่อผุด · เกาะสมุย', 'สั่งล่วงหน้ารับเองที่ร้าน', 'สะสมแต้ม'],
 
     storyKicker: 'niksen คืออะไร?',
     storyTitle: 'ตั้งใจ…ที่จะไม่ทำอะไรเลย',
@@ -230,8 +230,8 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'ทำไมต้อง niksen',
     pillarsTitle: 'สามสัญญาเล็ก ๆ',
     pillars: [
-      { icon: 'coffee', title: 'เช้าที่ช้าลง', body: 'เราเปิด 7:30 ก่อนเกาะจะตื่นจริง ๆ หลายชั่วโมง กาแฟพิเศษ มุมเงียบ ๆ และไม่ต้องรีบเลย' },
-      { icon: 'leaf', title: 'อาหารจริงใจ', body: 'โบวล์เพื่อสุขภาพ อาหารเช้า แซนด์วิช และสมูทตี้ วัตถุดิบจริง ทำสด ราคาสมเหตุสมผล' },
+      { icon: 'coffee', title: 'เช้าที่ช้าลง', body: 'เราเปิด 7:30 ก่อนเกาะจะตื่นจริง ๆ หลายชั่วโมง มุมเงียบ ๆ ของเย็น ๆ ซ่า ๆ สักแก้ว และไม่ต้องรีบเลย' },
+      { icon: 'leaf', title: 'อาหารจริงใจ', body: 'แซนด์วิช ข้าว และเบอร์ริโต วัตถุดิบจริง ทำสด ราคาสมเหตุสมผล' },
       { icon: 'moon', title: 'ค่ำคืนที่บาร์', body: 'ตั้งแต่ 17:00 บาร์ลับเปิดอีกครั้ง — ค็อกเทลและเบียร์ แสงไฟสลัว ๆ และไม่ต้องรีบไปไหน ทุกวันถึง 23:00' },
     ],
 
@@ -240,10 +240,10 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'สั่งล่วงหน้าแล้วมารับที่ร้านในบ่อผุด เมนูเต็มแบบเรียลไทม์อยู่ที่หน้าสั่งซื้อ',
     menuSample: 'ตัวอย่างเมนู — ดูเมนูจริงเพื่อสั่งซื้อ',
     menuItems: [
-      { emoji: '☕', name: 'แบล็ก เรสต์ คอฟฟี่', note: 'กาแฟดำตัวเดียวของร้าน ไม่ต้องเลือกอะไรเลย', price: '฿90' },
-      { emoji: '🥗', name: 'โบวล์ซิกเนเจอร์', note: 'สด สมดุล จัดตามใจคุณ', price: '฿199+' },
-      { emoji: '🥣', name: 'อาหารเช้าสบาย ๆ', note: 'โอ๊ตข้ามคืน ไข่ และขนมปังอุ่น ๆ', price: '฿120+' },
-      { emoji: '🥤', name: 'สมูทตี้สดใหม่', note: 'ผลไม้ ผักใบเขียว และเช้าที่ดี', price: '฿90+' },
+      { emoji: '🥤', name: 'คราฟต์โซดา 23 รส', note: 'ยูซุ บ๊วย ลิ้นจี่ รูทเบียร์ มัสแคท — เทบนน้ำแข็ง', price: '฿89' },
+      { emoji: '🥪', name: 'แซนด์วิช', note: 'แฮม เบคอน ไข่ หรือกุ้ง', price: '฿169' },
+      { emoji: '🍚', name: 'ข้าวหมูสามชั้นตุ๋น', note: 'ตุ๋นช้า ๆ จนเปื่อยนุ่ม', price: '฿169' },
+      { emoji: '🍗', name: 'ไก่ทอดกรอบ', note: 'ทอดใหม่ทุกจาน กินด้วยมือ', price: '฿169' },
     ],
     menuCta: 'ดูเมนูเต็ม & สั่งซื้อ',
 
@@ -308,16 +308,16 @@ export const LANDING: Record<Lang, LandingStrings> = {
     heroBadge: date => date ? `Открытие ${date} · Бопхут` : 'Скоро открытие · Бопхут',
     heroTitleA: 'Тонкое искусство',
     heroTitleEm: 'ничего не делать',
-    heroSub: 'Маленькое секретное кафе и бар в Бопхуте на Самуи. Спешелти-кофе и неспешные завтраки с 7:30, а вечером бар открывается снова. Приходите пораньше, займите тихое место и с наслаждением не делайте ничего.',
+    heroSub: 'Маленькое секретное кафе и бар в Бопхуте на Самуи. Двадцать три вкуса крафтовой содовой, сэндвичи и рис с 7:30, а вечером бар открывается снова. Приходите пораньше, займите тихое место и с наслаждением не делайте ничего.',
     heroLocation: 'Бопхут · Самуи',
     heroHours: 'Каждый день 07:30–14:00 · 17:00–23:00',
     heroCta: 'Заказать',
     heroCta2: 'Как нас найти',
     heroCardLabel: 'niksen secret bar',
     heroCardHours: 'Каждый день · 07:30–14:00 · 17:00–23:00',
-    heroCardNote: 'Кофе · боулы · завтраки · вечерний бар',
+    heroCardNote: 'Крафтовая содовая · сэндвичи · рис · вечерний бар',
 
-    strip: ['Спешелти-кофе', 'Полезные боулы', 'Неспешные завтраки', 'Открыто с 7:30', 'Вечерний бар с 17:00', 'Бопхут · Самуи', 'Закажите заранее с самовывозом', 'Копите баллы'],
+    strip: ['23 вкуса крафтовой содовой', 'Сэндвичи, рис и буррито', 'Открыто с 7:30', 'Вечерний бар с 17:00', 'Бопхут · Самуи', 'Закажите заранее с самовывозом', 'Копите баллы'],
 
     storyKicker: 'Что такое niksen?',
     storyTitle: 'Ничего не делать — намеренно.',
@@ -329,8 +329,8 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'Почему niksen',
     pillarsTitle: 'Три маленьких обещания.',
     pillars: [
-      { icon: 'coffee', title: 'Неспешные утра', body: 'Мы открываемся в 7:30 — задолго до того, как остров по-настоящему проснётся. Спешелти-кофе, тихие уголки и полное отсутствие спешки.' },
-      { icon: 'leaf', title: 'Честная еда', body: 'Полезные боулы, завтраки, сэндвичи и смузи. Настоящие ингредиенты, готовим свежим, справедливые цены.' },
+      { icon: 'coffee', title: 'Неспешные утра', body: 'Мы открываемся в 7:30 — задолго до того, как остров по-настоящему проснётся. Тихие уголки, что-нибудь холодное и газированное, и полное отсутствие спешки.' },
+      { icon: 'leaf', title: 'Честная еда', body: 'Сэндвичи, рис и буррито. Настоящие ингредиенты, готовим свежим, справедливые цены.' },
       { icon: 'moon', title: 'Вечера в баре', body: 'С 17:00 секретный бар открывается снова — коктейли и пиво, приглушённый свет и никакой спешки. Каждый день до 23:00.' },
     ],
 
@@ -339,10 +339,10 @@ export const LANDING: Record<Lang, LandingStrings> = {
     menuSub: 'Закажите заранее и заберите в баре в Бопхуте. Полное живое меню — на странице заказа.',
     menuSample: 'Пример меню — откройте живое меню, чтобы заказать',
     menuItems: [
-      { emoji: '☕', name: 'Блэк Рест Кофе', note: 'Наш единственный кофе — чёрный, и выбирать нечего', price: '฿90' },
-      { emoji: '🥗', name: 'Фирменные боулы', note: 'Свежие, сбалансированные, на ваш вкус', price: '฿199+' },
-      { emoji: '🥣', name: 'Неспешные завтраки', note: 'Ночная овсянка, яйца и тёплые тосты', price: '฿120+' },
-      { emoji: '🥤', name: 'Свежие смузи', note: 'Фрукты, зелень и доброе утро', price: '฿90+' },
+      { emoji: '🥤', name: 'Крафтовая содовая, 23 вкуса', note: 'Юдзу, умэ, личи, рутбир, мускат — со льдом', price: '฿89' },
+      { emoji: '🥪', name: 'Сэндвичи', note: 'Ветчина, бекон, яйцо или креветка', price: '฿169' },
+      { emoji: '🍚', name: 'Рис с томлёной свиной грудинкой', note: 'Томится до мягкости', price: '฿169' },
+      { emoji: '🍗', name: 'Хрустящая жареная курица', note: 'Жарим на заказ, едим руками', price: '฿169' },
     ],
     menuCta: 'Всё меню и заказ',
 
@@ -383,7 +383,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
 
     socialKicker: 'Оставайтесь рядом',
     socialTitle: 'Следите за нами.',
-    socialSub: 'Неспешные утра, новые боулы и моменты секретного бара.',
+    socialSub: 'Неспешные утра, новые вкусы содовой и моменты секретного бара.',
 
     footerTagline: 'Искусство ничего не делать. Бопхут, Самуи.',
     footerExplore: 'Обзор',
