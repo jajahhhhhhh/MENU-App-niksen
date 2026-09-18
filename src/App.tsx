@@ -1987,7 +1987,7 @@ const App: React.FC = () => {
                         type="text"
                         required
                         list="menu-categories"
-                        placeholder="e.g. Coffee, Signature Tea, Bowls…"
+                        placeholder="e.g. Craft Soda, Sandwich, Rice…"
                         className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         value={newItem.category}
                         onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
@@ -1997,7 +1997,7 @@ const App: React.FC = () => {
                           <option key={c} value={c} />
                         ))}
                       </datalist>
-                      <p className="mt-1 text-[11px] text-stone-400">Pick an existing category or type a new one.</p>
+                      <p className="mt-1 text-[11px] text-stone-400">Pick an existing category or type a new one. A new one needs a Thai and Russian label adding to CATEGORY_LABELS in src/i18n.ts, or it shows in English.</p>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Description (EN)</label>
