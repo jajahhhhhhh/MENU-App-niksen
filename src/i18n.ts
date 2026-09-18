@@ -151,7 +151,7 @@ export const STRINGS: Record<Lang, Strings> = {
     add: 'เพิ่ม',
     menuTitle: 'เมนู',
     addToOrder: 'สั่งเมนูนี้',
-    customise: 'จัดโบวล์',
+    customise: 'จัดเอง',
     from: 'เริ่มต้น',
     chooseIngredients: 'เลือกส่วนผสมที่ชอบได้เลย ผสมกันตามใจ',
     choose: 'เลือก',
@@ -299,11 +299,23 @@ export function localizedDescription(
   return item.description || '';
 }
 
-// Menu category labels per language (falls back to the raw category name).
+// Menu category labels per language. The keys must match `category` in
+// menu_items exactly — localizedCategory() falls back to the raw English name
+// rather than failing, so a key that drifts is invisible until someone reads
+// the Thai page and finds it in English.
+//
+// Which is what happened: every key here was from an older catalogue (Coffee,
+// Bowls, Breakfast, Smoothies, Juices, Signature Tea) and not one of the six
+// categories the POS actually serves matched. Two missed by a letter —
+// `Soups` against `Soup`, `Burritos` against `Burrito` — so even the survivors
+// fell through. Thai and Russian customers read all six headings in English.
+//
+// Current categories: Craft Soda, Sandwich, Rice, Snack, Burrito, Soup.
+// Add a category to the POS, add it here too, in both languages.
 export const CATEGORY_LABELS: Record<Lang, Record<string, string>> = {
   en: {},
-  th: { Coffee: 'กาแฟ', Bowls: 'โบวล์', Breakfast: 'อาหารเช้า', Smoothies: 'สมูทตี้', Juices: 'น้ำผลไม้', 'Signature Tea': 'ชาซิกเนเจอร์', Soups: 'ซุป', 'Triangle Sandwiches': 'แซนด์วิชสามเหลี่ยม', Burritos: 'เบอร์ริโต' },
-  ru: { Coffee: 'Кофе', Bowls: 'Боулы', Breakfast: 'Завтрак', Smoothies: 'Смузи', Juices: 'Соки', 'Signature Tea': 'Фирменный чай', Soups: 'Супы', 'Triangle Sandwiches': 'Треугольные сэндвичи', Burritos: 'Буррито' },
+  th: { 'Craft Soda': 'คราฟต์โซดา', Sandwich: 'แซนด์วิช', Rice: 'ข้าว', Snack: 'ของทานเล่น', Burrito: 'เบอร์ริโต', Soup: 'ซุป' },
+  ru: { 'Craft Soda': 'Крафтовая содовая', Sandwich: 'Сэндвичи', Rice: 'Рис', Snack: 'Закуски', Burrito: 'Буррито', Soup: 'Супы' },
 };
 
 export function localizedCategory(category: string, lang: Lang): string {
