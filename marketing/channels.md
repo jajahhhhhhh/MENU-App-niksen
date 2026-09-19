@@ -2,7 +2,7 @@
 
 Every link, one page. Shareable version: https://claude.ai/code/artifact/b0c87f09-859c-4075-b10d-d0f0336ba179
 
-Opens 18.08.2026 · Daily 07:00–14:00 · 17:00–23:00 · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
+Open since 18.08.2026 · Daily 07:30–14:00 · 17:00–23:00 · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
 
 ## The essentials
 
@@ -35,4 +35,6 @@ Opens 18.08.2026 · Daily 07:00–14:00 · 17:00–23:00 · 15 Moo 2, Bo Phut, K
 |---|---|
 | POS (staff PIN required) | https://niksensamui.com/pos |
 | Brand direction doc | https://claude.ai/code/artifact/b3e603fb-f44d-479c-9afd-253447ac443f |
+| Content plan (what to post, and the real menu) | marketing/content-plan.md |
 | TikTok SEO playbook | marketing/tiktok-seo.md |
+| Shot list (the room, the 23) | marketing/shot-list.md |
