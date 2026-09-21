@@ -10,6 +10,7 @@ positioning, the posting cadence and ready-to-post captions in three languages.
 | [`tiktok-seo.md`](tiktok-seo.md) | How to rank on TikTok search. Mechanics, target queries, captions. |
 | [`shot-list.md`](shot-list.md) | What still needs photographing. Menu tiles are done; the room mostly isn't. |
 | [`gbp.md`](gbp.md) | The Google Business Profile — it exists and is claimed; what to correct on it. |
+| [`menu-translations.md`](menu-translations.md) | Thai and Russian names for the 26 items that have none, plus the tasting notes the weekly posts need. |
 | [`listicle-pitches.md`](listicle-pitches.md) | Getting into the Koh Samui guides. Free listings first, then editorial. |
 | [`restaurant-partnership-proposal.md`](restaurant-partnership-proposal.md) | Thai-language proposal for selling nearby restaurants' food through our ordering system. |
 | [`pinterest/README.md`](pinterest/README.md) | What each published pin says — and which one needs taking down. |
