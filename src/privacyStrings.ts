@@ -10,7 +10,7 @@ export const COMPANY = {
   email: 'privacy@niksensamui.com',
   phone: '+66 62 962 4644',
   address: '15 Moo 2, Bo Phut, Ko Samui, Surat Thani 84320, Thailand',
-  effectiveDate: '18 August 2026',
+  effectiveDate: '21 September 2026',
 };
 
 export interface PolicySection {
@@ -71,7 +71,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
           'Your name',
           'Your phone number — which also acts as your rewards ID',
           'Your email address, if you choose to give it',
-          'A delivery address, for delivery orders only',
           'Order details and any notes or preferences you add',
           'Your rewards balance, tier and spending history',
           'Your language preference for our website',
@@ -89,7 +88,7 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '4. How and why we use your data',
         paragraphs: ['We use your personal data for the following purposes and legal bases under the PDPA:'],
         bullets: [
-          'To prepare, fulfil and deliver your orders (performance of a contract)',
+          'To prepare and hand over your orders (performance of a contract)',
           'To run our rewards programme and link points to your phone number (contract and/or your consent)',
           'To contact you about your order when needed (contract / legitimate interest)',
           'To improve our menu, service and website (legitimate interest)',
@@ -101,7 +100,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '5. When we share your data',
         paragraphs: ['We share personal data only where necessary, and never sell it. We may share it with:'],
         bullets: [
-          'Delivery partners (for example Grab, LINE MAN or foodpanda) — your name, phone and address — only to deliver an order you placed for delivery',
           'Payment services — PromptPay and your bank process the payment itself',
           'Trusted service providers who host or support our systems, under confidentiality obligations',
           'Government authorities or law enforcement where we are legally required to do so',
@@ -206,7 +204,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
           'ชื่อของคุณ',
           'หมายเลขโทรศัพท์ของคุณ — ซึ่งใช้เป็นรหัสสมาชิกสะสมแต้มด้วย',
           'อีเมลของคุณ หากคุณเลือกที่จะให้',
-          'ที่อยู่จัดส่ง เฉพาะกรณีสั่งแบบจัดส่ง',
           'รายละเอียดคำสั่งซื้อ และหมายเหตุหรือความชอบที่คุณระบุ',
           'ยอดแต้มสะสม ระดับสมาชิก และประวัติการใช้จ่ายของคุณ',
           'ภาษาที่คุณเลือกใช้บนเว็บไซต์ของเรา',
@@ -224,7 +221,7 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '4. เราใช้ข้อมูลของคุณอย่างไรและเพราะเหตุใด',
         paragraphs: ['เราใช้ข้อมูลส่วนบุคคลของคุณเพื่อวัตถุประสงค์และฐานทางกฎหมายตาม PDPA ดังนี้:'],
         bullets: [
-          'เพื่อเตรียม จัดทำ และจัดส่งคำสั่งซื้อของคุณ (การปฏิบัติตามสัญญา)',
+          'เพื่อเตรียมและส่งมอบคำสั่งซื้อของคุณ (การปฏิบัติตามสัญญา)',
           'เพื่อดำเนินโปรแกรมสะสมแต้มและผูกแต้มกับหมายเลขโทรศัพท์ของคุณ (สัญญาและ/หรือความยินยอมของคุณ)',
           'เพื่อติดต่อคุณเกี่ยวกับคำสั่งซื้อเมื่อจำเป็น (สัญญา / ประโยชน์โดยชอบด้วยกฎหมาย)',
           'เพื่อปรับปรุงเมนู บริการ และเว็บไซต์ของเรา (ประโยชน์โดยชอบด้วยกฎหมาย)',
@@ -236,7 +233,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '5. เมื่อเราเปิดเผยข้อมูลของคุณ',
         paragraphs: ['เราเปิดเผยข้อมูลส่วนบุคคลเท่าที่จำเป็นเท่านั้น และไม่มีการขายข้อมูล เราอาจเปิดเผยข้อมูลแก่:'],
         bullets: [
-          'พาร์ตเนอร์จัดส่ง (เช่น Grab, LINE MAN หรือ foodpanda) — ชื่อ เบอร์โทร และที่อยู่ของคุณ — เพื่อจัดส่งคำสั่งซื้อแบบจัดส่งที่คุณสั่งเท่านั้น',
           'บริการชำระเงิน — พร้อมเพย์และธนาคารของคุณเป็นผู้ดำเนินการชำระเงิน',
           'ผู้ให้บริการที่เชื่อถือได้ซึ่งดูแลหรือสนับสนุนระบบของเรา ภายใต้ข้อผูกพันด้านการรักษาความลับ',
           'หน่วยงานราชการหรือเจ้าหน้าที่บังคับใช้กฎหมายเมื่อกฎหมายกำหนด',
@@ -339,7 +335,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
           'Ваше имя',
           'Ваш номер телефона — он же ваш идентификатор в программе лояльности',
           'Ваш адрес электронной почты, если вы его укажете',
-          'Адрес доставки — только для заказов с доставкой',
           'Детали заказа, а также заметки и предпочтения, которые вы добавляете',
           'Ваш баланс баллов, уровень и историю расходов',
           'Выбранный вами язык сайта',
@@ -357,7 +352,7 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '4. Как и зачем мы используем ваши данные',
         paragraphs: ['Мы используем ваши персональные данные для следующих целей и на следующих правовых основаниях согласно PDPA:'],
         bullets: [
-          'Для подготовки, выполнения и доставки ваших заказов (исполнение договора)',
+          'Для подготовки и выдачи ваших заказов (исполнение договора)',
           'Для работы программы лояльности и привязки баллов к вашему номеру телефона (договор и/или ваше согласие)',
           'Для связи с вами по поводу заказа при необходимости (договор / законный интерес)',
           'Для улучшения меню, сервиса и сайта (законный интерес)',
@@ -369,7 +364,6 @@ export const PRIVACY: Record<Lang, PrivacyStrings> = {
         heading: '5. Когда мы передаём ваши данные',
         paragraphs: ['Мы передаём персональные данные только при необходимости и никогда их не продаём. Мы можем передавать их:'],
         bullets: [
-          'Партнёрам по доставке (например, Grab, LINE MAN или foodpanda) — имя, телефон и адрес — только для доставки оформленного вами заказа',
           'Платёжным сервисам — PromptPay и ваш банк проводят сам платёж',
           'Надёжным поставщикам услуг, которые размещают или поддерживают наши системы, с обязательством о конфиденциальности',
           'Государственным органам или правоохранительным органам, когда это требуется по закону',

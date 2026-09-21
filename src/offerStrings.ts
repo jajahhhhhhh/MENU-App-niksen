@@ -26,7 +26,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
     effectiveLabel: 'Effective',
     tocLabel: 'On this page',
     intro: [
-      'This Public Offer sets out the terms on which niksen secret bar (“we”, “us”, “the Seller”) sells food and drinks to you (“the Customer”) for pickup or delivery.',
+      'This Public Offer sets out the terms on which niksen secret bar (“we”, “us”, “the Seller”) sells food and drinks to you (“the Customer”) for pickup.',
       'It is a public offer under Thai law. When you place an order with us, you accept these terms and a binding agreement is formed between you and us. Please read it before ordering — if you do not agree, please do not place an order.',
     ],
     labels: {
@@ -56,7 +56,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'subject',
         heading: '3. What this offer covers',
         paragraphs: [
-          'We offer prepared food and drinks for pickup at our bar in Bophut, Koh Samui, or for delivery within the Bophut area, at the prices shown in our menu at the time you order.',
+          'We offer prepared food and drinks for pickup at our bar in Bophut, Koh Samui, at the prices shown in our menu at the time you order.',
         ],
       },
       {
@@ -64,9 +64,9 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '4. Placing an order',
         bullets: [
           'You can order through our website or in person at the bar.',
-          'Please give a correct name and phone number, and a delivery address for delivery orders.',
+          'Please give a correct name and phone number.',
           'Your order is accepted when we confirm it and give you an order number.',
-          'We may decline or cancel an order — for example if an item is unavailable, the address is outside our delivery area, or we suspect an error or fraud — and we will refund any payment already made.',
+          'We may decline or cancel an order — for example if an item is unavailable, or we suspect an error or fraud — and we will refund any payment already made.',
         ],
       },
       {
@@ -80,25 +80,25 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'payment',
         heading: '6. Payment',
         paragraphs: [
-          'For pickup and delivery you can pay in advance by PromptPay — by scanning the QR code shown after you order — or pay by cash when you collect or receive your order, as shown at checkout.',
+          'You can pay in advance by PromptPay — by scanning the QR code shown after you order — or pay by cash when you collect your order, as shown at checkout.',
           'When you pay by PromptPay you do so through your own banking app. We never see or store your card or bank-account details.',
         ],
       },
       {
         id: 'fulfilment',
-        heading: '7. Pickup and delivery',
+        heading: '7. Pickup',
         bullets: [
-          'We are open daily from 7:30. Pickup is at our bar in Bophut.',
-          'Delivery is available within the Bophut area. Any minimum order or delivery fee is shown before you confirm.',
-          'Please give an accurate address and keep your phone reachable so we can complete your delivery.',
-          'If we cannot reach you or you are not available to receive the order, we may be unable to complete the delivery.',
+          'We are open daily 07:30–14:00 and 17:00–23:00. Pickup is at our bar in Bophut, Koh Samui.',
+          'We will tell you when your order will be ready, and hold it for you at the bar.',
+          'Please keep your phone reachable so we can contact you about your order.',
+          'We do not deliver at present. If that changes, these terms will be updated before we accept a delivery order.',
         ],
       },
       {
         id: 'changes',
         heading: '8. Changes and cancellation',
         paragraphs: [
-          'Once an order is confirmed, its contents cannot be changed. To cancel, please contact us as soon as possible and before we begin preparing your order. We cannot cancel an order that is already being prepared or is ready for pickup or delivery.',
+          'Once an order is confirmed, its contents cannot be changed. To cancel, please contact us as soon as possible and before we begin preparing your order. We cannot cancel an order that is already being prepared or is ready for pickup.',
         ],
       },
       {
@@ -116,7 +116,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'quality',
         heading: '10. Quality, complaints and refunds',
         paragraphs: [
-          'Please check your order when you receive it. If something is missing, incorrect or not of acceptable quality, contact us promptly — ideally within 30 minutes of pickup or delivery — so we can put it right.',
+          'Please check your order when you receive it. If something is missing, incorrect or not of acceptable quality, contact us promptly — ideally within 30 minutes of collecting it — so we can put it right.',
           'We will replace the item or, where appropriate, offer a refund. Refunds are made to your original payment method, typically within 5–15 business days.',
         ],
       },
@@ -125,7 +125,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '11. Your responsibilities',
         bullets: [
           'Give accurate order and contact details.',
-          'Be available to collect or receive your order at the agreed place and time.',
+          'Be available to collect your order at the bar at the agreed time.',
           'Tell us about any allergy or dietary requirement before you order (see the next section).',
         ],
       },
@@ -141,7 +141,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'data',
         heading: '13. Personal data',
         paragraphs: [
-          'We handle the personal data you give us when ordering — such as your name, phone number and delivery address — in line with our Privacy Policy.',
+          'We handle the personal data you give us when ordering — such as your name and phone number — in line with our Privacy Policy.',
         ],
         link: { href: '/privacy', label: 'Read the Privacy Policy' },
       },
@@ -167,7 +167,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
     effectiveLabel: 'มีผลบังคับใช้',
     tocLabel: 'ในหน้านี้',
     intro: [
-      'ข้อเสนอสาธารณะฉบับนี้กำหนดเงื่อนไขที่ niksen secret bar (“เรา” หรือ “ผู้ขาย”) จำหน่ายอาหารและเครื่องดื่มให้แก่คุณ (“ลูกค้า”) สำหรับการรับที่ร้านหรือการจัดส่ง',
+      'ข้อเสนอสาธารณะฉบับนี้กำหนดเงื่อนไขที่ niksen secret bar (“เรา” หรือ “ผู้ขาย”) จำหน่ายอาหารและเครื่องดื่มให้แก่คุณ (“ลูกค้า”) สำหรับการรับที่ร้าน',
       'ถือเป็นข้อเสนอสาธารณะตามกฎหมายไทย เมื่อคุณสั่งซื้อกับเรา ถือว่าคุณยอมรับเงื่อนไขเหล่านี้ และเกิดเป็นข้อตกลงที่มีผลผูกพันระหว่างคุณกับเรา โปรดอ่านก่อนสั่งซื้อ — หากคุณไม่ยอมรับ โปรดอย่าสั่งซื้อ',
     ],
     labels: {
@@ -197,7 +197,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'subject',
         heading: '3. ขอบเขตของข้อเสนอนี้',
         paragraphs: [
-          'เราจำหน่ายอาหารและเครื่องดื่มที่จัดเตรียมแล้ว สำหรับการรับที่ร้านของเราในบ่อผุด เกาะสมุย หรือการจัดส่งภายในพื้นที่บ่อผุด ตามราคาที่แสดงในเมนูของเรา ณ เวลาที่คุณสั่งซื้อ',
+          'เราจำหน่ายอาหารและเครื่องดื่มที่จัดเตรียมแล้ว สำหรับการรับที่ร้านของเราในบ่อผุด เกาะสมุย ตามราคาที่แสดงในเมนูของเรา ณ เวลาที่คุณสั่งซื้อ',
         ],
       },
       {
@@ -205,9 +205,9 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '4. การสั่งซื้อ',
         bullets: [
           'คุณสามารถสั่งซื้อผ่านเว็บไซต์ของเราหรือด้วยตนเองที่ร้าน',
-          'โปรดระบุชื่อและหมายเลขโทรศัพท์ที่ถูกต้อง และที่อยู่จัดส่งสำหรับคำสั่งซื้อแบบจัดส่ง',
+          'โปรดระบุชื่อและหมายเลขโทรศัพท์ที่ถูกต้อง',
           'คำสั่งซื้อของคุณจะได้รับการยอมรับเมื่อเรายืนยันและให้หมายเลขคำสั่งซื้อแก่คุณ',
-          'เราอาจปฏิเสธหรือยกเลิกคำสั่งซื้อ เช่น หากสินค้าไม่พร้อมจำหน่าย ที่อยู่อยู่นอกพื้นที่จัดส่ง หรือเราสงสัยว่ามีข้อผิดพลาดหรือการฉ้อโกง โดยเราจะคืนเงินที่ชำระมาแล้ว',
+          'เราอาจปฏิเสธหรือยกเลิกคำสั่งซื้อ เช่น หากสินค้าไม่พร้อมจำหน่าย หรือเราสงสัยว่ามีข้อผิดพลาดหรือการฉ้อโกง โดยเราจะคืนเงินที่ชำระมาแล้ว',
         ],
       },
       {
@@ -221,25 +221,25 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'payment',
         heading: '6. การชำระเงิน',
         paragraphs: [
-          'สำหรับการรับที่ร้านและการจัดส่ง คุณสามารถชำระล่วงหน้าด้วยพร้อมเพย์ — โดยสแกนคิวอาร์โค้ดที่แสดงหลังสั่งซื้อ — หรือชำระด้วยเงินสดเมื่อรับสินค้า ตามที่แสดง ณ ขั้นตอนชำระเงิน',
+          'คุณสามารถชำระล่วงหน้าด้วยพร้อมเพย์ — โดยสแกนคิวอาร์โค้ดที่แสดงหลังสั่งซื้อ — หรือชำระด้วยเงินสดเมื่อมารับที่ร้าน ตามที่แสดง ณ ขั้นตอนชำระเงิน',
           'เมื่อคุณชำระด้วยพร้อมเพย์ คุณทำผ่านแอปธนาคารของคุณเอง เราไม่เห็นและไม่จัดเก็บข้อมูลบัตรหรือบัญชีธนาคารของคุณ',
         ],
       },
       {
         id: 'fulfilment',
-        heading: '7. การรับที่ร้านและการจัดส่ง',
+        heading: '7. การรับที่ร้าน',
         bullets: [
-          'เราเปิดทุกวันตั้งแต่ 7:30 น. การรับสินค้าทำที่ร้านของเราในบ่อผุด',
-          'บริการจัดส่งครอบคลุมพื้นที่บ่อผุด ยอดสั่งซื้อขั้นต่ำหรือค่าจัดส่ง (ถ้ามี) จะแสดงก่อนที่คุณจะยืนยัน',
-          'โปรดระบุที่อยู่ที่ถูกต้องและเปิดรับสายโทรศัพท์ เพื่อให้เราจัดส่งได้สำเร็จ',
-          'หากเราติดต่อคุณไม่ได้หรือคุณไม่พร้อมรับสินค้า เราอาจไม่สามารถจัดส่งให้สำเร็จได้',
+          'เราเปิดทุกวัน 07:30–14:00 น. และ 17:00–23:00 น. รับสินค้าที่ร้านของเราในบ่อผุด เกาะสมุย',
+          'เราจะแจ้งเวลาที่คำสั่งซื้อของคุณพร้อม และเก็บไว้ให้คุณที่ร้าน',
+          'โปรดเปิดรับสายโทรศัพท์ เพื่อให้เราติดต่อคุณเรื่องคำสั่งซื้อได้',
+          'ขณะนี้เราไม่มีบริการจัดส่ง หากมีในภายหลัง เราจะปรับปรุงข้อกำหนดนี้ก่อนรับคำสั่งซื้อแบบจัดส่ง',
         ],
       },
       {
         id: 'changes',
         heading: '8. การเปลี่ยนแปลงและการยกเลิก',
         paragraphs: [
-          'เมื่อยืนยันคำสั่งซื้อแล้ว จะไม่สามารถเปลี่ยนแปลงรายการได้ หากต้องการยกเลิก โปรดติดต่อเราโดยเร็วที่สุดและก่อนที่เราจะเริ่มจัดเตรียม เราไม่สามารถยกเลิกคำสั่งซื้อที่กำลังจัดเตรียมอยู่หรือพร้อมส่ง/พร้อมรับแล้ว',
+          'เมื่อยืนยันคำสั่งซื้อแล้ว จะไม่สามารถเปลี่ยนแปลงรายการได้ หากต้องการยกเลิก โปรดติดต่อเราโดยเร็วที่สุดและก่อนที่เราจะเริ่มจัดเตรียม เราไม่สามารถยกเลิกคำสั่งซื้อที่กำลังจัดเตรียมอยู่หรือพร้อมให้รับแล้ว',
         ],
       },
       {
@@ -266,7 +266,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '11. ความรับผิดชอบของคุณ',
         bullets: [
           'ให้ข้อมูลคำสั่งซื้อและข้อมูลติดต่อที่ถูกต้อง',
-          'พร้อมรับสินค้าตามสถานที่และเวลาที่ตกลงกัน',
+          'มารับสินค้าที่ร้านตามเวลาที่ตกลงกัน',
           'แจ้งเราเกี่ยวกับอาการแพ้หรือข้อจำกัดด้านอาหารก่อนสั่งซื้อ (ดูหัวข้อถัดไป)',
         ],
       },
@@ -282,7 +282,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'data',
         heading: '13. ข้อมูลส่วนบุคคล',
         paragraphs: [
-          'เราจัดการข้อมูลส่วนบุคคลที่คุณให้เมื่อสั่งซื้อ — เช่น ชื่อ หมายเลขโทรศัพท์ และที่อยู่จัดส่ง — ตามนโยบายความเป็นส่วนตัวของเรา',
+          'เราจัดการข้อมูลส่วนบุคคลที่คุณให้เมื่อสั่งซื้อ — เช่น ชื่อ และหมายเลขโทรศัพท์ — ตามนโยบายความเป็นส่วนตัวของเรา',
         ],
         link: { href: '/privacy', label: 'อ่านนโยบายความเป็นส่วนตัว' },
       },
@@ -308,7 +308,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
     effectiveLabel: 'Действует с',
     tocLabel: 'На этой странице',
     intro: [
-      'Эта Публичная оферта устанавливает условия, на которых niksen secret bar («мы», «Продавец») продаёт вам («Покупатель») еду и напитки для самовывоза или доставки.',
+      'Эта Публичная оферта устанавливает условия, на которых niksen secret bar («мы», «Продавец») продаёт вам («Покупатель») еду и напитки для самовывоза.',
       'Это публичная оферта по законодательству Таиланда. Оформляя заказ, вы принимаете эти условия, и между вами и нами заключается обязывающее соглашение. Пожалуйста, ознакомьтесь с офертой перед заказом — если вы не согласны, не оформляйте заказ.',
     ],
     labels: {
@@ -338,7 +338,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'subject',
         heading: '3. Что охватывает эта оферта',
         paragraphs: [
-          'Мы предлагаем готовую еду и напитки для самовывоза в нашем баре в Бопхуте, Самуи, или для доставки в пределах района Бопхут по ценам, указанным в меню на момент заказа.',
+          'Мы предлагаем готовую еду и напитки для самовывоза в нашем баре в Бопхуте, Самуи, по ценам, указанным в меню на момент заказа.',
         ],
       },
       {
@@ -346,9 +346,9 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '4. Оформление заказа',
         bullets: [
           'Вы можете заказать через наш сайт или лично в баре.',
-          'Пожалуйста, укажите верное имя и номер телефона, а для доставки — адрес доставки.',
+          'Пожалуйста, укажите верное имя и номер телефона.',
           'Заказ считается принятым, когда мы подтверждаем его и присваиваем номер заказа.',
-          'Мы можем отклонить или отменить заказ — например, если товара нет в наличии, адрес вне зоны доставки или мы подозреваем ошибку либо мошенничество — и вернём уже внесённую оплату.',
+          'Мы можем отклонить или отменить заказ — например, если товара нет в наличии или мы подозреваем ошибку либо мошенничество — и вернём уже внесённую оплату.',
         ],
       },
       {
@@ -362,25 +362,25 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'payment',
         heading: '6. Оплата',
         paragraphs: [
-          'Для самовывоза и доставки вы можете оплатить заранее через PromptPay — отсканировав QR-код, показанный после заказа, — или оплатить наличными при получении, как указано при оформлении.',
+          'Вы можете оплатить заранее через PromptPay — отсканировав QR-код, показанный после заказа, — или оплатить наличными при получении заказа, как указано при оформлении.',
           'При оплате через PromptPay вы платите в своём банковском приложении. Мы никогда не видим и не храним данные вашей карты или банковского счёта.',
         ],
       },
       {
         id: 'fulfilment',
-        heading: '7. Самовывоз и доставка',
+        heading: '7. Самовывоз',
         bullets: [
-          'Мы открыты каждый день с 7:30. Самовывоз — в нашем баре в Бопхуте.',
-          'Доставка доступна в пределах района Бопхут. Минимальный заказ или стоимость доставки, если применимо, показываются до подтверждения.',
-          'Пожалуйста, укажите точный адрес и будьте на связи по телефону, чтобы мы могли выполнить доставку.',
-          'Если мы не сможем связаться с вами или вы не сможете принять заказ, доставка может не состояться.',
+          'Мы открыты каждый день с 07:30 до 14:00 и с 17:00 до 23:00. Самовывоз — в нашем баре в Бопхуте, Самуи.',
+          'Мы сообщим, когда заказ будет готов, и придержим его для вас в баре.',
+          'Пожалуйста, будьте на связи по телефону, чтобы мы могли связаться с вами по заказу.',
+          'Сейчас мы не осуществляем доставку. Если это изменится, мы обновим эти условия до приёма заказа с доставкой.',
         ],
       },
       {
         id: 'changes',
         heading: '8. Изменение и отмена',
         paragraphs: [
-          'После подтверждения состав заказа изменить нельзя. Чтобы отменить заказ, свяжитесь с нами как можно скорее и до начала приготовления. Мы не можем отменить заказ, который уже готовится или готов к выдаче/доставке.',
+          'После подтверждения состав заказа изменить нельзя. Чтобы отменить заказ, свяжитесь с нами как можно скорее и до начала приготовления. Мы не можем отменить заказ, который уже готовится или готов к выдаче.',
         ],
       },
       {
@@ -407,7 +407,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         heading: '11. Ваши обязанности',
         bullets: [
           'Указывать точные данные заказа и контактные данные.',
-          'Быть доступным для получения заказа в согласованном месте и в согласованное время.',
+          'Забрать заказ в баре в согласованное время.',
           'Сообщать нам об аллергии или диетических требованиях до заказа (см. следующий раздел).',
         ],
       },
@@ -423,7 +423,7 @@ export const OFFER: Record<Lang, OfferStrings> = {
         id: 'data',
         heading: '13. Персональные данные',
         paragraphs: [
-          'Мы обрабатываем персональные данные, которые вы предоставляете при заказе — например, имя, номер телефона и адрес доставки — в соответствии с нашей Политикой конфиденциальности.',
+          'Мы обрабатываем персональные данные, которые вы предоставляете при заказе — например, имя и номер телефона — в соответствии с нашей Политикой конфиденциальности.',
         ],
         link: { href: '/privacy', label: 'Читать Политику конфиденциальности' },
       },
