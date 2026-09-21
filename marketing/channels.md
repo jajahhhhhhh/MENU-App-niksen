@@ -28,6 +28,7 @@ Open since 18.08.2026 · Daily 07:30–14:00 · 17:00–23:00 · 15 Moo 2, Bo Ph
 |---|---|
 | Maps listing (Niksen · Cafe · Bo Put) | https://maps.google.com/?cid=10835151823109526765 |
 | Review link (same as the receipt QR) | https://g.page/r/Ce2U3g8tMV6WEBI/review |
+| What to correct on the profile | marketing/gbp.md |
 
 ## Internal
 
