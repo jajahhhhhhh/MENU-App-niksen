@@ -1,5 +1,11 @@
 // Generates the launch-campaign social graphics (1080x1080) from SVG templates.
 // Run from the app root: node marketing/launch-campaign/gen-assets.cjs
+//
+// ARCHIVE. The copy baked into these templates is the August 2026 launch copy:
+// "18.08", "Specialty coffee", "Slow breakfasts", "Five island teas · ฿120",
+// "07:00". The launch is over and none of that menu exists — see
+// ../content-plan.md. Re-running this regenerates wrong artwork. Rewrite the
+// strings first.
 const sharp = require('sharp');
 const path = require('path');
 const OUT = __dirname;

@@ -1,3 +1,20 @@
+> ## ⚠️ ARCHIVE — do not reuse as-is
+>
+> This kit ran **6–24 August 2026** and the shop opened on 18 August. The
+> calendar is in the past and the captions are wrong twice over: they advertise
+> specialty coffee from ฿60, slow breakfasts, bowls and five signature island
+> teas at ฿120 — **none of which is on the menu today** — and they state the
+> hours as 07:00 when the site says 07:30. (Whether the old catalogue was still
+> being served in August is not recorded anywhere I can check.)
+>
+> Kept as a record of what was published, because the posts are still live on
+> Instagram, Facebook and LINE and someone will want to know what they said.
+>
+> **The live document is [`../content-plan.md`](../content-plan.md).** Anything
+> you want to post now comes from there.
+
+---
+
 # niksen secret bar — Launch Campaign Kit
 **"13 Days of Doing Nothing"** · 6 → 24 August 2026 · Bophut, Koh Samui
 
