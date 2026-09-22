@@ -70,7 +70,7 @@ breakfasts, smoothies or island teas:
 | **Website** | `https://niksensamui.com` |
 | **Order-ahead link** | `https://niksensamui.com/order` — GBP has a field for this and it is the highest-intent link on the profile |
 | **Phone** | +66 62 962 4644 |
-| **Opening date** | 18 August 2026 |
+| **Opening date** | **The shop has not opened — do not enter a past date.** A date already gone tells Google the business is trading, and the profile starts taking "is it open now?" traffic to a closed door. GBP accepts a future opening date and shows the listing as upcoming; set the real one when you have it. |
 | **Attributes** | Whatever is true: seating, wifi, card payment, air conditioning, accessibility. Leave anything you are unsure of unset rather than guessing — an attribute that turns out false is the same broken promise as a menu item. |
 
 The **menu link** field can point at `/order`, which is the live catalogue.

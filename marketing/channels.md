@@ -2,14 +2,14 @@
 
 Every link, one page. Shareable version: https://claude.ai/code/artifact/b0c87f09-859c-4075-b10d-d0f0336ba179
 
-Open since 18.08.2026 · Daily 07:30–14:00 · 17:00–23:00 · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
+**Not open yet** · Daily 07:30–14:00 · 17:00–23:00 when it is · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
 
 ## The essentials
 
 | Channel | Link |
 |---|---|
 | Website | https://niksensamui.com |
-| Online ordering (table QR) | https://niksensamui.com/order |
+| Online ordering (table QR) | https://niksensamui.com/order — browsable now, **not taking orders until the shop opens** |
 | LINE (bookings & chat) | https://line.me/R/ti/p/@037zxllt |
 | GrabFood delivery (merchant 3-C7WBV4ABRPVUTN) | https://r.grab.com/o/n6fAfaQf |
 
