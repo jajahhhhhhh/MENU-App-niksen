@@ -4,10 +4,16 @@ Organic page 1 for "bar in samui" belongs to aggregators and listicles, not to
 venue websites. The way in is to appear *inside* those lists. This is the target
 list and the copy to send.
 
+> **The shop has not opened.** Nothing here may say it has. A guide entry is
+> very hard to get corrected once published, and an editor who checks the site
+> and finds "opening soon" will not run the piece — or will run it with that
+> line in it. Send the two free listings as *opening soon* or hold them; hold
+> the editorial pitches until there is a door to walk through and a photo of it.
+
 **Order of operations:** the two free listings first (they're certain and take
 20 minutes), then the editorial pitches. Editorial pitches land far better with
 a venue photo attached, and we still have none — see `shot-list.md` §1. That
-shoot is the thing holding up everything below the line.
+shoot and the opening itself are what hold up everything below the line.
 
 **The menu in these drafts is the real one** — 23 craft sodas at ฿89, nine
 dishes at ฿169, café by day and bar in the evening. Earlier versions of this
@@ -40,7 +46,7 @@ because people cross-check.
 > I'd like to add our place to the Food & Drink section.
 >
 > **niksen secret bar** — 15 Moo 2, Bo Phut, Ko Samui, Surat Thani 84320
-> Open since 18 August 2026. Every day, 07:30–14:00 and 17:00–23:00.
+> Opening soon in Bophut. Daily 07:30–14:00 and 17:00–23:00.
 > niksensamui.com · +66 62 962 4644 · Instagram @niksen.ch
 >
 > A small café and bar in Bophut, named after *niksen* — the Dutch idea of
