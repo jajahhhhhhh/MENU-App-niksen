@@ -1,0 +1,14 @@
+.git
+.github
+.env*
+!.env.example
+node_modules
+dist
+coverage
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+photos
+.DS_Store
+*.log
