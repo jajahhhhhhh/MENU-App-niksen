@@ -5,7 +5,7 @@ positioning, the posting cadence and ready-to-post captions in three languages.
 
 | File | What it's for |
 |---|---|
-| [`content-plan.md`](content-plan.md) | **Live.** What to post now, and the menu that actually exists. |
+| [`content-plan.md`](content-plan.md) | **Live.** What to post now (§4a) and what must wait for opening (§4b), plus the menu that actually exists. |
 | [`channels.md`](channels.md) | Every link, one page. |
 | [`tiktok-seo.md`](tiktok-seo.md) | How to rank on TikTok search. Mechanics, target queries, captions. |
 | [`shot-list.md`](shot-list.md) | What still needs photographing. Menu tiles are done; the room mostly isn't. |

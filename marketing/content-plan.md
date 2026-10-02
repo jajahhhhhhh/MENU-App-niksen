@@ -1,11 +1,26 @@
 # Content plan — niksen secret bar
 
-The launch is over (18 Aug 2026). This is the plan for an open shop, and it
-replaces `launch-campaign/` as the live document. That folder is now an
-archive — see `README.md`.
+> ## ⚠️ The shop has not opened
+>
+> The site has said **Opening soon** since 21 Sep, in all three languages, on
+> the owner's word. `44366c2` corrected `channels.md`, `listicle-pitches.md`
+> and `gbp.md` for this and did not reach here — so until 2 Oct this page's
+> ready-to-post captions still said "Open 07:30–14:00" and "come and work your
+> way through them".
+>
+> Everything in **§4a** is safe to post now. Everything in **§4b** claims the
+> shop is trading and must wait for a door that opens. Posting §4b against a
+> site that says *Opening soon* is the contradiction that makes people stop
+> believing either one.
+
+This replaces `launch-campaign/` as the live document; that folder is an
+archive — see `README.md`. (It records a launch that was planned for 18 August
+and did not happen. It is left as-is because those posts are still live on
+Instagram, Facebook and LINE.)
 
 Everything below is built on what `GET /api/public/menu` actually returns,
-checked 18 Sep 2026: **32 items, two prices.**
+re-checked 2 Oct 2026: **32 items, two prices, and since 21 Sep every one of
+them carries a Thai and a Russian name.**
 
 ---
 
@@ -45,11 +60,13 @@ way a flat white never will.
 **One-liner:** *Twenty-three craft sodas, two prices, and a room built for doing
 nothing. Bophut, Koh Samui.*
 
-Supporting facts, all true and all worth leading with:
-- Open from **07:30**, earlier than most of Bophut
+Supporting facts. The first three are true today; the last two describe the
+shop once it opens, so phrase them as what it **will** be, not what it is:
+
 - **Two prices for the whole menu** — ฿89 and ฿169, nothing to work out
-- Site, menu and ordering in **English, Thai and Russian**
+- Site, menu and ordering in **English, Thai and Russian** — all 32 items carry a Thai and a Russian name as of 21 Sep
 - **1 point per ฿50**, redeemable in-store
+- Opening from **07:30**, earlier than most of Bophut
 - Café by day, bar in the evening, same room
 
 ---
@@ -64,13 +81,19 @@ returning format, not a repeat.
 daylight, no talking over it. Same frame each week builds the recognisable
 series; only the colour changes.
 
-**Caption template:**
+**Caption template — before opening:**
+
+> `[flavour] — [what it tastes of] · ฿89`
+> `คราฟต์โซดา 23 รส ที่บ่อผุด · เปิดเร็ว ๆ นี้`
+
+**Caption template — once open:**
 
 > `[flavour] — [what it tastes of] · ฿89`
 > `คราฟต์โซดา 23 รส ที่บ่อผุด · เปิดทุกวัน 07:30`
 
-Put the flavour poll in stories: *"next week — Yuzu or Ume?"* Whoever votes has
-a reason to come in and check that you posted the one they picked.
+Put the flavour poll in stories: *"next week — Yuzu or Ume?"* Whoever votes
+comes back to see whether you posted the one they picked — which is the point
+of running the series before you open, not after.
 
 **Cadence:** 3–4 posts a week.
 
@@ -86,7 +109,39 @@ where to go.
 
 ---
 
-## 4. Ready-to-post captions
+## 4a. Safe to post now — before opening
+
+The flavour engine works just as well before the doors open; it simply cannot
+invite anyone in. These say what the drink is and that the shop is coming.
+No hours as an invitation, no "come in", no ordering link.
+
+**EN**
+> Yuzu. Sharp, floral, more citrus than sweet. 🍋
+> One of twenty-three we'll be pouring. ฿89, every one of them.
+> Opening soon in Bophut. 📍 15 Moo 2, Koh Samui
+
+**TH**
+> ยูซุ — เปรี้ยวคม ๆ หอมดอกไม้ หวานน้อย 🍋
+> หนึ่งใน 23 รสที่เรากำลังจะเปิดขาย ทุกแก้ว ฿89
+> เปิดเร็ว ๆ นี้ที่บ่อผุด 📍 15 หมู่ 2 เกาะสมุย
+
+**RU**
+> Юдзу — резкий, цветочный, скорее цитрус, чем сладость. 🍋
+> Один из двадцати трёх, которые мы будем наливать. Каждый — ฿89.
+> Скоро открытие в Бопхуте. 📍 15 Moo 2, Самуи
+
+The room shots in §4 below are also safe as-is — a photograph of an empty
+quiet corner claims nothing about being open, as long as the caption does not.
+Drop the last line of each ("Every day from 07:30") until you are.
+
+**Counting down is the other thing that works now**, and it costs nothing: one
+flavour a week is twenty-three weeks of posts whether or not the till is on.
+Start the series before opening and you arrive with an audience.
+
+## 4b. Hold until the shop is open
+
+Every caption below states or implies that you are trading. They are correct
+copy for the day you open and wrong on any day before it.
 
 Copy-paste. Replace the flavour name and the tasting note; everything else
 holds.
