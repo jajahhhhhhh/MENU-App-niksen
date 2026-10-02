@@ -25,7 +25,7 @@ a horizontal daylight wide. Shoot:
 - **Wide of the room, in daylight, horizontal.** This is the one editors crop, and we have no version of it. Highest priority on this page.
 - **The door and the walk in.** The "secret" is the premise of the whole place and no photo of it exists. Door → corridor → seat, from standing height.
 - **A quiet corner with nobody in it, in the morning.** `pin-room.png` does this at night; the café half of the day has no equivalent.
-- **The bar at work, 18:30.** Lamps on, no flash, someone behind it. `pin-night.png` is the empty version.
+- **The bar at work, 18:30.** Lamps on, no flash, someone behind it. `pin-night.png` is the empty version. *(Needs the shop open — see below.)*
 - **A table in use** — one glass, one dish, a book. Not staged busy; staged calm.
 
 Both orientations of each. Editors want 16:9, Instagram and Pinterest want
@@ -58,6 +58,12 @@ shot the same way every week. That is the content engine in `content-plan.md`
 - Hands: pouring, plating, carrying. Faces are optional, hands are not.
 
 Get written consent from anyone recognisable before these go anywhere paid.
+
+**Three of these need an open shop:** the bar at work, a table in use, and the
+team working. The shop has not opened — the site says *Opening soon*. The
+daylight wide of the empty room, the door and the walk-in, and the
+twenty-three together are all shootable now, and the daylight wide is the one
+holding up the editorial pitches.
 
 ---
 
