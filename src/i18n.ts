@@ -75,7 +75,7 @@ interface Strings {
   eventLabel: string; promoLabel: string;
   cartEmpty: string;
   navHome: string; navMenu: string; navOrder: string; navTonight: string; navCard: string;
-  openingCta: string;
+  openingCta: (date: string | null) => string;
 }
 
 export const STRINGS: Record<Lang, Strings> = {
@@ -128,7 +128,7 @@ export const STRINGS: Record<Lang, Strings> = {
     openingBanner: date => date
       ? `Opening ${date} — online ordering opens then. Have a look around!`
       : 'Opening soon — online ordering opens with us. Have a look around!',
-    heroLine: 'This is a cafe. And a bar. And a theatre, too. Please come in.',
+    heroLine: 'This is a café. And a bar. And a theatre, too. Please come in.',
     openNow: 'Open now · bar till 23:00',
     homeMenu: 'Menu', homeMenuSub: 'Breakfast till 14:00 · bar from 17:00',
     homeOrder: 'Order for pickup', homeOrderSub: 'Ready in 15–30 minutes',
@@ -140,7 +140,7 @@ export const STRINGS: Record<Lang, Strings> = {
     eventLabel: 'Tonight', promoLabel: 'Offer',
     cartEmpty: 'Nothing in the basket yet.',
     navHome: 'Home', navMenu: 'Menu', navOrder: 'Order', navTonight: 'Tonight', navCard: 'Card',
-    openingCta: 'Ordering opens 18 Aug',
+    openingCta: date => date ? `Ordering opens ${date}` : 'Ordering opens with us',
   },
   th: {
     tagline: 'สั่งออนไลน์ · บ่อผุด เกาะสมุย',
@@ -203,7 +203,7 @@ export const STRINGS: Record<Lang, Strings> = {
     eventLabel: 'คืนนี้', promoLabel: 'โปรโมชั่น',
     cartEmpty: 'ยังไม่มีอะไรในตะกร้า',
     navHome: 'หน้าแรก', navMenu: 'เมนู', navOrder: 'ออเดอร์', navTonight: 'คืนนี้', navCard: 'บัตร',
-    openingCta: 'เปิดรับออเดอร์ 18 ส.ค.',
+    openingCta: date => date ? `เปิดรับออเดอร์ ${date}` : 'เปิดรับออเดอร์วันเปิดร้าน',
   },
   ru: {
     tagline: 'Онлайн-заказ · Бопхут, Самуи',
@@ -252,7 +252,13 @@ export const STRINGS: Record<Lang, Strings> = {
     orCashDelivery: 'Или оплатите наличными при доставке.',
     payLaterPickup: 'Оплата наличными или PromptPay при получении.',
     payLaterDelivery: 'Оплата наличными или PromptPay при доставке.',
-    earned: (p, b) => `Вы получили ${p} баллов — на счету ${b}. Баллы дают скидку на следующий заказ.`,
+    earned: (p, b) => {
+      const mod10 = p % 10, mod100 = p % 100;
+      const word = mod10 === 1 && mod100 !== 11 ? 'балл'
+        : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? 'балла'
+        : 'баллов';
+      return `Вы получили ${p} ${word} — на счету ${b}. Баллы дают скидку на следующий заказ.`;
+    },
     orderMore: 'Заказать ещё',
     errNetwork: 'Ошибка сети. Проверьте подключение и попробуйте снова.',
     errGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
@@ -271,7 +277,7 @@ export const STRINGS: Record<Lang, Strings> = {
     eventLabel: 'Сегодня', promoLabel: 'Акция',
     cartEmpty: 'В корзине пока пусто.',
     navHome: 'Главная', navMenu: 'Меню', navOrder: 'Заказ', navTonight: 'Вечер', navCard: 'Карта',
-    openingCta: 'Заказы с 18 авг.',
+    openingCta: date => date ? `Заказы с ${date}` : 'Заказы — со дня открытия',
   },
 };
 

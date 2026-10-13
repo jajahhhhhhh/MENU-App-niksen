@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Coffee, Leaf, Moon, MapPin, Clock, Star, ShoppingBag, ArrowRight,
+  CupSoda, Leaf, Moon, MapPin, Clock, Star, ShoppingBag, ArrowRight,
   ArrowUpRight, Instagram, Facebook, Menu as MenuIcon,
   X, Navigation, Sparkles, Check, Phone,
 } from 'lucide-react';
@@ -35,7 +35,7 @@ const DELIVERY: { name: string; href: string }[] = [
 
 const isLive = (href: string) => /^https?:\/\//.test(href);
 
-const PILLAR_ICON = { coffee: Coffee, leaf: Leaf, moon: Moon } as const;
+const PILLAR_ICON = { soda: CupSoda, leaf: Leaf, moon: Moon } as const;
 
 // lucide has no Pinterest glyph — minimal brand mark, inherits currentColor like the rest.
 const PinterestIcon = ({ className }: { className?: string }) => (

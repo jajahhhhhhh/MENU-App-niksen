@@ -1,7 +1,7 @@
 import { Lang } from './i18n';
 
 export interface PillarCopy {
-  icon: 'coffee' | 'leaf' | 'moon';
+  icon: 'soda' | 'leaf' | 'moon';
   title: string;
   body: string;
 }
@@ -131,7 +131,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'Why niksen',
     pillarsTitle: 'Three small promises.',
     pillars: [
-      { icon: 'coffee', title: 'Slow mornings', body: 'We open at 7:30, hours before the island really wakes up. Quiet corners, something cold and fizzy, and absolutely no rush.' },
+      { icon: 'soda', title: 'Slow mornings', body: 'We open at 7:30, hours before the island really wakes up. Quiet corners, something cold and fizzy, and absolutely no rush.' },
       { icon: 'leaf', title: 'Honest food', body: 'Sandwiches, rice and burritos. Real ingredients, made fresh, priced fair.' },
       { icon: 'moon', title: 'Evenings at the bar', body: 'From 17:00 the secret bar opens again — cocktails and beer, low light, and nowhere else to be. Every day until 23:00.' },
     ],
@@ -230,7 +230,7 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'ทำไมต้อง niksen',
     pillarsTitle: 'สามสัญญาเล็ก ๆ',
     pillars: [
-      { icon: 'coffee', title: 'เช้าที่ช้าลง', body: 'เราเปิด 7:30 ก่อนเกาะจะตื่นจริง ๆ หลายชั่วโมง มุมเงียบ ๆ ของเย็น ๆ ซ่า ๆ สักแก้ว และไม่ต้องรีบเลย' },
+      { icon: 'soda', title: 'เช้าที่ช้าลง', body: 'เราเปิด 7:30 ก่อนเกาะจะตื่นจริง ๆ หลายชั่วโมง มุมเงียบ ๆ ของเย็น ๆ ซ่า ๆ สักแก้ว และไม่ต้องรีบเลย' },
       { icon: 'leaf', title: 'อาหารจริงใจ', body: 'แซนด์วิช ข้าว และเบอร์ริโต วัตถุดิบจริง ทำสด ราคาสมเหตุสมผล' },
       { icon: 'moon', title: 'ค่ำคืนที่บาร์', body: 'ตั้งแต่ 17:00 บาร์ลับเปิดอีกครั้ง — ค็อกเทลและเบียร์ แสงไฟสลัว ๆ และไม่ต้องรีบไปไหน ทุกวันถึง 23:00' },
     ],
@@ -329,8 +329,8 @@ export const LANDING: Record<Lang, LandingStrings> = {
     pillarsKicker: 'Почему niksen',
     pillarsTitle: 'Три маленьких обещания.',
     pillars: [
-      { icon: 'coffee', title: 'Неспешные утра', body: 'Мы открываемся в 7:30 — задолго до того, как остров по-настоящему проснётся. Тихие уголки, что-нибудь холодное и газированное, и полное отсутствие спешки.' },
-      { icon: 'leaf', title: 'Честная еда', body: 'Сэндвичи, рис и буррито. Настоящие ингредиенты, готовим свежим, справедливые цены.' },
+      { icon: 'soda', title: 'Неспешные утра', body: 'Мы открываемся в 7:30 — задолго до того, как остров по-настоящему проснётся. Тихие уголки, что-нибудь холодное и газированное, и полное отсутствие спешки.' },
+      { icon: 'leaf', title: 'Честная еда', body: 'Сэндвичи, рис и буррито. Настоящие ингредиенты, готовим свежими, справедливые цены.' },
       { icon: 'moon', title: 'Вечера в баре', body: 'С 17:00 секретный бар открывается снова — коктейли и пиво, приглушённый свет и никакой спешки. Каждый день до 23:00.' },
     ],
 

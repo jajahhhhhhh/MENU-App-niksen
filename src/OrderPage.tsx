@@ -714,7 +714,7 @@ const OrderPage: React.FC = () => {
                 disabled={!canOrder || submitting || !form.name || !form.phone || (orderType === 'delivery' && !form.address)}
                 className="w-full bg-[#2B4FA8] hover:bg-[#24408B] disabled:bg-[#141414]/15 disabled:text-[#141414]/40 text-white py-4 rounded-[3px] font-bold transition-colors"
               >
-                {!canOrder ? (launched ? t.closedNowCta : t.openingCta) : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
+                {!canOrder ? (launched ? t.closedNowCta : t.openingCta(openingDateLabel(LOCALE[lang]))) : submitting ? t.placing : `${t.placeOrder(orderType === 'pickup' ? t.pickup : t.delivery)} · ${formatTHB(total)}`}
               </button>
               <p className="text-[11px] text-[#141414]/40 text-center">
                 {t.pointsNote}
