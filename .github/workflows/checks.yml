@@ -9,6 +9,28 @@ on:
     branches: [main]
   pull_request:
 
+  # A push is not the only way main stops being safe to deploy. `npm audit`
+  # queries the advisory database at run time, so the lockfile that passed
+  # yesterday fails today the moment something is published against it -- and
+  # with no push, nothing runs and nobody is told. That has now happened three
+  # times: qs ("sat in the request path for weeks because nobody read the
+  # warning"), ip-address on 1 October, and a critical against proxy-addr that
+  # sat red on main from early October until someone re-ran the checks by hand
+  # on the 13th. Each time the gate did its job and each time the result went
+  # unread.
+  #
+  # Daily, not weekly: the thing on the other end is a till taking money, and a
+  # week is a long time to serve a known hole in the request path. 02:00 UTC is
+  # 09:00 Bangkok, so a failure is in the inbox at the start of the day rather
+  # than overnight. GitHub emails the owner when a scheduled run fails, which
+  # is the part that was missing -- a red run nobody opens is the same as no
+  # run at all.
+  schedule:
+    - cron: '0 2 * * *'
+
+  # So the same checks can be run on demand without inventing a commit.
+  workflow_dispatch:
+
 jobs:
   check:
     runs-on: ubuntu-latest
