@@ -1,16 +1,26 @@
 // Shared launch configuration — used by both the ordering page and the server.
 // Online ordering is disabled until the opening moment (Thailand time, UTC+7),
 // then enables automatically. No redeploy needed on opening day.
-export const OPENING_ISO = '2026-08-18T00:00:00+07:00';
+export const OPENING_ISO = '2026-12-01T00:00:00+07:00';
 
 // Override the date gate: set to `true` to open ordering now (e.g. for a soft
 // launch or testing) or `false` to force it closed. Leave `null` to gate purely
 // by OPENING_ISO.
 //
-// Held at `false` for now. OPENING_ISO has already passed, so without this the
-// site would take real orders — deducting stock and enrolling members — for a
-// shop that has not opened and cannot cook them. On opening day set this back
-// to `null` (or `true`), rebuild and deploy; nothing else has to change.
+// Still held at `false`, but no longer for the reason it was. It was set when
+// OPENING_ISO had already gone by, which made the date gate useless: without
+// the override the site would have taken real orders — deducting stock and
+// enrolling members — for a shop that had not opened. OPENING_ISO is now
+// 1 December 2026, ahead of us, so the date gate holds the door on its own and
+// this override is belt as well as braces.
+//
+// **It is also the thing that will stop ordering opening on 1 December.** While
+// this reads `false` it beats the date, and the shop opens to a dead button.
+// Set it to `null` to let the date do its job — then ordering switches itself
+// on at midnight Bangkok time on the 1st with no deploy, which is what the
+// header above promises. That was left for a person to decide, because the
+// alternative is a till that starts taking money, stock and members at
+// midnight with nobody in the room.
 export const ORDERING_OVERRIDE: boolean | null = false;
 
 /** The opening date as customers should read it, or null once it has passed.
