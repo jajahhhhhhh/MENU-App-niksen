@@ -9,6 +9,15 @@ list and the copy to send.
 > and finds "opening soon" will not run the piece — or will run it with that
 > line in it. Send the two free listings as *opening soon* or hold them; hold
 > the editorial pitches until there is a door to walk through and a photo of it.
+>
+> **The drafts below no longer claim the shop is trading.** Until 13 Oct 2026
+> the two editorial pitches opened "opened in Bophut in August" — the header
+> above said to hold them, but the copy was still sendable and still false.
+> Both now read as pre-opening, and both carry a literal `[opening date]`
+> where the date belongs. That placeholder is the gate: there is no opening
+> date anywhere in this repo, so neither pitch can be completed, let alone
+> sent, until someone sets one. Do not paper over it with "soon" — an editor
+> cannot print "soon".
 
 **Order of operations:** the two free listings first (they're certain and take
 20 minutes), then the editorial pitches. Editorial pitches land far better with
@@ -72,11 +81,13 @@ because people cross-check.
 A real news outlet, not a listicle, and a Thaiger piece carries more weight than
 most blogs.
 
-**The opening itself is no longer news** — that peg expired in August. Don't
-pitch it as one; an editor who checks the date will bin it. What is still a
-story is the thing itself: a venue built around deliberately doing nothing, and
-a drinks list with no coffee on it, on an island of beach clubs. Send via the
-contact form at thethaiger.com or their news tip address.
+**The opening is still ahead of us, not expired.** An earlier version of this
+file said the August peg had gone — it had not; the shop never opened, so the
+peg is unspent. It needs a date before it is pitchable, because an editor
+cannot print "opening soon". What carries the story either way is the thing
+itself: a venue built around deliberately doing nothing, and a drinks list with
+no coffee on it, on an island of beach clubs. Send via the contact form at
+thethaiger.com or their news tip address.
 
 **Subject:** A Bophut café built around the Dutch idea of "doing nothing" — and a bar with 23 sodas
 
@@ -84,7 +95,7 @@ contact form at thethaiger.com or their news tip address.
 >
 > A small Samui place that might suit your business or lifestyle desk.
 >
-> **niksen secret bar** opened in Bophut in August. The name comes from
+> **niksen secret bar** opens in Bophut on [opening date]. The name comes from
 > *niksen*, the Dutch practice of deliberately doing nothing — an odd thing to
 > build a venue around on an island known for beach clubs, and that's more or
 > less the point.
@@ -92,17 +103,19 @@ contact form at thethaiger.com or their news tip address.
 > The detail that surprises people: there's no coffee. The drinks list is
 > twenty-three craft sodas at ฿89 — yuzu, ume, lychee, muscat, root beer,
 > eight made on black tea — which as far as we know is the longest soda list
-> on Samui. Food is ฿169, flat. The bar reopens in the evening until 23:00.
+> on Samui. Food is ฿169, flat. The bar will open again in the evening until
+> 23:00.
 >
 > Angle, if it's useful: it's counter-programming to Samui nightlife, there's
 > a proper evening option for people who aren't drinking, and it's aimed at
 > the island's year-round residents as much as at visitors — the site, menu
 > and ordering run in English, Thai and Russian.
 >
-> 15 Moo 2, Bo Phut · niksensamui.com · +66 62 962 4644 · open daily
-> 07:30–14:00 and 17:00–23:00
+> 15 Moo 2, Bo Phut · niksensamui.com · +66 62 962 4644 · daily
+> 07:30–14:00 and 17:00–23:00 from opening
 >
-> Happy to host you or a writer any morning if that's of interest.
+> Once we are open, happy to host you or a writer any morning if that's of
+> interest.
 >
 > [Name]
 
@@ -114,26 +127,26 @@ Article author: Wiyaporn Chooyok, last updated Feb 2025. Reach them through the
 contact form at cleverthai.com/contact-us or the footer email. The ask is a
 future update to the Samui bars piece, not a favour.
 
-**Subject:** For the next update of your Koh Samui bars guide — a Bophut opening you've missed
+**Subject:** For the next update of your Koh Samui bars guide — a Bophut bar opening soon
 
 > Hi Wiyaporn,
 >
-> I read your Koh Samui bars guide. One in Bophut opened in August that may be
-> worth a look when you next refresh it.
+> I read your Koh Samui bars guide. One in Bophut opens on [opening date] that
+> may be worth a look when you next refresh it.
 >
-> **niksen secret bar** is a café by day and a small bar in the evening, until
-> 23:00. It's named after the Dutch idea of *niksen*, doing nothing on purpose,
-> and it's deliberately quiet: no DJ, no beach-club volume. Bophut, a few
-> minutes from Fisherman's Village.
+> **niksen secret bar** will be a café by day and a small bar in the evening,
+> until 23:00. It's named after the Dutch idea of *niksen*, doing nothing on
+> purpose, and it's deliberately quiet: no DJ, no beach-club volume. Bophut, a
+> few minutes from Fisherman's Village.
 >
-> The part that might interest your readers specifically: we pour twenty-three
-> craft sodas, all ฿89, so the evening works for people who aren't drinking —
-> which most bar guides have no answer for.
+> The part that might interest your readers specifically: the drinks list is
+> twenty-three craft sodas, all ฿89, so the evening works for people who aren't
+> drinking — which most bar guides have no answer for.
 >
-> niksensamui.com · 15 Moo 2, Bo Phut · open daily 07:30–14:00 and 17:00–23:00
+> niksensamui.com · 15 Moo 2, Bo Phut · daily 07:30–14:00 and 17:00–23:00 from opening
 >
-> If you're on the island, come in as our guest and judge it yourself — no
-> expectation of coverage either way.
+> Once we open, if you're on the island, come in as our guest and judge it
+> yourself — no expectation of coverage either way.
 >
 > [Name]
 
