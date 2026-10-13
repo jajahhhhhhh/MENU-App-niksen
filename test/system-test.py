@@ -19,6 +19,14 @@ INSECURE_COOKIES=1 exists so the session cookie works over plain http on a
 laptop; production never sets it. ORDERING_OVERRIDE and OPENING_HOURS in
 src/config.ts have to be opened up for the online-order section to be
 reachable outside shop hours — put them back afterwards.
+
+CI runs this on every push and pull request, in the `e2e` job of
+.github/workflows/checks.yml, so the above is now the way to reproduce a
+failure rather than the only way it ever runs. CI differs in two ways: it
+starts from a database the server has just created and seeds the rows this
+test looks up by name (test/ci-seed.sql), rather than copying the live one,
+and it opens the two gates with test/ci-open-gates.py instead of by hand.
+If you add an assertion that depends on a row, add the row to that fixture.
 """
 import json, urllib.request, urllib.error, http.cookiejar, sqlite3, sys, time
 B = "http://127.0.0.1:3190"

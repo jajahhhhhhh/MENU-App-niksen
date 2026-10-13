@@ -58,3 +58,64 @@ jobs:
           done
           if [ "$fail" != "0" ]; then echo '--- server log ---'; cat /tmp/server.log; fi
           exit $fail
+
+  # The end-to-end test existed for a month and ran when somebody remembered.
+  # It is 369 lines covering the parts of the till that take money -- orders,
+  # discounts, points, cancellation, stock, the daily report -- and the commit
+  # that added it ("Test the till end to end, and fix what the test found")
+  # found real bugs. A test that only runs by hand finds them later.
+  #
+  # It is a separate job because it is the slow one: it boots the server and
+  # makes a few hundred real HTTP requests. Keeping it out of `check` means the
+  # fast signal stays fast.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # The test reaches the online-order section, which is shut in this repo:
+      # ORDERING_OVERRIDE holds ordering closed and a CI runner's UTC clock
+      # falls outside Bangkok opening hours. This opens both, in the runner's
+      # checkout only, and fails the job if the constants have moved rather
+      # than quietly testing a closed shop.
+      - name: Open the launch gate and opening hours
+        run: python3 test/ci-open-gates.py
+
+      # photos/ is gitignored, so a fresh checkout has none. The server writes
+      # uploaded menu photos next to pos.db and expects the directory.
+      - name: Start the server
+        run: |
+          mkdir -p photos
+          NODE_ENV=production INSECURE_COOKIES=1 SESSION_SECRET=ci-not-a-secret PORT=3190 \
+            npm run dev > /tmp/e2e-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:3190/api/public/info && break
+            sleep 1
+          done
+          curl -fsS -o /dev/null http://127.0.0.1:3190/api/public/info
+
+      # After the boot, so the schema and every migration come from server.ts
+      # instead of being duplicated in the fixture and left to drift. The menu
+      # API reads the database per request, so nothing needs restarting.
+      - name: Seed the fixture the test looks for
+        run: |
+          sqlite3 pos.db < test/ci-seed.sql
+          sqlite3 pos.db "PRAGMA integrity_check"
+
+      - name: End-to-end test
+        run: python3 test/system-test.py
+
+      - name: Server log on failure
+        if: failure()
+        run: cat /tmp/e2e-server.log

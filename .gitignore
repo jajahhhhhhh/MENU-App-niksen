@@ -18,3 +18,7 @@ coverage/
 
 # Uploaded menu photos — runtime data, written next to pos.db
 photos/
+
+# Python bytecode, from running the end-to-end test
+__pycache__/
+*.pyc
