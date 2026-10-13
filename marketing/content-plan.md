@@ -1,17 +1,18 @@
 # Content plan — niksen secret bar
 
-> ## ⚠️ The shop has not opened
+> ## ⚠️ The shop opens on 1 December 2026
 >
-> The site has said **Opening soon** since 21 Sep, in all three languages, on
-> the owner's word. `44366c2` corrected `channels.md`, `listicle-pitches.md`
-> and `gbp.md` for this and did not reach here — so until 2 Oct this page's
-> ready-to-post captions still said "Open 07:30–14:00" and "come and work your
-> way through them".
+> The date was set on 13 Oct as `OPENING_ISO` in `src/config.ts`, and the site
+> now quotes it in all three languages. Before that it read **Opening soon**
+> since 21 Sep, on the owner's word. `44366c2` corrected `channels.md`,
+> `listicle-pitches.md` and `gbp.md` for this and did not reach here — so until
+> 2 Oct this page's ready-to-post captions still said "Open 07:30–14:00" and
+> "come and work your way through them".
 >
-> Everything in **§4a** is safe to post now. Everything in **§4b** claims the
-> shop is trading and must wait for a door that opens. Posting §4b against a
-> site that says *Opening soon* is the contradiction that makes people stop
-> believing either one.
+> Everything in **§4a** is safe to post now, and now has a date to count down
+> to. Everything in **§4b** claims the shop is trading and must wait for
+> 1 December. Posting §4b before then, against a site that names the date,
+> is the contradiction that makes people stop believing either one.
 
 This replaces `launch-campaign/` as the live document; that folder is an
 archive — see `README.md`. (It records a launch that was planned for 18 August
@@ -84,7 +85,7 @@ series; only the colour changes.
 **Caption template — before opening:**
 
 > `[flavour] — [what it tastes of] · ฿89`
-> `คราฟต์โซดา 23 รส ที่บ่อผุด · เปิดเร็ว ๆ นี้`
+> `คราฟต์โซดา 23 รส ที่บ่อผุด · เปิด 1 ธันวาคม`
 
 **Caption template — once open:**
 
@@ -118,17 +119,17 @@ No hours as an invitation, no "come in", no ordering link.
 **EN**
 > Yuzu. Sharp, floral, more citrus than sweet. 🍋
 > One of twenty-three we'll be pouring. ฿89, every one of them.
-> Opening soon in Bophut. 📍 15 Moo 2, Koh Samui
+> Opening 1 December in Bophut. 📍 15 Moo 2, Koh Samui
 
 **TH**
 > ยูซุ — เปรี้ยวคม ๆ หอมดอกไม้ หวานน้อย 🍋
 > หนึ่งใน 23 รสที่เรากำลังจะเปิดขาย ทุกแก้ว ฿89
-> เปิดเร็ว ๆ นี้ที่บ่อผุด 📍 15 หมู่ 2 เกาะสมุย
+> เปิด 1 ธันวาคม ที่บ่อผุด 📍 15 หมู่ 2 เกาะสมุย
 
 **RU**
 > Юдзу — резкий, цветочный, скорее цитрус, чем сладость. 🍋
 > Один из двадцати трёх, которые мы будем наливать. Каждый — ฿89.
-> Скоро открытие в Бопхуте. 📍 15 Moo 2, Самуи
+> Открытие 1 декабря в Бопхуте. 📍 15 Moo 2, Самуи
 
 The room shots in §4 below are also safe as-is — a photograph of an empty
 quiet corner claims nothing about being open, as long as the caption does not.
@@ -136,7 +137,9 @@ Drop the last line of each ("Every day from 07:30") until you are.
 
 **Counting down is the other thing that works now**, and it costs nothing: one
 flavour a week is twenty-three weeks of posts whether or not the till is on.
-Start the series before opening and you arrive with an audience.
+Start the series before opening and you arrive with an audience. From 13 Oct
+there are about seven weeks to 1 December — seven flavours, if you start this
+week, and the twenty-three outlast the countdown by a long way.
 
 ## 4b. Hold until the shop is open
 

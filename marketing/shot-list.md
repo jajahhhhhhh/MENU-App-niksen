@@ -60,7 +60,7 @@ shot the same way every week. That is the content engine in `content-plan.md`
 Get written consent from anyone recognisable before these go anywhere paid.
 
 **Three of these need an open shop:** the bar at work, a table in use, and the
-team working. The shop has not opened — the site says *Opening soon*. The
+team working. The shop opens 1 December 2026, so those three wait. The
 daylight wide of the empty room, the door and the walk-in, and the
 twenty-three together are all shootable now, and the daylight wide is the one
 holding up the editorial pitches.

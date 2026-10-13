@@ -4,25 +4,27 @@ Organic page 1 for "bar in samui" belongs to aggregators and listicles, not to
 venue websites. The way in is to appear *inside* those lists. This is the target
 list and the copy to send.
 
-> **The shop has not opened.** Nothing here may say it has. A guide entry is
-> very hard to get corrected once published, and an editor who checks the site
-> and finds "opening soon" will not run the piece — or will run it with that
-> line in it. Send the two free listings as *opening soon* or hold them; hold
-> the editorial pitches until there is a door to walk through and a photo of it.
+> **The shop opens on 1 December 2026 and has not opened yet.** Nothing here
+> may say it has. A guide entry is very hard to get corrected once published,
+> and an editor who checks the site sees the same date this file does — so the
+> two must agree. Send the two free listings now, naming the date; hold the
+> editorial pitches until there is a photograph of the room to attach.
 >
 > **The drafts below no longer claim the shop is trading.** Until 13 Oct 2026
 > the two editorial pitches opened "opened in Bophut in August" — the header
 > above said to hold them, but the copy was still sendable and still false.
-> Both now read as pre-opening, and both carry a literal `[opening date]`
-> where the date belongs. That placeholder is the gate: there is no opening
-> date anywhere in this repo, so neither pitch can be completed, let alone
-> sent, until someone sets one. Do not paper over it with "soon" — an editor
-> cannot print "soon".
+> Both now read as pre-opening, and both name **1 December 2026**, set as
+> `OPENING_ISO` in `src/config.ts` on 13 Oct and quoted by the site itself in
+> all three languages. They were blocked on a date; they are not any more.
+>
+> **What still holds the editorial pitches is the photograph**, not the date —
+> see `shot-list.md` §1. The two free listings can go out today.
 
 **Order of operations:** the two free listings first (they're certain and take
 20 minutes), then the editorial pitches. Editorial pitches land far better with
-a venue photo attached, and we still have none — see `shot-list.md` §1. That
-shoot and the opening itself are what hold up everything below the line.
+a venue photo attached, and we still have none — see `shot-list.md` §1. With
+1 December set, that shoot is the only thing left holding up everything below
+the line, and a daylight wide of the empty room is shootable now.
 
 **The menu in these drafts is the real one** — 23 craft sodas at ฿89, nine
 dishes at ฿169, café by day and bar in the evening. Earlier versions of this
@@ -55,7 +57,7 @@ because people cross-check.
 > I'd like to add our place to the Food & Drink section.
 >
 > **niksen secret bar** — 15 Moo 2, Bo Phut, Ko Samui, Surat Thani 84320
-> Opening soon in Bophut. Daily 07:30–14:00 and 17:00–23:00.
+> Opening 1 December 2026 in Bophut. Daily 07:30–14:00 and 17:00–23:00.
 > niksensamui.com · +66 62 962 4644 · Instagram @niksen.ch
 >
 > A small café and bar in Bophut, named after *niksen* — the Dutch idea of
@@ -81,13 +83,14 @@ because people cross-check.
 A real news outlet, not a listicle, and a Thaiger piece carries more weight than
 most blogs.
 
-**The opening is still ahead of us, not expired.** An earlier version of this
-file said the August peg had gone — it had not; the shop never opened, so the
-peg is unspent. It needs a date before it is pitchable, because an editor
-cannot print "opening soon". What carries the story either way is the thing
-itself: a venue built around deliberately doing nothing, and a drinks list with
-no coffee on it, on an island of beach clubs. Send via the contact form at
-thethaiger.com or their news tip address.
+**The opening is still ahead of us, not expired, and now it has a day.** An
+earlier version of this file said the August peg had gone — it had not; the
+shop never opened, so the peg was unspent, it simply had no date on it. It
+does now: **1 December 2026**, which is a thing a news desk can print. What
+carries the story either way is the thing itself: a venue built around
+deliberately doing nothing, and a drinks list with no coffee on it, on an
+island of beach clubs. Send via the contact form at thethaiger.com or their
+news tip address.
 
 **Subject:** A Bophut café built around the Dutch idea of "doing nothing" — and a bar with 23 sodas
 
@@ -95,7 +98,7 @@ thethaiger.com or their news tip address.
 >
 > A small Samui place that might suit your business or lifestyle desk.
 >
-> **niksen secret bar** opens in Bophut on [opening date]. The name comes from
+> **niksen secret bar** opens in Bophut on 1 December 2026. The name comes from
 > *niksen*, the Dutch practice of deliberately doing nothing — an odd thing to
 > build a venue around on an island known for beach clubs, and that's more or
 > less the point.
@@ -127,11 +130,11 @@ Article author: Wiyaporn Chooyok, last updated Feb 2025. Reach them through the
 contact form at cleverthai.com/contact-us or the footer email. The ask is a
 future update to the Samui bars piece, not a favour.
 
-**Subject:** For the next update of your Koh Samui bars guide — a Bophut bar opening soon
+**Subject:** For the next update of your Koh Samui bars guide — a Bophut bar opening 1 December
 
 > Hi Wiyaporn,
 >
-> I read your Koh Samui bars guide. One in Bophut opens on [opening date] that
+> I read your Koh Samui bars guide. One in Bophut opens on 1 December 2026 that
 > may be worth a look when you next refresh it.
 >
 > **niksen secret bar** will be a café by day and a small bar in the evening,

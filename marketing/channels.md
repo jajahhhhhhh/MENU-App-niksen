@@ -2,7 +2,7 @@
 
 Every link, one page. Shareable version: https://claude.ai/code/artifact/b0c87f09-859c-4075-b10d-d0f0336ba179
 
-**Not open yet** · Daily 07:30–14:00 · 17:00–23:00 when it is · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
+**Opening 1 December 2026** · Daily 07:30–14:00 · 17:00–23:00 from then · 15 Moo 2, Bo Phut, Koh Samui · +66 62 962 4644
 
 ## The essentials
 
